@@ -14,9 +14,7 @@ package object domain {
   }
 
   object Category {
-    def apply = props _
-
-    def props(name: CategoryName): Props = Props(new Category(name))
+    def apply(name: CategoryName): Props = Props(new Category(name))
   }
 
 }
