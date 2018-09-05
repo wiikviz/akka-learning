@@ -23,9 +23,11 @@ object Main extends App {
 
 
     val catList = Await.result(rootCategory ? GetSubcategories, timeout.duration).asInstanceOf[List[ActorRef]]
+    catList.zipWithIndex.foreach( (t)=> t._1 ! AddSubcategory(t._2.toString))
 
-
-    println(catList)
+    println("result="+catList)
+    println()
+    println(Await.result(rootCategory ? GetSubcategories, timeout.duration))
     StdIn.readLine()
   } finally {
     system.terminate()

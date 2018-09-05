@@ -10,13 +10,12 @@ class GroupingActor(count: Int, target: ActorRef) extends Actor with ActorLoggin
   val received = new ListBuffer[AnyRef]
 
   override def receive: Receive = {
-    case Terminated(targ) => context.stop(self)
     case msg: AnyRef =>
-      log.info("Receive {}/{} msg={}", received.size, count, msg)
       received.append(msg)
+      log.info("Receive {}/{} msg={}", received.size, count, msg)
       if (received.size == count) {
         target ! received.toList
-        received.clear()
+        context.stop(self)
       }
   }
 }

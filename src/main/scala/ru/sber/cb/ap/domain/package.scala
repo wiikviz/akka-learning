@@ -9,9 +9,10 @@ import scala.concurrent.duration._
 
 
 package object domain {
-  implicit val timeout = Timeout(5 seconds)
   type CategoryName = String
   type CategoryRegistry = HashMap[CategoryName, ActorRef]
+
+  implicit val timeout = Timeout(5 seconds)
   val emptyCategoryRegistry = HashMap.empty[CategoryName, ActorRef]
 
   class Category(val name: CategoryName) extends Actor with ActorLogging {
