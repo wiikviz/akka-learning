@@ -20,6 +20,8 @@ package object domain {
     override def postStop(): Unit = log.info("Category {} Created", name)
 
     override def receive: Receive = {
+      case GetSubcategories ⇒
+        sender() ! registry.values.toList
       case AddSubcategory(categoryName) ⇒
         sender() ! addSubcategory(categoryName)
     }
