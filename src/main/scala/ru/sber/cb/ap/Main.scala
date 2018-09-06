@@ -23,11 +23,22 @@ object Main extends App {
 
 
     val catList = Await.result(rootCategory ? GetSubcategories, timeout.duration).asInstanceOf[List[ActorRef]]
-    catList.zipWithIndex.foreach( (t)=> t._1 ! AddSubcategory(t._2.toString))
+    var i=0
+    for (a <- catList ){
+      a ! AddSubcategory(i.toString)
+      i+=1
+    }
 
-    println("result="+catList)
-    println()
-    println(Await.result(rootCategory ? GetSubcategories, timeout.duration))
+    val v1 = Await.result(rootCategory ? GetSubcategories, timeout.duration).asInstanceOf[List[ActorRef]]
+    println(s"result-1: ${v1.size} result=$v1")
+    val v2 = Await.result(rootCategory ? GetSubcategories, timeout.duration).asInstanceOf[List[ActorRef]]
+    println(s"result-2: ${v2.size} result=$v2")
+    val v3 = Await.result(rootCategory ? GetSubcategories, timeout.duration).asInstanceOf[List[ActorRef]]
+    println(s"result-3: ${v3.size} result=$v3")
+    val v4 = Await.result(rootCategory ? GetSubcategories, timeout.duration).asInstanceOf[List[ActorRef]]
+    println(s"result-4: ${v4.size} result=$v4")
+    val v5 = Await.result(rootCategory ? GetSubcategories, timeout.duration).asInstanceOf[List[ActorRef]]
+    println(s"result-5: ${v5.size} result=$v5")
     StdIn.readLine()
   } finally {
     system.terminate()

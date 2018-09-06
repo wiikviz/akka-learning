@@ -17,6 +17,7 @@ class GroupingActor(count: Int, target: ActorRef) extends Actor with ActorLoggin
         target ! received.toList
         context.stop(self)
       }
+    case x => throw new RuntimeException(s"WTF:$x")
   }
 }
 

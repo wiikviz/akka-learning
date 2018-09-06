@@ -1,10 +1,10 @@
 package ru.sber.cb.ap
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props, Stash}
 import akka.util.Timeout
 import ru.sber.cb.ap.domain.actor.GroupingActor
 
-import scala.collection.immutable.HashMap
+import scala.collection.immutable.{HashMap, Queue}
 import scala.concurrent.duration._
 
 
@@ -15,11 +15,12 @@ package object domain {
   implicit val timeout = Timeout(5 seconds)
   val emptyCategoryRegistry = HashMap.empty[CategoryName, ActorRef]
 
-  class Category(val name: CategoryName) extends Actor with ActorLogging {
+  class Category(val name: CategoryName) extends Actor with Stash with ActorLogging  {
 
     import Category._
+    private var queue = Queue.empty[Any]
 
-    var registry: CategoryRegistry = emptyCategoryRegistry
+    private var registry: CategoryRegistry = emptyCategoryRegistry
 
     override def preStart(): Unit = log.info("Category {} Created", name)
 
@@ -33,21 +34,28 @@ package object domain {
         if (registry.isEmpty)
           replayTo ! Nil
         else {
-          val collector = context.actorOf(GroupingActor(registry.size, self), "collector")
+          val collector = context.actorOf(GroupingActor(registry.size, self))
+          //context.watch(collector)
           registry.values.foreach(_ ! GetSubcategories(collector))
+          unstashAll()
           context.become(waitBySubcategoriesAggregate(replayTo))
         }
       case GetSubcategories =>
         self ! GetSubcategories(sender())
       case AddSubcategory(categoryName) =>
         sender() ! addSubcategory(categoryName)
+      case x => throw new RuntimeException(s"WTF:$x")
+      //case _ => stash()
     }
 
 
     private def waitBySubcategoriesAggregate(replayTo: ActorRef): Receive = {
       case listOfList: List[List[ActorRef]] =>
         replayTo ! (List(registry.values.toSeq.reverse) ::: listOfList).flatten
+        unstashAll()
         context.become(listen)
+      case x => throw new RuntimeException(s"WTF:$x")
+      //case _ => stash()
     }
 
     private def addSubcategory(subcategory: CategoryName): ActorRef = {
