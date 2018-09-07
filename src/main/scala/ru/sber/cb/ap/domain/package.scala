@@ -4,7 +4,7 @@ import akka.actor.{Actor, ActorLogging, ActorRef, Props, Stash}
 import akka.util.Timeout
 import ru.sber.cb.ap.domain.actor.GroupingActor
 
-import scala.collection.immutable.{HashMap, Queue}
+import scala.collection.immutable.HashMap
 import scala.concurrent.duration._
 
 
@@ -12,13 +12,12 @@ package object domain {
   type CategoryName = String
   type CategoryRegistry = HashMap[CategoryName, ActorRef]
 
-  implicit val timeout = Timeout(5 seconds)
+  implicit val timeout: Timeout = Timeout(5 seconds)
   val emptyCategoryRegistry = HashMap.empty[CategoryName, ActorRef]
 
-  class Category(val name: CategoryName) extends Actor with Stash with ActorLogging  {
+  class Category(val name: CategoryName) extends Actor with Stash with ActorLogging {
 
     import Category._
-    private var queue = Queue.empty[Any]
 
     private var registry: CategoryRegistry = emptyCategoryRegistry
 
@@ -35,7 +34,7 @@ package object domain {
           replayTo ! Nil
         else {
           val collector = context.actorOf(GroupingActor(registry.size, self))
-          //context.watch(collector)
+          context.watch(collector)
           registry.values.foreach(_ ! GetSubcategories(collector))
           unstashAll()
           context.become(waitBySubcategoriesAggregate(replayTo))
@@ -44,8 +43,10 @@ package object domain {
         self ! GetSubcategories(sender())
       case AddSubcategory(categoryName) =>
         sender() ! addSubcategory(categoryName)
-      case x => throw new RuntimeException(s"WTF:$x")
-      //case _ => stash()
+      //      case x =>
+      //        log.error("{}",x)
+      //        throw new RuntimeException(s"WTF:$x")
+      case _ => stash()
     }
 
 
@@ -54,13 +55,16 @@ package object domain {
         replayTo ! (List(registry.values.toSeq.reverse) ::: listOfList).flatten
         unstashAll()
         context.become(listen)
-      case x => throw new RuntimeException(s"WTF:$x")
-      //case _ => stash()
+      //case x => throw new RuntimeException(s"WTF:$x")
+      case _ => stash()
     }
 
     private def addSubcategory(subcategory: CategoryName): ActorRef = {
-      if (!registry.contains(subcategory))
-        registry = registry + (subcategory -> context.actorOf(Category(subcategory), subcategory))
+      if (!registry.contains(subcategory)) {
+        val sub = context.actorOf(Category(subcategory), subcategory)
+        context.watch(sub)
+        registry = registry + (subcategory -> sub)
+      }
 
       registry(subcategory)
     }
