@@ -6,7 +6,7 @@ import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
 
 object Workflow {
 
-  case class GetMeta(replyTo: Option[ActorRef] = None) extends Request
+  case class GetWorkflowMeta(replyTo: Option[ActorRef] = None) extends Request
 
   case class BindEntity(entityId: Long, replyTo: Option[ActorRef] = None) extends Request
 
