@@ -12,14 +12,25 @@ class CategorySpec() extends TestKit(ActorSystem("SubcategorySpec"))
   with Matchers
   with BeforeAndAfterAll {
 
+  val cat = system.actorOf(Category(CategoryMetaDefault("category")), "category")
+
   override def afterAll: Unit = {
     TestKit.shutdownActorSystem(system)
   }
 
-  "Category" when {
-    val cat = system.actorOf(Category(CategoryMetaDefault("category")), "category")
+  "An empty Category" when {
+    "Send ListSubcategory" should {
+      "send back SubcategoryList with empty actor ref" in {
+        cat ! ListSubcategory()
+        expectMsgPF() {
+          case SubcategoryCreated(catA) =>
+            catA ! GetCategoryMeta()
+            expectMsg(CategoryMetaResponse("cat-a"))
+        }
+      }
+    }
     "Send AddSubcategory message" should {
-      "sent back SubcategoryCreated" in {
+      "send back SubcategoryCreated" in {
         val meta = CategoryMetaDefault("cat-a")
         cat ! AddSubcategory(meta)
         expectMsgPF() {
@@ -30,5 +41,4 @@ class CategorySpec() extends TestKit(ActorSystem("SubcategorySpec"))
       }
     }
   }
-
 }
