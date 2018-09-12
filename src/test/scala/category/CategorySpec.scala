@@ -20,13 +20,9 @@ class CategorySpec() extends TestKit(ActorSystem("SubcategorySpec"))
 
   "An empty Category" when {
     "Send ListSubcategory" should {
-      "send back SubcategoryList with empty actor ref" in {
+      "send back SubcategoryList with empty actors ref" in {
         cat ! ListSubcategory()
-        expectMsgPF() {
-          case SubcategoryCreated(catA) =>
-            catA ! GetCategoryMeta()
-            expectMsg(CategoryMetaResponse("cat-a"))
-        }
+        expectMsg(SubcategoryList(Nil))
       }
     }
     "Send AddSubcategory message" should {
