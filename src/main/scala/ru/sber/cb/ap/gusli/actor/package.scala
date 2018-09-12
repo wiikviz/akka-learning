@@ -7,7 +7,7 @@ package object actor {
   sealed trait Message
 
   trait Request extends Message {
-    def replayTo: Option[ActorRef]
+    def replyTo: Option[ActorRef]
   }
 
   trait Response extends Message

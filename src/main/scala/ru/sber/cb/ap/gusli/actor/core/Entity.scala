@@ -5,9 +5,9 @@ import akka.actor.ActorRef
 import ru.sber.cb.ap.gusli.actor.{ActorListResponse, ActorResponse, BaseActor, Request}
 
 object Entity {
-  case class AddChildEntity(meta: EntityMeta, replayTo: Option[ActorRef] = None) extends Request
+  case class AddChildEntity(meta: EntityMeta, replyTo: Option[ActorRef] = None) extends Request
 
-  case class GetChildren(replayTo: Option[ActorRef] = None) extends Request
+  case class GetChildren(replyTo: Option[ActorRef] = None) extends Request
 
   case class EntityCreated(actorRef: ActorRef) extends ActorResponse
 

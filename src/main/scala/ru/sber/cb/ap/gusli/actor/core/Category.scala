@@ -9,15 +9,15 @@ import scala.collection.immutable.HashMap
 object Category {
   def apply(meta: CategoryMeta): Props = Props(new Category(meta))
 
-  case class GetCategoryMeta(replayTo: Option[ActorRef] = None) extends Request
+  case class GetCategoryMeta(replyTo: Option[ActorRef] = None) extends Request
 
-  case class AddSubcategory(meta: CategoryMeta, replayTo: Option[ActorRef] = None) extends Request
+  case class AddSubcategory(meta: CategoryMeta, replyTo: Option[ActorRef] = None) extends Request
 
-  case class ListSubcategory(replayTo: Option[ActorRef] = None) extends Request
+  case class ListSubcategory(replyTo: Option[ActorRef] = None) extends Request
 
-  case class AddWorkflow(meta: WorkflowMeta, replayTo: Option[ActorRef] = None) extends Request
+  case class AddWorkflow(meta: WorkflowMeta, replyTo: Option[ActorRef] = None) extends Request
 
-  case class ListWorkflow(replayTo: Option[ActorRef] = None) extends Request
+  case class ListWorkflow(replyTo: Option[ActorRef] = None) extends Request
 
   //
 
@@ -41,18 +41,18 @@ class Category(meta: CategoryMeta) extends BaseActor {
 
   override def receive: Receive = {
     case GetCategoryMeta(sendTo) =>
-      val replayTo = sendTo.getOrElse(sender())
-      replayTo ! CategoryMetaResponse(meta.name)
+      val replyTo = sendTo.getOrElse(sender())
+      replyTo ! CategoryMetaResponse(meta.name)
 
     case m@AddSubcategory(meta, sendTo) =>
       log.info("{}", m)
-      val replayTo = sendTo.getOrElse(sender())
+      val replyTo = sendTo.getOrElse(sender())
       registry.get(meta.name) match {
-        case Some(subcat) => replayTo ! subcat
+        case Some(subcat) => replyTo ! subcat
         case None =>
           val subcat = context.actorOf(Category(meta))
           registry = registry + (meta.name -> subcat)
-          replayTo ! SubcategoryCreated(subcat)
+          replyTo ! SubcategoryCreated(subcat)
       }
   }
 }
