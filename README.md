@@ -1,2 +1,2 @@
-# akka-learning
-Sample akka application
+# grenki-cli
+Grenki universal common line interface
