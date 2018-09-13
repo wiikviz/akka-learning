@@ -12,28 +12,28 @@ class CategorySpec() extends TestKit(ActorSystem("CategorySpec"))
   with WordSpecLike
   with Matchers
   with BeforeAndAfterAll {
-
-  val cat = system.actorOf(Category(CategoryMetaDefault("category")), "category")
-
+  
+  val cat = system.actorOf(Category(CategoryMetaDefault("category-empty")), "category-empty")
+  
   override def afterAll: Unit = {
     TestKit.shutdownActorSystem(system)
   }
-
+  
   "An empty Category" when {
-    "send GetCategoryMeta" should {
+    "Send GetCategoryMeta" should {
       cat ! GetCategoryMeta()
       "send back CategoryMetaResponse(\"category\")" in {
         expectMsg(CategoryMetaResponse("category"))
       }
     }
-
+    
     "send ListSubcategory" should {
       "Send back SubcategoryList with empty actors ref" in {
         cat ! ListSubcategory()
         expectMsg(SubcategoryList(Nil))
       }
     }
-
+    
     "send AddSubcategory" should {
       "send back SubcategoryCreated" in {
         val meta = CategoryMetaDefault("cat-a")
@@ -45,7 +45,7 @@ class CategorySpec() extends TestKit(ActorSystem("CategorySpec"))
         }
       }
     }
-
+    
     "send AddWorkflow" should {
       "send back WorkflowCreated" in {
         val meta = WorkflowMetaDefault("wf-1", "file.sql")
