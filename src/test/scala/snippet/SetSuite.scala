@@ -1,7 +1,8 @@
 package snippet
 
-import org.scalatest.FunSuite
+import org.scalatest.{FunSuite, Ignore}
 
+@Ignore
 class SetSuite extends FunSuite {
 
   test("An empty Set should have size 0") {

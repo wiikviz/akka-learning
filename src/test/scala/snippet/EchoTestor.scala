@@ -2,8 +2,9 @@ package snippet
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestActors, TestKit}
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import org.scalatest.{BeforeAndAfterAll, Ignore, Matchers, WordSpecLike}
 
+@Ignore
 class EchoTestor() extends TestKit(ActorSystem("MySpec")) with ImplicitSender
   with WordSpecLike with Matchers with BeforeAndAfterAll {
   override def afterAll: Unit = {

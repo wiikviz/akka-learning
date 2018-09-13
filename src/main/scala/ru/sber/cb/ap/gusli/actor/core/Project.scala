@@ -6,7 +6,7 @@ import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
 object Project {
   def apply(meta: ProjectMeta): Props = Props(new Project(meta))
 
-  case class GetMeta(replyTo: Option[ActorRef] = None) extends Request
+  case class GetProjectMeta(replyTo: Option[ActorRef] = None) extends Request
 
   case class GetCategoryRoot(replyTo: Option[ActorRef] = None) extends Request
 
@@ -23,7 +23,7 @@ object Project {
 class Project(meta: ProjectMeta) extends BaseActor {
   import Project._
   override def receive: Receive = {
-    case GetMeta(replyTo) => replyTo.getOrElse(sender()) ! ProjectMetaResponse(meta.name)
+    case GetProjectMeta(replyTo) => replyTo.getOrElse(sender()) ! ProjectMetaResponse(meta.name)
   }
 }
 

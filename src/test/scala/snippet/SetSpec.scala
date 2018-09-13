@@ -1,7 +1,8 @@
 package snippet
 
-import org.scalatest.FlatSpec
+import org.scalatest.{FlatSpec, Ignore}
 
+@Ignore
 class SetSpec extends FlatSpec {
 
   "An empty Set" should "have size 0" in {
