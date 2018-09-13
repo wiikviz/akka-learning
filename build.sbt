@@ -1,8 +1,8 @@
 import sbt.Resolver
 
-name := "akka-category"
+name := "gucli"
 
-version := "0.1"
+version := "0.3"
 
 scalaVersion := "2.12.6"
 

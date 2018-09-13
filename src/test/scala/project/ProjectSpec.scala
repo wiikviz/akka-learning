@@ -9,27 +9,29 @@ import ru.sber.cb.ap.gusli.actor.core._
 
 class ProjectSpec extends TestKit(ActorSystem("ProjectSpec")) with ImplicitSender with WordSpecLike with Matchers with BeforeAndAfterAll {
   
-  val proj: ActorRef = system.actorOf(Project(ProjectMetaDefault("project")), "project")
-  
+  val project: ActorRef = system.actorOf(Project(ProjectMetaDefault("project")), "project")
+
   override def afterAll: Unit = {
     TestKit.shutdownActorSystem(system)
   }
-  
+
   "A new project" when {
     "send GetProjectMeta" should {
-       proj ! GetProjectMeta()
+       project ! GetProjectMeta()
       "send back ProjectMetaResponse" in {
         expectMsg(ProjectMetaResponse("project"))
       }
     }
+
     "send GetCategoryRoot" should {
-       proj ! GetCategoryRoot()
+       project ! GetCategoryRoot()
       "send back CategoryRoot" in {
         expectMsgAnyClassOf(classOf[CategoryRoot])
       }
     }
+
     "send GetEntityRoot" should {
-      proj ! GetEntityRoot()
+      project ! GetEntityRoot()
       "send back EntityRoot" in {
         expectMsgAnyClassOf(classOf[EntityRoot])
       }
