@@ -57,5 +57,14 @@ class CategorySpec() extends TestKit(ActorSystem("CategorySpec"))
         }
       }
     }
+
+    "Send ListWorkflow message" should {
+      cat ! ListWorkflow()
+      "send back empty WorkflowList" in {
+        expectMsgPF() {
+          case WorkflowList(wfList) => 
+        }
+      }
+    }
   }
 }
