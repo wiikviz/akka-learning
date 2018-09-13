@@ -1,26 +1,27 @@
 package category
 
 import akka.actor.ActorSystem
-import akka.testkit.{ImplicitSender, TestKit}
+import akka.testkit.{ImplicitSender, TestKit, TestProbe}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 import ru.sber.cb.ap.gusli.actor.core.Category.{AddSubcategory, SubcategoryCreated, _}
 import ru.sber.cb.ap.gusli.actor.core.Workflow.{GetWorkflowMeta, WorkflowMetaResponse}
 import ru.sber.cb.ap.gusli.actor.core._
 
-class CategorySpec() extends TestKit(ActorSystem("CategorySpec"))
+class CategorySpec extends TestKit(ActorSystem("CategorySpec"))
   with ImplicitSender
   with WordSpecLike
   with Matchers
   with BeforeAndAfterAll {
   
-  val cat = system.actorOf(Category(CategoryMetaDefault("category-empty")), "category-empty")
+  private val probe: TestProbe = TestProbe()
+  val cat = system.actorOf(Category(CategoryMetaDefault("category"), probe.ref), "category")
   
   override def afterAll: Unit = {
     TestKit.shutdownActorSystem(system)
   }
   
   "An empty Category" when {
-    "Send GetCategoryMeta" should {
+    "send GetCategoryMeta" should {
       cat ! GetCategoryMeta()
       "send back CategoryMetaResponse(\"category\")" in {
         expectMsg(CategoryMetaResponse("category"))
@@ -28,7 +29,7 @@ class CategorySpec() extends TestKit(ActorSystem("CategorySpec"))
     }
     
     "send ListSubcategory" should {
-      "Send back SubcategoryList with empty actors ref" in {
+      "send back SubcategoryList with empty actors ref" in {
         cat ! ListSubcategory()
         expectMsg(SubcategoryList(Nil))
       }

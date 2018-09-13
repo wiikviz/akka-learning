@@ -1,13 +1,12 @@
 package ru.sber.cb.ap.gusli.actor.core
 
-import akka.actor.Actor.emptyBehavior
 import akka.actor.{ActorRef, Props}
 import ru.sber.cb.ap.gusli.actor._
 
 import scala.collection.immutable.HashMap
 
 object Category {
-  def apply(meta: CategoryMeta): Props = Props(new Category(meta))
+  def apply(meta: CategoryMeta, project: ActorRef): Props = Props(new Category(meta, project))
 
   case class GetCategoryMeta(replyTo: Option[ActorRef] = None) extends Request
 
@@ -33,12 +32,13 @@ object Category {
 
 }
 
-class Category(meta: CategoryMeta) extends BaseActor {
+class Category(meta: CategoryMeta, project: ActorRef) extends BaseActor {
 
   import Category._
-
-  private var registry: HashMap[String, ActorRef] = HashMap.empty[String, ActorRef]
-
+  
+  private var subcategoresRegistry: HashMap[String, ActorRef] = HashMap.empty[String, ActorRef]
+  private var workflowsRegistry: HashMap[String, ActorRef] = HashMap.empty[String, ActorRef]
+  
   override def receive: Receive = {
     case GetCategoryMeta(sendTo) =>
       val replyTo = sendTo.getOrElse(sender())
@@ -47,13 +47,29 @@ class Category(meta: CategoryMeta) extends BaseActor {
     case m@AddSubcategory(meta, sendTo) =>
       log.info("{}", m)
       val replyTo = sendTo.getOrElse(sender())
-      registry.get(meta.name) match {
+      subcategoresRegistry.get(meta.name) match {
         case Some(subcat) => replyTo ! subcat
         case None =>
-          val subcat = context.actorOf(Category(meta))
-          registry = registry + (meta.name -> subcat)
+          val subcat = context.actorOf(Category(meta, project))
+          subcategoresRegistry = subcategoresRegistry + (meta.name -> subcat)
           replyTo ! SubcategoryCreated(subcat)
       }
+    case ListSubcategory(sendTo) =>
+      sendTo getOrElse sender ! SubcategoryList(subcategoresRegistry.values.toSeq)
+      
+    case m@AddWorkflow(meta, sendTo) =>
+      log.info("{}", m)
+      val replyTo = sendTo getOrElse sender
+      val fromRegisty = workflowsRegistry get meta.name
+      if(fromRegisty isEmpty){
+        val newWorkflow = context.actorOf(Workflow(meta, project))
+        workflowsRegistry = workflowsRegistry + (meta.name -> newWorkflow)
+        replyTo ! WorkflowCreated(newWorkflow)
+      } else replyTo ! WorkflowCreated(fromRegisty.get)
+
+    case ListWorkflow(sendTo) =>
+      sendTo getOrElse sender ! WorkflowList(workflowsRegistry.values.toSeq)
+      
   }
 }
 

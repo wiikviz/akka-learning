@@ -21,13 +21,13 @@ package object actor {
 
   abstract class BaseActor extends Actor with Stash with ActorLogging {
     override def unhandled(message: Any): Unit = {
-      log.info(Console.RED + "unhandled={}"+ Console.RESET, message)
+      log.info(Console.RED + s"unhandled = {} from ${sender}"+ Console.RESET, message)
 
       super.unhandled(message)
     }
 
     override def preStart(): Unit = {
-      log.info("preStart={}", this)
+      log.info("preStart = {}", this)
       super.preStart()
     }
   }
