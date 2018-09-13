@@ -22,7 +22,6 @@ object Workflow {
 class Workflow(meta: WorkflowMeta, project: ActorRef) extends BaseActor {
   override def receive: Receive = {
     case GetWorkflowMeta(sendTo) => sendTo getOrElse sender ! WorkflowMetaResponse(meta.name, meta.sqlFile)
-
   }
 }
 
