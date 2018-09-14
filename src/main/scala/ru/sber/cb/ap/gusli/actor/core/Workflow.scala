@@ -33,6 +33,7 @@ class Workflow(meta: WorkflowMeta, project: ActorRef) extends BaseActor {
   import Workflow._
 
   var awaitEntityBind: Map[Long, immutable.List[ActorRef]] = HashMap.empty[Long, List[ActorRef]]
+  var boundEntitySet: Set[ActorRef] = Set.empty[ActorRef]
 
   override def receive: Receive = {
     case GetWorkflowMeta(sendTo) => sendTo.getOrElse(sender) ! WorkflowMetaResponse(meta.name, meta.sqlFile)
@@ -52,11 +53,12 @@ class Workflow(meta: WorkflowMeta, project: ActorRef) extends BaseActor {
       awaitEntityBind = awaitEntityBind.filterKeys(id => id != entityId)
 
     case EntityFound(meta, entityRef) =>
+      boundEntitySet = boundEntitySet + entityRef
       awaitEntityBind getOrElse(meta.id, Nil) foreach (_ ! BindEntitySuccessful(meta.id))
       awaitEntityBind = awaitEntityBind - meta.id
 
-//    case ListEntities(sendTo) =>
-//      sendTo getOrElse sender ! ListEntities(workflowsRegistry.values.toSeq)
+    case ListEntities(sendTo) =>
+      sendTo getOrElse sender ! EntityList(boundEntitySet.toSeq)
 
   }
 }
