@@ -30,12 +30,12 @@ case class Entity(meta: EntityMeta) extends BaseActor {
     case m @ AddChildEntity(meta, sendTo) =>
       log.info("{}", m)
       val replyTo = sendTo getOrElse sender
-      val fromRegisty = children get meta.id
-      if(fromRegisty isEmpty){
+      val fromRegistry = children get meta.id
+      if(fromRegistry isEmpty){
         val newEntity = context actorOf Entity(meta)
         children = children + (meta.id -> newEntity)
         replyTo ! EntityCreated(newEntity)
-      } else replyTo ! EntityCreated(fromRegisty.get)
+      } else replyTo ! EntityCreated(fromRegistry.get)
     case GetChildren(sendTo) =>
       sendTo getOrElse sender ! ChildrenEntityList(children.values.toSeq)
   }
