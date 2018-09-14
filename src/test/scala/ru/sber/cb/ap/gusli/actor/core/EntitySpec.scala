@@ -13,9 +13,36 @@ class EntitySpec extends TestKit(ActorSystem("EntitySpec")) with ImplicitSender 
   "An Entity" when {
     val entity: ActorRef = system.actorOf(Entity(EntityMetaDefault(0, "root-entity", "file.ent")))
     "receive GetEntityMeta" should {
-      entity ! GetEntityMeta()
       "send back EntityMetaResponse" in {
+        entity ! GetEntityMeta()
         expectMsg(EntityMetaResponse(0, "root-entity", "file.ent"))
+      }
+    }
+    
+    "receive GetChildren" should {
+      "send back an empty ChildrenEntityList" in {
+        entity ! GetChildren()
+        expectMsg(ChildrenEntityList(Nil))
+      }
+    }
+    
+    "receive AddChildEntity" should {
+      "send back EntityCreated" in {
+        entity ! AddChildEntity(EntityMetaDefault(1, "child-entity", "file.ent"))
+        expectMsgPF() {
+          case EntityCreated(childEntity) =>
+            childEntity ! GetEntityMeta()
+            expectMsg(EntityMetaResponse(1, "child-entity", "file.ent"))
+        }
+      }
+    }
+    
+    "receive again GetChildren" should {
+      "send back empty ChildrenEntityList" in {
+        entity ! GetChildren()
+        expectMsgPF() {
+          case ChildrenEntityList(list) => assert(list.size == 1)
+        }
       }
     }
   }
