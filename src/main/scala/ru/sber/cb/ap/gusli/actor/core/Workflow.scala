@@ -1,7 +1,6 @@
 package ru.sber.cb.ap.gusli.actor.core
 
 import akka.actor.{ActorRef, Props}
-import ru.sber.cb.ap.gusli.actor.core.Workflow.{BindEntity, BindEntityFailedBecauseItNotExists, GetWorkflowMeta, WorkflowMetaResponse}
 import ru.sber.cb.ap.gusli.actor.core.Project.{EntityNotFound, FindEntity}
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
 
@@ -25,6 +24,7 @@ object Workflow {
 
 class Workflow(meta: WorkflowMeta, project: ActorRef) extends BaseActor {
   import Workflow._
+
   var awaitEntityBind: Map[Long, immutable.List[ActorRef]] = HashMap.empty[Long, List[ActorRef]]
 
   override def receive: Receive = {
@@ -37,10 +37,12 @@ class Workflow(meta: WorkflowMeta, project: ActorRef) extends BaseActor {
       awaitEntityBind = awaitEntityBind + (entityId -> refs)
       project ! FindEntity(entityId)
 
-    case EntityNotFound(entityId)=>
+    case EntityNotFound(entityId) =>
       val refs = awaitEntityBind.getOrElse(entityId, List[ActorRef]())
       for (a <- refs)
         a ! BindEntityFailedBecauseItNotExists(entityId)
+
+      awaitEntityBind = awaitEntityBind.filterKeys(id => id != entityId)
   }
 }
 
