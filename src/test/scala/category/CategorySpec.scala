@@ -28,10 +28,17 @@ class CategorySpec extends TestKit(ActorSystem("CategorySpec"))
       }
     }
     
-    "send ListSubcategory" should {
+    "send first time ListSubcategory" should {
       "send back SubcategoryList with empty actors ref" in {
         cat ! ListSubcategory()
         expectMsg(SubcategoryList(Nil))
+      }
+    }
+  
+    "send first time ListWorkflow" should {
+      "send back WorkflowList with empty actors ref" in {
+        cat ! ListWorkflow()
+        expectMsg(WorkflowList(Nil))
       }
     }
     
@@ -55,6 +62,66 @@ class CategorySpec extends TestKit(ActorSystem("CategorySpec"))
           case WorkflowCreated(wf) =>
             wf ! GetWorkflowMeta()
             expectMsg(WorkflowMetaResponse("wf-1", "file.sql"))
+        }
+      }
+    }
+  
+    "send second time ListSubcategory" should {
+      "send back SubcategoryList with 1 actor ref" in {
+        cat ! ListSubcategory()
+        expectMsgPF() {
+          case SubcategoryList(list) => assert(list.size == 1)
+        }
+      }
+    }
+  
+    "send second time ListWorkflow" should {
+      "send back WorkflowList with 1 actor ref" in {
+        cat ! ListWorkflow()
+        expectMsgPF() {
+          case WorkflowList(list) => assert(list.size == 1)
+        }      }
+    }
+  
+  
+    "send second time AddSubcategory" should {
+      "send back SubcategoryCreated" in {
+        val meta = CategoryMetaDefault("cat-b")
+        cat ! AddSubcategory(meta)
+        expectMsgPF() {
+          case SubcategoryCreated(catA) =>
+            catA ! GetCategoryMeta()
+            expectMsg(CategoryMetaResponse("cat-b"))
+        }
+      }
+    }
+  
+    "send second time AddWorkflow" should {
+      "send back WorkflowCreated" in {
+        val meta = WorkflowMetaDefault("wf-2", "file.sql")
+        cat ! AddWorkflow(meta)
+        expectMsgPF() {
+          case WorkflowCreated(wf) =>
+            wf ! GetWorkflowMeta()
+            expectMsg(WorkflowMetaResponse("wf-2", "file.sql"))
+        }
+      }
+    }
+  
+    "send third time ListSubcategory" should {
+      "send back SubcategoryList with empty actors ref" in {
+        cat ! ListSubcategory()
+        expectMsgPF() {
+          case SubcategoryList(list) => assert(list.size == 2)
+        }
+      }
+    }
+  
+    "send third time ListWorkflow" should {
+      "send back WorkflowList with empty actors ref" in {
+        cat ! ListWorkflow()
+        expectMsgPF() {
+          case WorkflowList(list) => assert(list.size == 2)
         }
       }
     }
