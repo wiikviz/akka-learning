@@ -1,8 +1,8 @@
 package ru.sber.cb.ap.gusli.actor.core
 
 import akka.actor.{ActorRef, Props}
-import ru.sber.cb.ap.gusli.actor.core.Project.{EntityNotFound, FindEntity}
-import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
+import ru.sber.cb.ap.gusli.actor.core.Project.{EntityFound, EntityNotFound, FindEntity}
+import ru.sber.cb.ap.gusli.actor.{ActorListResponse, BaseActor, Request, Response}
 
 import scala.collection.immutable
 import scala.collection.immutable.HashMap
@@ -12,17 +12,24 @@ object Workflow {
 
   case class GetWorkflowMeta(replyTo: Option[ActorRef] = None) extends Request
 
+  case class ListEntities(replyTo: Option[ActorRef] = None) extends Request
+
   case class BindEntity(entityId: Long, replyTo: Option[ActorRef] = None) extends Request
+
+
 
   case class BindEntitySuccessful(entityId: Long) extends Response
 
   case class BindEntityFailedBecauseItNotExists(entityId: Long) extends Response
+
+  case class EntityList(actorList: Seq[ActorRef]) extends ActorListResponse
 
   case class WorkflowMetaResponse(name: String, sqlFile: String) extends Response with WorkflowMeta
 
 }
 
 class Workflow(meta: WorkflowMeta, project: ActorRef) extends BaseActor {
+
   import Workflow._
 
   var awaitEntityBind: Map[Long, immutable.List[ActorRef]] = HashMap.empty[Long, List[ActorRef]]
@@ -43,6 +50,14 @@ class Workflow(meta: WorkflowMeta, project: ActorRef) extends BaseActor {
         a ! BindEntityFailedBecauseItNotExists(entityId)
 
       awaitEntityBind = awaitEntityBind.filterKeys(id => id != entityId)
+
+    case EntityFound(meta, entityRef) =>
+      awaitEntityBind getOrElse(meta.id, Nil) foreach (_ ! BindEntitySuccessful(meta.id))
+      awaitEntityBind = awaitEntityBind - meta.id
+
+//    case ListEntities(sendTo) =>
+//      sendTo getOrElse sender ! ListEntities(workflowsRegistry.values.toSeq)
+
   }
 }
 

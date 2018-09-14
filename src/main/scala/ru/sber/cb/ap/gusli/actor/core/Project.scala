@@ -34,6 +34,7 @@ class Project(meta: ProjectMeta) extends BaseActor {
     case GetProjectMeta(sendTo) => sendTo getOrElse sender ! ProjectMetaResponse(meta.name)
     case GetCategoryRoot(sendTo) => sendTo getOrElse sender ! CategoryRoot(context.self)
     case GetEntityRoot(sendTo) => sendTo getOrElse sender ! EntityRoot(context.self)
+    case FindEntity(id, sendTo) => sendTo getOrElse sender ! EntityNotFound(id)
   }
 }
 
