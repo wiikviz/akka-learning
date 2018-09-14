@@ -1,4 +1,4 @@
-package workflow
+package ru.sber.cb.ap.gusli.actor.core.workflow
 
 import akka.actor.{ActorRef, ActorSystem}
 import akka.testkit.{ImplicitSender, TestKit, TestProbe}

@@ -1,4 +1,4 @@
-package project
+package ru.sber.cb.ap.gusli.actor.core.project
 
 import akka.actor.{ActorRef, ActorSystem}
 import akka.testkit.{ImplicitSender, TestKit}

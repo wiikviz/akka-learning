@@ -1,9 +1,10 @@
-package ru.sber.cb.ap.gusli.actor.core
+package ru.sber.cb.ap.gusli.actor.core.entity
 
 import akka.actor.{ActorRef, ActorSystem}
-import akka.testkit.{ImplicitSender, TestKit, TestProbe}
+import akka.testkit.{ImplicitSender, TestKit}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 import ru.sber.cb.ap.gusli.actor.core.Entity._
+import ru.sber.cb.ap.gusli.actor.core.{Entity, EntityMetaDefault}
 
 class EntitySpec extends TestKit(ActorSystem("EntitySpec")) with ImplicitSender with WordSpecLike with Matchers with BeforeAndAfterAll {
   override def afterAll: Unit = {

@@ -1,4 +1,4 @@
-package category
+package ru.sber.cb.ap.gusli.actor.core.category
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit, TestProbe}

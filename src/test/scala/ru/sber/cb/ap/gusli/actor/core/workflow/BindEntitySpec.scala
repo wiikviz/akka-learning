@@ -1,4 +1,4 @@
-package workflow
+package ru.sber.cb.ap.gusli.actor.core.workflow
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit, TestProbe}
@@ -16,7 +16,7 @@ class BindEntitySpec extends TestKit(ActorSystem("BindEntity")) with ImplicitSen
     TestKit.shutdownActorSystem(system)
   }
 
-  "bind entity to workflow with project where it's entity not exists" must {
+  "bind entity to project where it's entity not exists" must {
     workflow ! BindEntity(1)
     projectProbe.expectMsgAnyClassOf(classOf[FindEntity])
     projectProbe.reply(EntityNotFound(1))
@@ -25,7 +25,7 @@ class BindEntitySpec extends TestKit(ActorSystem("BindEntity")) with ImplicitSen
     }
   }
 
-  "bind entity to workflow with project where it's entity exists" must {
+  "bind entity to project where it's entity exists" must {
     workflow ! BindEntity(2)
     projectProbe.expectMsgAnyClassOf(classOf[FindEntity])
     val entity1 = TestProbe()
