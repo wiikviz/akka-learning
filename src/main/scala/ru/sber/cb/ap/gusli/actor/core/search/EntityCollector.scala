@@ -1,16 +1,19 @@
-package ru.sber.cb.ap.gusli.actor.core
+package ru.sber.cb.ap.gusli.actor.core.search
 
-
-import akka.pattern.ask
-
-import scala.concurrent.{Await, Future}
-import scala.concurrent.duration._
 import akka.actor.{ActorRef, Props}
+import akka.pattern.ask
+import akka.util.Timeout
 import ru.sber.cb.ap.gusli.actor._
 import ru.sber.cb.ap.gusli.actor.core.Entity.GetAllChildren
-import ru.sber.cb.ap.gusli.actor.core.EntityCollector._
+import ru.sber.cb.ap.gusli.actor.core.search.EntityCollector.{AllSubEntities, GetAllSubEntities}
+
+import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class EntityCollector(val entitiList: Seq[ActorRef]) extends BaseActor{
+  implicit val timeout = Timeout(5 seconds)
+
   override def receive: Receive = {
     case GetAllSubEntities(sendTo) =>
       val tt: Seq[Future[Seq[ActorRef]]] = entitiList.map(_ ? GetAllChildren(sendTo))

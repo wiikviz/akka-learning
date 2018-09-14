@@ -3,7 +3,8 @@ package ru.sber.cb.ap.gusli.actor.core
 import akka.actor.{ActorRef, Props}
 import ru.sber.cb.ap.gusli.actor._
 import ru.sber.cb.ap.gusli.actor.core.Entity._
-import ru.sber.cb.ap.gusli.actor.core.EntityCollector.GetAllSubEntities
+import ru.sber.cb.ap.gusli.actor.core.search.EntityCollector
+import ru.sber.cb.ap.gusli.actor.core.search.EntityCollector.GetAllSubEntities
 
 import scala.collection.immutable.HashMap
 
@@ -17,8 +18,6 @@ object Entity {
   case class GetChildren(replyTo: Option[ActorRef] = None) extends Request
 
   case class GetAllChildren(replyTo: Option[ActorRef] = None) extends Request
-
-
 
   case class EntityMetaResponse(id: Long, name: String, path: String) extends Response with EntityMeta
   
