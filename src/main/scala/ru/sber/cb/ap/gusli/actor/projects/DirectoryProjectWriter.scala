@@ -9,9 +9,7 @@ object DirectoryProjectWriter {
   def apply(): Props = Props(new DirectoryProjectWriter())
   
   case class WriteProject(path: Path, replyTo: Option[ActorRef] = None) extends Request
-  
   case class ProjectWrited() extends Response
-  
   case class ProjectNotWrited() extends Response
 }
 
