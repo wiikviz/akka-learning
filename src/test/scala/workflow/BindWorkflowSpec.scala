@@ -12,7 +12,7 @@ class BindWorkflowSpec extends TestKit(ActorSystem("BindWorkflowSpec")) with Imp
     TestKit.shutdownActorSystem(system)
   }
 
-  "Bind Entity to Workflow with project where entity not exists" must {
+  "bind entity to workflow with project where it's entity not exists" must {
     val project = system.actorOf(Props(new Actor {
       def receive = {
         case FindEntity(entityId, _) => sender() ! EntityNotFound(entityId)
