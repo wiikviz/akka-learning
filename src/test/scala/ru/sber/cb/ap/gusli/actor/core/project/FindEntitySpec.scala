@@ -17,7 +17,6 @@ class FindEntitySpec extends TestKit(ActorSystem("FindEntitySpec")) with Implici
   }
 
   "Project" when {
-
     "it's have no entities" should {
       "when receive FindEntity(1) send back EntityNotFound(1)" in {
         project ! FindEntity(1)
@@ -28,22 +27,18 @@ class FindEntitySpec extends TestKit(ActorSystem("FindEntitySpec")) with Implici
     "add entity to entity root" should {
       var entity1Ref: Option[ActorRef] = None
       val entity1Meta = EntityMetaDefault(1, "entity1", "/path1")
-
       "receive GetEntityRoot" in {
         project ! GetEntityRoot()
         expectMsgPF() {
           case EntityRoot(root) =>
             root ! GetChildren()
             expectMsg(ChildrenEntityList(Nil))
+
             root ! AddChildEntity(entity1Meta)
-
-
             expectMsgPF() {
               case EntityCreated(entity1) =>
                 entity1Ref = Some(entity1)
             }
-
-
         }
       }
 
