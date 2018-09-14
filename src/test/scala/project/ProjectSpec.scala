@@ -36,6 +36,13 @@ class ProjectSpec extends TestKit(ActorSystem("ProjectSpec")) with ImplicitSende
         expectMsgAnyClassOf(classOf[EntityRoot])
       }
     }
+  
+    "send FindEntity(-2)" should {
+      project ! FindEntity(-2)
+      "send back EntityNotFound(-2)" in {
+        expectMsg(EntityNotFound(-2))
+      }
+    }
   }
 }
 
