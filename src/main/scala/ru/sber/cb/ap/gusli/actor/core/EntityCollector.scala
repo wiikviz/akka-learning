@@ -16,7 +16,7 @@ class EntityCollector(val entitiList: Seq[ActorRef]) extends BaseActor{
       val tt: Seq[Future[Seq[ActorRef]]] = entitiList.map(_ ? GetAllChildren(sendTo))
       .map(_ map{case AllSubEntities(actorList) => actorList})
       val ttt: Seq[ActorRef] = tt.flatMap(Await.result(_, 1 second))
-      sendTo getOrElse sender ! AllSubEntities(ttt)
+      sendTo getOrElse sender ! AllSubEntities(ttt ++ entitiList)
   }
 }
 
