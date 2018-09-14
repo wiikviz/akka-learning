@@ -1,7 +1,7 @@
 package ru.sber.cb.ap.gusli.actor.core
 
 import akka.actor.{ActorRef, Props}
-import ru.sber.cb.ap.gusli.actor.core.Workflow.{GetWorkflowMeta, WorkflowMetaResponse}
+import ru.sber.cb.ap.gusli.actor.core.Workflow.{BindEntity, BindEntityFailedBecauseItNotExists, GetWorkflowMeta, WorkflowMetaResponse}
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
 
 object Workflow {
@@ -22,6 +22,7 @@ object Workflow {
 class Workflow(meta: WorkflowMeta, project: ActorRef) extends BaseActor {
   override def receive: Receive = {
     case GetWorkflowMeta(sendTo) => sendTo getOrElse sender ! WorkflowMetaResponse(meta.name, meta.sqlFile)
+    case BindEntity(id,sendTo) => sendTo getOrElse sender ! BindEntityFailedBecauseItNotExists(id)
   }
 }
 
