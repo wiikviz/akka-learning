@@ -23,22 +23,21 @@ object Entity {
 }
 
 case class Entity(meta: EntityMeta) extends BaseActor {
-  private var subentitesRegistry: HashMap[Long, ActorRef] = HashMap.empty[Long, ActorRef]
-  
+  private var children: HashMap[Long, ActorRef] = HashMap.empty[Long, ActorRef]
+
   override def receive: Receive = {
-  
     case m @ GetEntityMeta(sendTo) => sendEntityMeta(sendTo)
     case m @ AddChildEntity(meta, sendTo) =>
       log.info("{}", m)
       val replyTo = sendTo getOrElse sender
-      val fromRegisty = subentitesRegistry get meta.id
+      val fromRegisty = children get meta.id
       if(fromRegisty isEmpty){
         val newEntity = context actorOf Entity(meta)
-        subentitesRegistry = subentitesRegistry + (meta.id -> newEntity)
+        children = children + (meta.id -> newEntity)
         replyTo ! EntityCreated(newEntity)
       } else replyTo ! EntityCreated(fromRegisty.get)
     case GetChildren(sendTo) =>
-      sendTo getOrElse sender ! ChildrenEntityList(subentitesRegistry.values.toSeq)
+      sendTo getOrElse sender ! ChildrenEntityList(children.values.toSeq)
   }
   
   private def sendEntityMeta(sendTo: Option[ActorRef]) = {
