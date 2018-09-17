@@ -26,7 +26,7 @@ class FindEntitySpec extends TestKit(ActorSystem("FindEntitySpec")) with Implici
 
     "add entity to entity root" should {
       var entity1Ref: Option[ActorRef] = None
-      val entity1Meta = EntityMetaDefault(1, "entity1", "/path1")
+      val entity1Meta = EntityMetaDefault(1, "entity1", "/path1", None)
       "receive GetEntityRoot" in {
         project ! GetEntityRoot()
         expectMsgPF() {

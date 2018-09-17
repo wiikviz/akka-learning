@@ -2,7 +2,7 @@ import sbt.Resolver
 
 name := "gucli"
 
-version := "0.3"
+version := "0.3-SNAPSHOT"
 
 scalaVersion := "2.12.6"
 
@@ -22,6 +22,8 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-parser" % "0.9.3",
   "io.circe" %% "circe-generic" % "0.9.3",
   "com.typesafe.akka" %% "akka-testkit" % "2.5.16" % Test,
-  "org.scalatest" % "scalatest_2.12" % "3.0.5" % Test
+  "org.scalatest" % "scalatest_2.12" % "3.0.5" % Test,
   //"org.yaml" % "snakeyaml" % ""
+  "com.fasterxml.jackson.module" % "jackson-module-scala_2.12" % "2.9.6",
+  "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.9.6"
 )

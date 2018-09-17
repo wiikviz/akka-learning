@@ -1,0 +1,33 @@
+---
+name: "rb-veksel"
+param:
+- wf_id: 111
+  param: "mapred.job.queue.name"
+  prior_value: "name"
+- wf_id: 111
+  param: "oozie.wf.application.path"
+  prior_value: "path"
+- wf_id: 111
+  param: "sql.file"
+  prior_value: "path"
+- wf_id: 111
+  param: "sql.init"
+  prior_value: "path"
+- wf_id: 111
+  param: "sql.map"
+  prior_value: "path"
+- wf_id: 111
+  param: "user.name"
+  prior_value: user
+scheduled: false
+id: 111
+category: category
+type: "principal"
+engine: "oozie"
+deleted: false
+eventAwaitStrategy: "or"
+connectedEntities:
+- 105067210
+connectedStats:
+- 2
+- 11

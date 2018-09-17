@@ -12,11 +12,11 @@ class WorkflowSpec extends TestKit(ActorSystem("WorkflowSpec")) with ImplicitSen
   }
 
   "A Workflow" when {
-    val workflow: ActorRef = system.actorOf(Workflow(WorkflowMetaDefault("wf-1", "file.sql"), TestProbe().ref))
+    val workflow: ActorRef = system.actorOf(Workflow(WorkflowMetaDefault("wf-1", List("select 1"), Nil), TestProbe().ref))
     "receive GetWorkflowMeta" should {
       workflow ! GetWorkflowMeta()
       "send back WorkflowMetaResponse" in {
-        expectMsg(WorkflowMetaResponse("wf-1", "file.sql"))
+        expectMsg(WorkflowMetaResponse(WorkflowMetaDefault("wf-1", List("select 1"), Nil)))
       }
     }
   }

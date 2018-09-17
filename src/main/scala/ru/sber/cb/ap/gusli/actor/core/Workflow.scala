@@ -24,7 +24,7 @@ object Workflow {
 
   case class EntityList(actorList: Seq[ActorRef]) extends ActorListResponse
 
-  case class WorkflowMetaResponse(name: String, sqlFile: String) extends Response with WorkflowMeta
+  case class WorkflowMetaResponse(workflowMeta: WorkflowMeta) extends Response
 
 }
 
@@ -36,7 +36,7 @@ class Workflow(meta: WorkflowMeta, project: ActorRef) extends BaseActor {
   var boundEntitySet: Set[ActorRef] = Set.empty[ActorRef]
 
   override def receive: Receive = {
-    case GetWorkflowMeta(sendTo) => sendTo.getOrElse(sender) ! WorkflowMetaResponse(meta.name, meta.sqlFile)
+    case GetWorkflowMeta(sendTo) => sendTo.getOrElse(sender) ! WorkflowMetaResponse(meta)
 
     case BindEntity(entityId, sendTo) =>
       val replyTo = sendTo.getOrElse(sender)
@@ -65,8 +65,22 @@ class Workflow(meta: WorkflowMeta, project: ActorRef) extends BaseActor {
 
 trait WorkflowMeta {
   def name: String
-
-  def sqlFile: String
+  
+  // Content
+  def sql: List[String]
+  // Content
+  def sqlMap: List[String]
+  // Content
+  def init: List[String]
+  
+  def user: Option[String]
+  
+  def queue: Option[String]
+  
+  def grenkiVersion: Option[String]
+  
+  def params: Map[String, String]
 }
 
-case class WorkflowMetaDefault(name: String, sqlFile: String) extends WorkflowMeta
+case class WorkflowMetaDefault(name: String, sql: List[String], sqlMap: List[String] = Nil, init: List[String] = Nil,
+  user: Option[String] = None, queue: Option[String] = None, grenkiVersion: Option[String] = None, params: Map[String, String] = Map.empty) extends WorkflowMeta

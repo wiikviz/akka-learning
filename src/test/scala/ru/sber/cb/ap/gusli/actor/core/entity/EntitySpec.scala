@@ -12,11 +12,12 @@ class EntitySpec extends TestKit(ActorSystem("EntitySpec")) with ImplicitSender 
   }
   
   "An Entity" when {
-    val entity: ActorRef = system.actorOf(Entity(EntityMetaDefault(0, "root-entity", "file.ent")))
+    val meta = EntityMetaDefault(0, "root-entity", "file.ent", None)
+    val entity: ActorRef = system.actorOf(Entity(meta))
     "receive GetEntityMeta" should {
       "send back EntityMetaResponse" in {
         entity ! GetEntityMeta()
-        expectMsg(EntityMetaResponse(0, "root-entity", "file.ent"))
+        expectMsg(EntityMetaResponse(meta))
       }
     }
     
@@ -29,11 +30,12 @@ class EntitySpec extends TestKit(ActorSystem("EntitySpec")) with ImplicitSender 
     
     "receive AddChildEntity" should {
       "send back EntityCreated" in {
-        entity ! AddChildEntity(EntityMetaDefault(1, "child-entity", "file.ent"))
+        val meta = EntityMetaDefault(1, "child-entity", "file.ent", None)
+        entity ! AddChildEntity(meta)
         expectMsgPF() {
           case EntityCreated(childEntity) =>
             childEntity ! GetEntityMeta()
-            expectMsg(EntityMetaResponse(1, "child-entity", "file.ent"))
+            expectMsg(EntityMetaResponse(meta))
         }
       }
     }

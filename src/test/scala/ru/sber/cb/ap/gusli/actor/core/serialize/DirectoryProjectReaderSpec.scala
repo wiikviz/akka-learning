@@ -7,13 +7,14 @@ import akka.testkit.{ImplicitSender, TestKit}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 import ru.sber.cb.ap.gusli.actor.core.Category.{apply => _, _}
 import ru.sber.cb.ap.gusli.actor.core.Entity.{EntityMetaResponse, GetEntityMeta}
+import ru.sber.cb.ap.gusli.actor.core.{CategoryMetaDefault, EntityMetaDefault}
 import ru.sber.cb.ap.gusli.actor.core.Project.{apply => _, _}
 import ru.sber.cb.ap.gusli.actor.projects.DirectoryProjectReader
 import ru.sber.cb.ap.gusli.actor.projects.DirectoryProjectReader._
 
 class DirectoryProjectReaderSpec extends TestKit(ActorSystem("DirectoryProjectSpec")) with ImplicitSender with WordSpecLike with Matchers with BeforeAndAfterAll {
   val directoryProjectReader: ActorRef = system.actorOf(DirectoryProjectReader())
-  val correctPath = Paths.get(".\\src\\test\\resources\\project")
+  val correctPath = Paths.get(".\\src\\test\\resources\\project_test")
   val incorrectPath = Paths.get("incorrect_path_here")
   
   override def afterAll: Unit = {
@@ -42,7 +43,7 @@ class DirectoryProjectReaderSpec extends TestKit(ActorSystem("DirectoryProjectSp
         expectMsgPF() {
           case EntityRoot(root) =>
             root ! GetEntityMeta()
-            expectMsg(EntityMetaResponse(0, "entity", "/data"))
+            expectMsg(EntityMetaResponse(EntityMetaDefault(0, "entity", "/data", None)))
         }
       }
       "receiving GetCategoryRoot should send back CategoryRoot" in {
@@ -51,7 +52,7 @@ class DirectoryProjectReaderSpec extends TestKit(ActorSystem("DirectoryProjectSp
           case CategoryRoot(root) =>
             rootCategory = root
             root ! GetCategoryMeta()
-            expectMsg(CategoryMetaResponse("category"))
+            expectMsg(CategoryMetaResponse(CategoryMetaDefault("category", Nil)))
         }
       }
       "receiving FindEntity(1) should send back EntityNotFound" in {

@@ -10,7 +10,7 @@ import ru.sber.cb.ap.gusli.actor.core._
 
 class BindEntitySpec extends TestKit(ActorSystem("BindEntity")) with ImplicitSender with WordSpecLike with Matchers with BeforeAndAfterAll {
   val projectProbe = TestProbe()
-  val workflow = system.actorOf(Workflow(WorkflowMetaDefault("wf-1", "file.sql"), projectProbe.ref))
+  val workflow = system.actorOf(Workflow(WorkflowMetaDefault("wf-1", List("select 1"), Nil), projectProbe.ref))
 
   override def afterAll: Unit = {
     TestKit.shutdownActorSystem(system)
@@ -29,7 +29,7 @@ class BindEntitySpec extends TestKit(ActorSystem("BindEntity")) with ImplicitSen
     workflow ! BindEntity(2)
     projectProbe.expectMsgAnyClassOf(classOf[FindEntity])
     val entity1 = TestProbe()
-    projectProbe.reply(EntityFound(EntityMetaDefault(2, "entity2", "/path/2"), entity1.ref))
+    projectProbe.reply(EntityFound(EntityMetaDefault(2, "entity2", "/path/2", None), entity1.ref))
     "return BindEntitySuccessful(2)" in {
       expectMsg(BindEntitySuccessful(2))
     }
@@ -37,7 +37,7 @@ class BindEntitySpec extends TestKit(ActorSystem("BindEntity")) with ImplicitSen
     workflow ! BindEntity(3)
     projectProbe.expectMsgAnyClassOf(classOf[FindEntity])
     val entity2 = TestProbe()
-    projectProbe.reply(EntityFound(EntityMetaDefault(3, "entity3", "/path/3"), entity2.ref))
+    projectProbe.reply(EntityFound(EntityMetaDefault(3, "entity3", "/path/3", None), entity2.ref))
     "return BindEntitySuccessful(3)" in {
       expectMsg(BindEntitySuccessful(3))
     }
