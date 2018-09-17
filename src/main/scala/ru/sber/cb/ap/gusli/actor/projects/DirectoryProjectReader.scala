@@ -3,6 +3,7 @@ package ru.sber.cb.ap.gusli.actor.projects
 import java.nio.file.Path
 
 import akka.actor.{ActorRef, Props}
+import ru.sber.cb.ap.gusli.actor.core.{CategoryMeta, CategoryMetaDefault, Project, ProjectMetaDefault}
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
 
 object DirectoryProjectReader {
@@ -19,8 +20,31 @@ class DirectoryProjectReader() extends BaseActor {
   
   override def receive: Receive = {
     case ReadProject(path: Path, sendTo: Option[ActorRef]) =>
-      // sendTo getOrElse sender ! ProjectReaded(created-project)
-      // val entitiesPath = path.resolve("entities")
-      // val workflowsPath = path.resolve("workflows")
+      val categoryMeta = initializeCategoryMeta(path)
+//      val project = createProject(categoryMeta, path)
+//      fillProjectWithEntities(project, path)
+//      fillProjectWithCategories(project, path)
+      
+      
+//      sendTo getOrElse sender ! ProjectReaded(project)
+    // val entitiesPath = path.resolve("entities")
+    // val workflowsPath = path.resolve("workflows")
+  }
+  
+  def initializeCategoryMeta(path: Path) = {
+  
+  }
+  
+  private def createProject(categoryMeta: CategoryMeta, path: Path) = {
+    val name = path.getFileName.toString
+    context.actorOf(Project(ProjectMetaDefault(name)))
+  }
+  
+  def fillProjectWithEntities(project: ActorRef, path: Path) = {
+  
+  }
+  
+  def fillProjectWithCategories(project: ActorRef, path: Path) = {
+  
   }
 }

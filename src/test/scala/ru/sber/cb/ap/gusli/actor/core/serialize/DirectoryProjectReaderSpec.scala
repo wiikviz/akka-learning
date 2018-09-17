@@ -14,7 +14,7 @@ import ru.sber.cb.ap.gusli.actor.projects.DirectoryProjectReader._
 
 class DirectoryProjectReaderSpec extends TestKit(ActorSystem("DirectoryProjectSpec")) with ImplicitSender with WordSpecLike with Matchers with BeforeAndAfterAll {
   val directoryProjectReader: ActorRef = system.actorOf(DirectoryProjectReader())
-  val correctPath = Paths.get(".\\src\\test\\resources\\project")
+  val correctPath = Paths.get(".\\src\\test\\resources\\project_test")
   val incorrectPath = Paths.get("incorrect_path_here")
   
   override def afterAll: Unit = {
