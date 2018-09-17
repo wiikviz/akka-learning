@@ -10,34 +10,52 @@ object EntitySearcher {
 }
 
 class EntitySearcher(entityRefs: Seq[ActorRef], entityId: Long, replyTo: ActorRef) extends Actor with ActorLogging {
-  val entityRefsSize = entityRefs.size * 2
-  var count = 0
+  val childrenCount = entityRefs.size
+  var childrenMetaResponses = 0
+  var subChildrenNotFoundResponses = 0
 
   override def preStart(): Unit = {
     log.info("EntitySearcher entityId={} replyTo={} entities={}", entityId, replyTo, entityRefs)
-    if (entityRefs.isEmpty)
-      replyTo ! EntityNotFound(entityId)
+    if (entityRefs.isEmpty) {
+      val notFound = EntityNotFound(entityId)
+      log.debug("{} replyTo={}", notFound, replyTo)
+      replyTo ! notFound
+    }
     else
       entityRefs.foreach(_ ! GetEntityMeta())
   }
 
   override def receive: Receive = {
-    case EntityMetaResponse(m@EntityMetaDefault(id, _, _, _)) =>
+    case EntityMetaResponse(meta@EntityMetaDefault(id, _, _, _)) =>
+      childrenMetaResponses += 1
       checkNotFound()
       val entity = sender()
-      if (id == entityId)
-        replyTo ! EntityFound(m, entity)
+      if (id == entityId) {
+        val found = EntityFound(meta, entity)
+        log.debug("{} replyTo={}", found, replyTo)
+        replyTo ! found
+        context.stop(self)
+      }
       else
         entity ! GetChildren()
     case ChildrenEntityList(kids) =>
-      checkNotFound()
       context.actorOf(EntitySearcher(kids, entityId, self))
+    case EntityNotFound(_) =>
+      subChildrenNotFoundResponses += 1
+      //todo: replace >= to smart logic
+      if (subChildrenNotFoundResponses >= childrenCount) {
+        replyTo ! EntityNotFound(entityId)
+        context.stop(self)
+      }
+      checkNotFound()
+    case r@EntityFound(_, _) =>
+      replyTo ! r
+      context.stop(self)
   }
 
   def checkNotFound(): Unit = {
-    count = count + 1
-    log.info("count={}", count)
-    if (entityRefsSize == count) {
+    //todo: replace >= to smart logic
+    if (childrenMetaResponses >= childrenCount && subChildrenNotFoundResponses >= childrenCount) {
       replyTo ! EntityNotFound(entityId)
       context.stop(self)
     }

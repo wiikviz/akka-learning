@@ -4,7 +4,7 @@ import java.nio.file.Paths
 
 import akka.actor.{ActorRef, ActorSystem}
 import akka.testkit.{ImplicitSender, TestKit}
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import org.scalatest.{BeforeAndAfterAll, Ignore, Matchers, WordSpecLike}
 import ru.sber.cb.ap.gusli.actor.core.Category.{apply => _, _}
 import ru.sber.cb.ap.gusli.actor.core.Entity.{EntityMetaResponse, GetEntityMeta}
 import ru.sber.cb.ap.gusli.actor.core.{CategoryMetaDefault, EntityMetaDefault}
@@ -12,6 +12,7 @@ import ru.sber.cb.ap.gusli.actor.core.Project.{apply => _, _}
 import ru.sber.cb.ap.gusli.actor.projects.DirectoryProjectReader
 import ru.sber.cb.ap.gusli.actor.projects.DirectoryProjectReader._
 
+@Ignore
 class DirectoryProjectReaderSpec extends TestKit(ActorSystem("DirectoryProjectSpec")) with ImplicitSender with WordSpecLike with Matchers with BeforeAndAfterAll {
   val directoryProjectReader: ActorRef = system.actorOf(DirectoryProjectReader())
   val correctPath = Paths.get(".\\src\\test\\resources\\project_test")

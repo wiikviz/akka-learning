@@ -1,6 +1,7 @@
 package ru.sber.cb.ap.gusli.actor.core
 
 import akka.actor.{ActorRef, Props}
+import ru.sber.cb.ap.gusli.actor.core.search.EntitySearcher
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
 
 object Project {
@@ -41,7 +42,8 @@ class Project(meta: ProjectMeta, categoryMeta: CategoryMeta = CategoryMetaDefaul
     case GetProjectMeta(sendTo) => sendTo getOrElse sender ! ProjectMetaResponse(meta.name)
     case GetCategoryRoot(sendTo) => sendTo getOrElse sender ! CategoryRoot(categoryRoot)
     case GetEntityRoot(sendTo) => sendTo getOrElse sender ! EntityRoot(entityRoot)
-    case FindEntity(id, sendTo) => sendTo getOrElse sender ! EntityNotFound(id)
+    case FindEntity(id, sendTo) =>
+      context.actorOf(EntitySearcher(Seq(entityRoot), id, sendTo getOrElse sender))
   }
 }
 
