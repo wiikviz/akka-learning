@@ -2,7 +2,7 @@ import sbt.Resolver
 
 name := "gucli"
 
-version := "0.3"
+version := "0.3-SNAPSHOT"
 
 scalaVersion := "2.12.6"
 
