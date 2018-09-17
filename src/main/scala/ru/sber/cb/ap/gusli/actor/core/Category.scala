@@ -82,7 +82,7 @@ trait CategoryMeta {
   // Content
   def init: List[String]
   
-  def userName: Option[String]
+  def user: Option[String]
   
   def queue: Option[String]
   
@@ -92,4 +92,4 @@ trait CategoryMeta {
 }
 
 case class CategoryMetaDefault(name: String, sql: List[String], sqlMap: List[String] = Nil, init: List[String] = Nil,
-  userName: Option[String] = None, queue: Option[String] = None, grenkiVersion: Option[String] = None, params: Map[String, String] = Map.empty) extends CategoryMeta
+  user: Option[String] = None, queue: Option[String] = None, grenkiVersion: Option[String] = None, params: Map[String, String] = Map.empty) extends CategoryMeta
