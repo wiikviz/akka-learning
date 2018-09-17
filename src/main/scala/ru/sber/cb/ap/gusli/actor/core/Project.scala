@@ -32,8 +32,8 @@ object Project {
 
 class Project(meta: ProjectMeta) extends BaseActor {
   import Project._
-  val entityRoot = context.actorOf(Entity(EntityMetaDefault(0, "entity", "")), "entity")
-  val categoryRoot = context.actorOf(Category(CategoryMetaDefault("category"), context.self), "category")
+  val entityRoot = context.actorOf(Entity(EntityMetaDefault(0, "entity", "", None)), "entity")
+  val categoryRoot = context.actorOf(Category(CategoryMetaDefault("category", Nil), context.self), "category")
 
   override def receive: Receive = {
     case GetProjectMeta(sendTo) => sendTo getOrElse sender ! ProjectMetaResponse(meta.name)

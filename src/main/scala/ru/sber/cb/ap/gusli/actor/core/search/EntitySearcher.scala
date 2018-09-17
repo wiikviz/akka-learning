@@ -2,6 +2,7 @@ package ru.sber.cb.ap.gusli.actor.core.search
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import ru.sber.cb.ap.gusli.actor.core.Entity.{ChildrenEntityList, EntityMetaResponse, GetChildren, GetEntityMeta}
+import ru.sber.cb.ap.gusli.actor.core.EntityMetaDefault
 import ru.sber.cb.ap.gusli.actor.core.Project.{EntityFound, EntityNotFound}
 
 object EntitySearcher {
@@ -21,7 +22,7 @@ class EntitySearcher(entityRefs: Seq[ActorRef], entityId: Long, replyTo: ActorRe
   }
 
   override def receive: Receive = {
-    case m@EntityMetaResponse(id, _, _) =>
+    case EntityMetaResponse(m@EntityMetaDefault(id, _, _, _)) =>
       checkNotFound()
       val entity = sender()
       if (id == entityId)

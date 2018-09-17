@@ -16,7 +16,7 @@ object Main extends App {
     import system.dispatcher
     val projectA: ActorRef = system.actorOf(Project(ProjectMetaDefault(name = "projectA")), "projectA")
     
-    (projectA ? GetCategoryRoot()).map(_.asInstanceOf[CategoryRoot].root ! AddWorkflow(WorkflowMetaDefault("wf-1", "1.sql")))
+    (projectA ? GetCategoryRoot()).map(_.asInstanceOf[CategoryRoot].root ! AddWorkflow(WorkflowMetaDefault("wf-1", List("select 1"), Nil)))
 
 
     println("Press enter to finish application...")

@@ -20,7 +20,7 @@ object Category {
 
   //
 
-  case class CategoryMetaResponse(name: String) extends Response with CategoryMeta
+  case class CategoryMetaResponse(meta: CategoryMeta) extends Response
 
   case class SubcategoryCreated(actorRef: ActorRef) extends ActorResponse
 
@@ -42,7 +42,7 @@ class Category(meta: CategoryMeta, project: ActorRef) extends BaseActor {
   override def receive: Receive = {
     case GetCategoryMeta(sendTo) =>
       val replyTo = sendTo.getOrElse(sender())
-      replyTo ! CategoryMetaResponse(meta.name)
+      replyTo ! CategoryMetaResponse(meta)
 
     case m@AddSubcategory(meta, sendTo) =>
       log.info("{}", m)
@@ -75,6 +75,21 @@ class Category(meta: CategoryMeta, project: ActorRef) extends BaseActor {
 
 trait CategoryMeta {
   def name: String
+  // Content
+  def sql: List[String]
+  // Content
+  def sqlMap: List[String]
+  // Content
+  def init: List[String]
+  
+  def userName: Option[String]
+  
+  def queue: Option[String]
+  
+  def grenkiVersion: Option[String]
+  
+  def params: Map[String, String]
 }
 
-case class CategoryMetaDefault(name: String) extends CategoryMeta
+case class CategoryMetaDefault(name: String, sql: List[String], sqlMap: List[String] = Nil, init: List[String] = Nil,
+  userName: Option[String] = None, queue: Option[String] = None, grenkiVersion: Option[String] = None, params: Map[String, String] = Map.empty) extends CategoryMeta

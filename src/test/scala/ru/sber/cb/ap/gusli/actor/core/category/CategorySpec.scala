@@ -14,7 +14,7 @@ class CategorySpec extends TestKit(ActorSystem("CategorySpec"))
   with BeforeAndAfterAll {
   
   private val probe: TestProbe = TestProbe()
-  val cat = system.actorOf(Category(CategoryMetaDefault("category"), probe.ref), "category")
+  val cat = system.actorOf(Category(CategoryMetaDefault("category", Nil), probe.ref), "category")
   
   override def afterAll: Unit = {
     TestKit.shutdownActorSystem(system)
@@ -24,7 +24,7 @@ class CategorySpec extends TestKit(ActorSystem("CategorySpec"))
     "send GetCategoryMeta" should {
       cat ! GetCategoryMeta()
       "send back CategoryMetaResponse(\"category\")" in {
-        expectMsg(CategoryMetaResponse("category"))
+        expectMsg(CategoryMetaResponse(CategoryMetaDefault("category", Nil)))
       }
     }
     
@@ -44,24 +44,24 @@ class CategorySpec extends TestKit(ActorSystem("CategorySpec"))
     
     "send AddSubcategory" should {
       "send back SubcategoryCreated" in {
-        val meta = CategoryMetaDefault("cat-a")
+        val meta = CategoryMetaDefault("cat-a", Nil)
         cat ! AddSubcategory(meta)
         expectMsgPF() {
           case SubcategoryCreated(catA) =>
             catA ! GetCategoryMeta()
-            expectMsg(CategoryMetaResponse("cat-a"))
+            expectMsg(CategoryMetaResponse(meta))
         }
       }
     }
     
     "send AddWorkflow" should {
       "send back WorkflowCreated" in {
-        val meta = WorkflowMetaDefault("wf-1", "file.sql")
+        val meta = WorkflowMetaDefault("wf-1", List("select 1"), Nil)
         cat ! AddWorkflow(meta)
         expectMsgPF() {
           case WorkflowCreated(wf) =>
             wf ! GetWorkflowMeta()
-            expectMsg(WorkflowMetaResponse("wf-1", "file.sql"))
+            expectMsg(WorkflowMetaResponse(meta))
         }
       }
     }
@@ -86,24 +86,24 @@ class CategorySpec extends TestKit(ActorSystem("CategorySpec"))
   
     "send second time AddSubcategory" should {
       "send back SubcategoryCreated" in {
-        val meta = CategoryMetaDefault("cat-b")
+        val meta = CategoryMetaDefault("cat-b", Nil)
         cat ! AddSubcategory(meta)
         expectMsgPF() {
           case SubcategoryCreated(catA) =>
             catA ! GetCategoryMeta()
-            expectMsg(CategoryMetaResponse("cat-b"))
+            expectMsg(CategoryMetaResponse(meta))
         }
       }
     }
   
     "send second time AddWorkflow" should {
       "send back WorkflowCreated" in {
-        val meta = WorkflowMetaDefault("wf-2", "file.sql")
+        val meta = WorkflowMetaDefault("wf-2", List("select 1"), Nil)
         cat ! AddWorkflow(meta)
         expectMsgPF() {
           case WorkflowCreated(wf) =>
             wf ! GetWorkflowMeta()
-            expectMsg(WorkflowMetaResponse("wf-2", "file.sql"))
+            expectMsg(WorkflowMetaResponse(meta))
         }
       }
     }
