@@ -23,6 +23,7 @@ class DirectoryProjectReaderSpec extends TestKit(ActorSystem("DirectoryProjectSp
   "Directory project reader" when {
     "receive ReadProject(correctPath)" should {
       var project: ActorRef = null
+      var rootCategory: ActorRef = null
       var cbCategory: ActorRef = null
       var apCategory: ActorRef = null
       var rbCategory: ActorRef = null
@@ -41,16 +42,16 @@ class DirectoryProjectReaderSpec extends TestKit(ActorSystem("DirectoryProjectSp
         expectMsgPF() {
           case EntityRoot(root) =>
             root ! GetEntityMeta()
-            expectMsg(EntityMetaResponse(105000000, "entity-root", "/data"))
+            expectMsg(EntityMetaResponse(0, "entity", "/data"))
         }
       }
       "receiving GetCategoryRoot should send back CategoryRoot" in {
         project ! GetCategoryRoot()
         expectMsgPF() {
           case CategoryRoot(root) =>
-            cbCategory = root
+            rootCategory = root
             root ! GetCategoryMeta()
-            expectMsg(CategoryMetaResponse("cb"))
+            expectMsg(CategoryMetaResponse("category"))
         }
       }
       "receiving FindEntity(1) should send back EntityNotFound" in {
@@ -80,6 +81,14 @@ class DirectoryProjectReaderSpec extends TestKit(ActorSystem("DirectoryProjectSp
       "receiving FindEntity(105067300) should send back EntityFound" in {
         project ! FindEntity(105067300)
         expectMsgAnyClassOf(classOf[EntityFound])
+      }
+      "and root-category receiving ListSubcategory should send back SubcategoryList with 'cb'" in {
+        rootCategory ! ListSubcategory()
+        expectMsgPF() {
+          case SubcategoryList(list) =>
+            assert(list.size == 1)
+            cbCategory = list(0)
+        }
       }
       "and category receiving ListWorkflow should send back WorkflowList with size 5" in {
         cbCategory ! ListWorkflow()
