@@ -1,0 +1,6 @@
+---
+name: "entity"
+path: "/data"
+id: 0
+storage: "HDFS"
+parentId: 0
