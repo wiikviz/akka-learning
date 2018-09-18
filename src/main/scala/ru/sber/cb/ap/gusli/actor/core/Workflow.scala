@@ -80,8 +80,6 @@ trait WorkflowMeta {
   def params: Map[String, String]
   
   def stats: Set[Long]
-  
-  def entities: Set[Long]
 }
 
 case class WorkflowMetaDefault(name:   String,
@@ -92,5 +90,4 @@ case class WorkflowMetaDefault(name:   String,
                                queue:  Option[String] = None,
                                grenkiVersion: Option[String] = None,
                                params: Map[String, String] = Map.empty,
-                               stats: Set[Long] = Set.empty,
-                               entities: Set[Long] = Set.empty) extends WorkflowMeta
+                               stats: Set[Long] = Set.empty) extends WorkflowMeta
