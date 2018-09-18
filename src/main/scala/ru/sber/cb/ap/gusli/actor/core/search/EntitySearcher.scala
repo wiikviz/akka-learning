@@ -10,9 +10,9 @@ object EntitySearcher {
 }
 
 class EntitySearcher(entityRefs: Seq[ActorRef], entityId: Long, replyTo: ActorRef) extends Actor with ActorLogging {
-  val childrenCount = entityRefs.size
-  var childrenMetaResponses = 0
-  var subChildrenNotFoundResponses = 0
+  private val childrenCount = entityRefs.size
+  private var childrenMetaResponses = 0
+  private var subChildrenNotFoundResponses = 0
 
   override def preStart(): Unit = {
     log.info("EntitySearcher entityId={} replyTo={} entities={}", entityId, replyTo, entityRefs)
@@ -42,20 +42,19 @@ class EntitySearcher(entityRefs: Seq[ActorRef], entityId: Long, replyTo: ActorRe
       context.actorOf(EntitySearcher(kids, entityId, self))
     case EntityNotFound(_) =>
       subChildrenNotFoundResponses += 1
-      //todo: replace >= to smart logic
-      if (subChildrenNotFoundResponses >= childrenCount) {
+      if (subChildrenNotFoundResponses == childrenCount) {
         replyTo ! EntityNotFound(entityId)
         context.stop(self)
       }
       checkNotFound()
-    case r@EntityFound(_, _) =>
+    case r:EntityFound=>
       replyTo ! r
       context.stop(self)
   }
 
   def checkNotFound(): Unit = {
-    //todo: replace >= to smart logic
-    if (childrenMetaResponses >= childrenCount && subChildrenNotFoundResponses >= childrenCount) {
+    log.debug("childrenMetaResponses={} subChildrenNotFoundResponses={}, childrenCount={}",childrenMetaResponses, subChildrenNotFoundResponses, childrenCount)
+    if (childrenMetaResponses == childrenCount && subChildrenNotFoundResponses == childrenCount) {
       replyTo ! EntityNotFound(entityId)
       context.stop(self)
     }

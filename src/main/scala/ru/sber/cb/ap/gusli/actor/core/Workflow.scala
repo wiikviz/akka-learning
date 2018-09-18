@@ -16,8 +16,6 @@ object Workflow {
   
   /*private*/ case class BindEntity(entityId: Long, replyTo: Option[ActorRef] = None) extends Request
 
-
-
   case class BindEntitySuccessful(entityId: Long) extends Response
 
   case class BindEntityFailedBecauseItNotExists(entityId: Long) extends Response
