@@ -56,7 +56,7 @@ object MetaToHDD {
 
   private def normalizeName(folderName: String):String = {
     val tt = folderName.replace("/","~").replace(":","%3A").trim
-    URLEncoder.encode(folderName, charSet)
+    URLEncoder.encode(folderName, charSet.toString)
   }
   def writeYAMLTextFileToDirectory(fileContent:String, fileName:String, dir:Path):Path ={
     Files.write(dir.resolve(fileName+".yaml"),fileContent.getBytes(charSet))
