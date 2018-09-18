@@ -31,7 +31,7 @@ object Project {
   case class EntityRoot(root: ActorRef) extends Response
 }
 
-class Project(meta: ProjectMeta, categoryMeta: CategoryMeta = CategoryMetaDefault("category", Nil)) extends BaseActor {
+class Project(meta: ProjectMeta, categoryMeta: CategoryMeta = CategoryMetaDefault("category", Map.empty)) extends BaseActor {
   
   import Project._
   

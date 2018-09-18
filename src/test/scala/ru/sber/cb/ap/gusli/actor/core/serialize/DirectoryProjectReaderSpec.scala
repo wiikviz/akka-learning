@@ -53,7 +53,7 @@ class DirectoryProjectReaderSpec extends TestKit(ActorSystem("DirectoryProjectSp
           case CategoryRoot(root) =>
             rootCategory = root
             root ! GetCategoryMeta()
-            expectMsg(CategoryMetaResponse(CategoryMetaDefault("category", Nil)))
+            expectMsg(CategoryMetaResponse(CategoryMetaDefault("category", Map.empty)))
         }
       }
       "receiving FindEntity(1) should send back EntityNotFound" in {

@@ -67,11 +67,11 @@ trait WorkflowMeta {
   def name: String
   
   // Content
-  def sql: List[String]
+  def sql: Map[String, String]
   // Content
-  def sqlMap: List[String]
+  def sqlMap: Map[String, String]
   // Content
-  def init: List[String]
+  def init: Map[String, String]
   
   def user: Option[String]
   
@@ -83,9 +83,9 @@ trait WorkflowMeta {
 }
 
 case class WorkflowMetaDefault(name:   String,
-                               sql:    List[String],
-                               sqlMap: List[String] = Nil,
-                               init:   List[String] = Nil,
+                               sql:    Map[String, String],
+                               sqlMap: Map[String, String] = Map.empty,
+                               init:   Map[String, String] = Map.empty,
                                user:   Option[String] = None,
                                queue:  Option[String] = None,
                                grenkiVersion: Option[String] = None,

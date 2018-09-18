@@ -20,7 +20,7 @@ class ProjectWriter(val project:ActorRef, path: Path) extends BaseActor {
 
       val projectFolderPath = Files createDirectories path resolve projectName.replace("-","-")
 
-      val categoryWriterActorRef = context actorOf CategoryWriter(projectFolderPath,CategoryMetaDefault("noName",List("noSQLfileContent")))
+      val categoryWriterActorRef = context actorOf CategoryWriter(projectFolderPath,CategoryMetaDefault("noName", Map("file" -> "noSQLfileContent")))
       val entityWriterActorRef = context actorOf EntityWriter(projectFolderPath,EntityMetaDefault(id= -10, name= "noName", path= "noPath", parentId = None))
 
       project ! GetCategoryRoot(Some(categoryWriterActorRef))

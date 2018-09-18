@@ -10,7 +10,7 @@ import ru.sber.cb.ap.gusli.actor.core._
 
 class BindEntitySpec extends TestKit(ActorSystem("BindEntity")) with ImplicitSender with WordSpecLike with Matchers with BeforeAndAfterAll {
   val projectProbe = TestProbe()
-  val workflow = system.actorOf(Workflow(WorkflowMetaDefault("wf-1", List("select 1"), Nil), projectProbe.ref))
+  val workflow = system.actorOf(Workflow(WorkflowMetaDefault("wf-1", Map("file" -> "select 1"), Map.empty), projectProbe.ref))
 
   override def afterAll: Unit = {
     TestKit.shutdownActorSystem(system)

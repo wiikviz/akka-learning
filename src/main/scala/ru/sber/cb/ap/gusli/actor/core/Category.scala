@@ -75,12 +75,11 @@ class Category(meta: CategoryMeta, project: ActorRef) extends BaseActor {
 
 trait CategoryMeta {
   def name: String
+
   // Content
-  def sql: List[String]
+  def sqlMap: Map[String, String]
   // Content
-  def sqlMap: List[String]
-  // Content
-  def init: List[String]
+  def init: Map[String, String]
   
   def user: Option[String]
   
@@ -94,9 +93,8 @@ trait CategoryMeta {
 }
 
 case class CategoryMetaDefault(name: String,
-                               sql: List[String],
-                               sqlMap: List[String] = Nil,
-                               init: List[String] = Nil,
+                               sqlMap: Map[String, String] = Map.empty,
+                               init: Map[String, String] = Map.empty,
                                user: Option[String] = None,
                                queue: Option[String] = None,
                                grenkiVersion: Option[String] = None,
