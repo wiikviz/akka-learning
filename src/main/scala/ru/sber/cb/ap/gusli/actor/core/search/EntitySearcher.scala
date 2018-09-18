@@ -43,7 +43,7 @@ class EntitySearcher(entityRefs: Seq[ActorRef], entityId: Long, replyTo: ActorRe
       context.actorOf(EntitySearcher(kids, entityId, self))
     case EntityNotFound(_) =>
       subChildrenNotFoundResponses += 1
-      if (subChildrenNotFoundResponses == childrenCount) {
+      if (isSearchFinished()) {
         replyTo ! EntityNotFound(entityId)
         context.stop(self)
       }
@@ -55,9 +55,11 @@ class EntitySearcher(entityRefs: Seq[ActorRef], entityId: Long, replyTo: ActorRe
 
   def checkNotFound(): Unit = {
     log.debug("childrenMetaResponses={} subChildrenNotFoundResponses={}, childrenCount={}", childrenMetaResponses, subChildrenNotFoundResponses, childrenCount)
-    if (childrenMetaResponses == childrenCount && subChildrenNotFoundResponses == childrenCount) {
+    if (isSearchFinished()) {
       replyTo ! EntityNotFound(entityId)
       context.stop(self)
     }
   }
+
+  def isSearchFinished(): Boolean = childrenMetaResponses == childrenCount && subChildrenNotFoundResponses == childrenCount
 }
