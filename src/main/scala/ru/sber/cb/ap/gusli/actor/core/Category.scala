@@ -89,7 +89,15 @@ trait CategoryMeta {
   def grenkiVersion: Option[String]
   
   def params: Map[String, String]
+
+//  def files: Map[String, String]
 }
 
-case class CategoryMetaDefault(name: String, sql: List[String], sqlMap: List[String] = Nil, init: List[String] = Nil,
-  user: Option[String] = None, queue: Option[String] = None, grenkiVersion: Option[String] = None, params: Map[String, String] = Map.empty) extends CategoryMeta
+case class CategoryMetaDefault(name: String,
+                               sql: List[String],
+                               sqlMap: List[String] = Nil,
+                               init: List[String] = Nil,
+                               user: Option[String] = None,
+                               queue: Option[String] = None,
+                               grenkiVersion: Option[String] = None,
+                               params: Map[String, String] = Map.empty) extends CategoryMeta

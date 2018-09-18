@@ -2,7 +2,7 @@
 grenki: 0.2
 queue: root.platform
 user: pupkin
-init: init.sql
+init: init.hql
 map: map.config
 param:
 - p1: 1

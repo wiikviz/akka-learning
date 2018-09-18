@@ -82,5 +82,11 @@ trait WorkflowMeta {
   def params: Map[String, String]
 }
 
-case class WorkflowMetaDefault(name: String, sql: List[String], sqlMap: List[String] = Nil, init: List[String] = Nil,
-  user: Option[String] = None, queue: Option[String] = None, grenkiVersion: Option[String] = None, params: Map[String, String] = Map.empty) extends WorkflowMeta
+case class WorkflowMetaDefault(name:   String,
+                               sql:    List[String],
+                               sqlMap: List[String] = Nil,
+                               init:   List[String] = Nil,
+                               user:   Option[String] = None,
+                               queue:  Option[String] = None,
+                               grenkiVersion: Option[String] = None,
+                               params: Map[String, String] = Map.empty) extends WorkflowMeta
