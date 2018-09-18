@@ -4,6 +4,10 @@ queue: root.platform
 user: pupkin
 init: init.hql
 map: map.config
-param:
+stats: [2, 11]
+entities:
+- 105067100
+- 105067200
+params:
 - p1: 1
 - p2: I'm String

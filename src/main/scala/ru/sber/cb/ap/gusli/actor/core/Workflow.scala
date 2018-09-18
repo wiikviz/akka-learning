@@ -12,9 +12,9 @@ object Workflow {
 
   case class GetWorkflowMeta(replyTo: Option[ActorRef] = None) extends Request
 
-  case class ListEntities(replyTo: Option[ActorRef] = None) extends Request
-
-  case class BindEntity(entityId: Long, replyTo: Option[ActorRef] = None) extends Request
+  case class GetEntityList(replyTo: Option[ActorRef] = None) extends Request
+  
+  /*private*/ case class BindEntity(entityId: Long, replyTo: Option[ActorRef] = None) extends Request
 
 
 
@@ -57,7 +57,7 @@ class Workflow(meta: WorkflowMeta, project: ActorRef) extends BaseActor {
       awaitEntityBind getOrElse(meta.id, Nil) foreach (_ ! BindEntitySuccessful(meta.id))
       awaitEntityBind = awaitEntityBind - meta.id
 
-    case ListEntities(sendTo) =>
+    case GetEntityList(sendTo) =>
       sendTo getOrElse sender ! EntityList(boundEntitySet.toSeq)
 
   }
@@ -80,6 +80,10 @@ trait WorkflowMeta {
   def grenkiVersion: Option[String]
   
   def params: Map[String, String]
+  
+  def stats: Set[Long]
+  
+  def entities: Set[Long]
 }
 
 case class WorkflowMetaDefault(name:   String,
@@ -89,4 +93,6 @@ case class WorkflowMetaDefault(name:   String,
                                user:   Option[String] = None,
                                queue:  Option[String] = None,
                                grenkiVersion: Option[String] = None,
-                               params: Map[String, String] = Map.empty) extends WorkflowMeta
+                               params: Map[String, String] = Map.empty,
+                               stats: Set[Long] = Set.empty,
+                               entities: Set[Long] = Set.empty) extends WorkflowMeta

@@ -43,7 +43,7 @@ class BindEntitySpec extends TestKit(ActorSystem("BindEntity")) with ImplicitSen
     }
 
     "return EntityList when receive ListEntities message" in {
-      workflow ! ListEntities()
+      workflow ! GetEntityList()
       expectMsg(EntityList(List(entity1.ref, entity2.ref)))
     }
   }
