@@ -7,7 +7,7 @@ import akka.testkit.{ImplicitSender, TestKit}
 import org.scalatest.{BeforeAndAfterAll, Ignore, Matchers, WordSpecLike}
 import ru.sber.cb.ap.gusli.actor.core.Category.{apply => _, _}
 import ru.sber.cb.ap.gusli.actor.core.Entity.{EntityMetaResponse, GetEntityMeta}
-import ru.sber.cb.ap.gusli.actor.core.{CategoryMetaDefault, EntityMetaDefault}
+import ru.sber.cb.ap.gusli.actor.core.{CategoryMetaDefault, EntityMetaDefault, ProjectMetaDefault}
 import ru.sber.cb.ap.gusli.actor.core.Project.{apply => _, _}
 import ru.sber.cb.ap.gusli.actor.projects.DirectoryProjectReader
 import ru.sber.cb.ap.gusli.actor.projects.DirectoryProjectReader._
@@ -37,7 +37,7 @@ class DirectoryProjectReaderSpec extends TestKit(ActorSystem("DirectoryProjectSp
       }
       "and project receiving GetProjectMeta should send back ProjectMetaResponse" in {
         project ! GetProjectMeta()
-        expectMsg(ProjectMetaResponse("project_test"))
+        expectMsg(ProjectMetaResponse(ProjectMetaDefault("project_test")))
       }
       "receiving GetEntityRoot should send back EntityRoot" in {
         project ! GetEntityRoot()

@@ -19,7 +19,7 @@ class ProjectSpec extends TestKit(ActorSystem("ProjectSpec")) with ImplicitSende
     "send GetProjectMeta" should {
        project ! GetProjectMeta()
       "send back ProjectMetaResponse" in {
-        expectMsg(ProjectMetaResponse("project"))
+        expectMsg(ProjectMetaResponse(ProjectMetaDefault("project")))
       }
     }
 
