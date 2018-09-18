@@ -1,6 +1,7 @@
 package ru.sber.cb.ap.gusli.actor.core.search
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.actor.{ActorRef, Props}
+import ru.sber.cb.ap.gusli.actor.BaseActor
 import ru.sber.cb.ap.gusli.actor.core.Entity.{ChildrenEntityList, EntityMetaResponse, GetChildren, GetEntityMeta}
 import ru.sber.cb.ap.gusli.actor.core.EntityMetaDefault
 import ru.sber.cb.ap.gusli.actor.core.Project.{EntityFound, EntityNotFound}
@@ -9,7 +10,7 @@ object EntitySearcher {
   def apply(entityRefs: Seq[ActorRef], entityId: Long, replyTo: ActorRef): Props = Props(new EntitySearcher(entityRefs, entityId, replyTo))
 }
 
-class EntitySearcher(entityRefs: Seq[ActorRef], entityId: Long, replyTo: ActorRef) extends Actor with ActorLogging {
+class EntitySearcher(entityRefs: Seq[ActorRef], entityId: Long, replyTo: ActorRef) extends BaseActor {
   private val childrenCount = entityRefs.size
   private var childrenMetaResponses = 0
   private var subChildrenNotFoundResponses = 0
@@ -47,13 +48,13 @@ class EntitySearcher(entityRefs: Seq[ActorRef], entityId: Long, replyTo: ActorRe
         context.stop(self)
       }
       checkNotFound()
-    case r:EntityFound=>
+    case r: EntityFound =>
       replyTo ! r
       context.stop(self)
   }
 
   def checkNotFound(): Unit = {
-    log.debug("childrenMetaResponses={} subChildrenNotFoundResponses={}, childrenCount={}",childrenMetaResponses, subChildrenNotFoundResponses, childrenCount)
+    log.debug("childrenMetaResponses={} subChildrenNotFoundResponses={}, childrenCount={}", childrenMetaResponses, subChildrenNotFoundResponses, childrenCount)
     if (childrenMetaResponses == childrenCount && subChildrenNotFoundResponses == childrenCount) {
       replyTo ! EntityNotFound(entityId)
       context.stop(self)

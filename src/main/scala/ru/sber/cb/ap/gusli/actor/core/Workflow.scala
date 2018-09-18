@@ -13,7 +13,7 @@ object Workflow {
   case class GetWorkflowMeta(replyTo: Option[ActorRef] = None) extends Request
 
   case class GetEntityList(replyTo: Option[ActorRef] = None) extends Request
-  
+
   /*private*/ case class BindEntity(entityId: Long, replyTo: Option[ActorRef] = None) extends Request
 
   case class BindEntitySuccessful(entityId: Long) extends Response
@@ -63,31 +63,35 @@ class Workflow(meta: WorkflowMeta, project: ActorRef) extends BaseActor {
 
 trait WorkflowMeta {
   def name: String
-  
+
   // Content
   def sql: Map[String, String]
+
   // Content
   def sqlMap: Map[String, String]
+
   // Content
   def init: Map[String, String]
-  
+
   def user: Option[String]
-  
+
   def queue: Option[String]
-  
+
   def grenkiVersion: Option[String]
-  
+
   def params: Map[String, String]
-  
+
   def stats: Set[Long]
 }
 
-case class WorkflowMetaDefault(name:   String,
-                               sql:    Map[String, String],
+case class WorkflowMetaDefault(name: String,
+                               sql: Map[String, String],
                                sqlMap: Map[String, String] = Map.empty,
-                               init:   Map[String, String] = Map.empty,
-                               user:   Option[String] = None,
-                               queue:  Option[String] = None,
+                               init: Map[String, String] = Map.empty,
+                               user: Option[String] = None,
+                               queue: Option[String] = None,
                                grenkiVersion: Option[String] = None,
                                params: Map[String, String] = Map.empty,
                                stats: Set[Long] = Set.empty) extends WorkflowMeta
+
+
