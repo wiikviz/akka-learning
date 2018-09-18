@@ -1,10 +1,15 @@
 package ru.sber.cb.ap.gusli.actor.projects
 
+import java.net.URLEncoder
 import java.nio.file.{Files, Path}
 
-import ru.sber.cb.ap.gusli.actor.core.{CategoryMeta, EntityMeta, WorkflowMeta}
+import ru.sber.cb.ap.gusli.actor.core.{CategoryMeta, EntityMeta, ProjectMeta, WorkflowMeta}
 
 object MetaToHDD {
+
+  def writeProjectMetaToPath(meta: ProjectMeta, path: Path):Path =
+    createNewFolder(meta.name, path)
+
   //  trait CategoryMeta {
   //    def name: String
   //    def sqlMap: Map[String, String]
@@ -17,7 +22,7 @@ object MetaToHDD {
   //    def entities: Set[Long]
   //  }
   def writeCategoryMetaToPath(meta:CategoryMeta, dir:Path, parentMeta:CategoryMeta): Path ={
-    val categoryFolder =  Files createDirectories dir resolve meta.name.replace("-", "-")
+    val categoryFolder =  createNewFolder(meta.name, dir)
 
 
 
@@ -41,7 +46,8 @@ object MetaToHDD {
   //    def entities: Set[Long]
   //  }
   def writeWorkflowMetaToPath(meta:WorkflowMeta, dir:Path, categoryMeta: CategoryMeta): Path ={
-    val workflowFolder = Files createDirectories dir resolve meta.name.replace("-","-")
+    val workflowFolder = createNewFolder(meta.name, dir)
+
 
 
 
@@ -62,7 +68,8 @@ object MetaToHDD {
   //  def storage = "HDFS"
   //}
   def writeEntityMetaToPath(meta: EntityMeta, dir:Path, parentMeta:EntityMeta, hasChildren:Boolean): Path ={
-    val entityFolder = Files createDirectories dir resolve meta.name.replace("-","-")
+    val entityFolder = createNewFolder(meta.name, dir)
+
 
 
 
@@ -70,8 +77,13 @@ object MetaToHDD {
 
     entityFolder
   }
-//  def
 
+  private def createNewFolder(newFolderName:String, dirWereWillBeCreatedNewFilder:Path): Path = {
+    Files createDirectories dirWereWillBeCreatedNewFilder resolve normalizeName(newFolderName)
+  }
 
-
+  private def normalizeName(folderName: String):String = {
+    val tt = folderName.replace("/","~").replace(":","%3A").trim
+    URLEncoder.encode(folderName, "UTF-8")
+  }
 }

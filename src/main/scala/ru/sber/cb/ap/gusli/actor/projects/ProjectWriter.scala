@@ -1,10 +1,10 @@
 package ru.sber.cb.ap.gusli.actor.projects
 
-import java.nio.file.{Files, Path}
+import java.nio.file.Path
 
 import akka.actor.{ActorRef, Props}
-import ru.sber.cb.ap.gusli.actor.core.{CategoryMetaDefault, EntityMetaDefault, ProjectMeta}
 import ru.sber.cb.ap.gusli.actor.core.Project._
+import ru.sber.cb.ap.gusli.actor.core.{CategoryMetaDefault, EntityMetaDefault}
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
 
 class ProjectWriter(val project:ActorRef, path: Path) extends BaseActor {
@@ -12,13 +12,12 @@ class ProjectWriter(val project:ActorRef, path: Path) extends BaseActor {
   import ProjectWriter._
   
   override def receive: Receive = {
-    case WriteProject(sendTo: Option[ActorRef]) =>
+    case WriteProject(sendTo) =>
      sendTo getOrElse sender ! ProjectWrited()
       project ! GetProjectMeta(Some(context.self))
-//    case GetProjectMeta(sendTo) => sendTo getOrElse sender ! ProjectMetaResponse(annotation.meta.name)
-    case ProjectMetaResponse(meta:ProjectMeta) =>
 
-      val projectFolderPath = Files createDirectories path resolve meta.name.replace("-","-")
+    case ProjectMetaResponse(meta) =>
+      val projectFolderPath = MetaToHDD.writeProjectMetaToPath(meta, path)
 
       val categoryWriterActorRef = context actorOf CategoryWriter(projectFolderPath,CategoryMetaDefault("noName", Map("file" -> "noSQLfileContent")))
       val entityWriterActorRef = context actorOf EntityWriter(projectFolderPath,EntityMetaDefault(id= -10, name= "noName", path= "noPath", parentId = None))
