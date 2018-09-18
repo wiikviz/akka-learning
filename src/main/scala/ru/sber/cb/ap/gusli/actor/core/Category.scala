@@ -44,26 +44,26 @@ class Category(meta: CategoryMeta, project: ActorRef) extends BaseActor {
       val replyTo = sendTo.getOrElse(sender())
       replyTo ! CategoryMetaResponse(meta)
 
-    case m@AddSubcategory(meta, sendTo) =>
-      log.info("{}", m)
+    case mess@AddSubcategory(m, sendTo) =>
+      log.info("{}", mess)
       val replyTo = sendTo.getOrElse(sender())
-      subcategoresRegistry.get(meta.name) match {
+      subcategoresRegistry.get(m.name) match {
         case Some(subcat) => replyTo ! subcat
         case None =>
-          val subcat = context.actorOf(Category(meta, project))
-          subcategoresRegistry = subcategoresRegistry + (meta.name -> subcat)
+          val subcat = context.actorOf(Category(m, project))
+          subcategoresRegistry = subcategoresRegistry + (m.name -> subcat)
           replyTo ! SubcategoryCreated(subcat)
       }
     case ListSubcategory(sendTo) =>
       sendTo getOrElse sender ! SubcategoryList(subcategoresRegistry.values.toSeq)
       
-    case m@AddWorkflow(meta, sendTo) =>
-      log.info("{}", m)
+    case mess@AddWorkflow(m, sendTo) =>
+      log.info("{}", mess)
       val replyTo = sendTo getOrElse sender
-      val fromRegisty = workflowsRegistry get meta.name
-      if(fromRegisty isEmpty){
-        val newWorkflow = context.actorOf(Workflow(meta, project))
-        workflowsRegistry = workflowsRegistry + (meta.name -> newWorkflow)
+      val fromRegisty = workflowsRegistry get m.name
+      if(fromRegisty.isEmpty){
+        val newWorkflow = context.actorOf(Workflow(m, project))
+        workflowsRegistry = workflowsRegistry + (m.name -> newWorkflow)
         replyTo ! WorkflowCreated(newWorkflow)
       } else replyTo ! WorkflowCreated(fromRegisty.get)
 
