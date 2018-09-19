@@ -7,7 +7,7 @@ import ru.sber.cb.ap.gusli.actor.core.Category.{AddSubcategory, SubcategoryCreat
 import ru.sber.cb.ap.gusli.actor.core.Workflow.{GetWorkflowMeta, WorkflowMetaResponse}
 import ru.sber.cb.ap.gusli.actor.core._
 
-class CategorySpec extends TestKit(ActorSystem("CategorySpec"))
+class CategorySpec extends ActorBaseTest("CategorySpec")
   with ImplicitSender
   with WordSpecLike
   with Matchers

@@ -1,14 +1,12 @@
 package ru.sber.cb.ap.gusli.actor.core.workflow
 
-import akka.actor.ActorSystem
-import akka.testkit.{ImplicitSender, TestKit, TestProbe}
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import akka.testkit.{TestKit, TestProbe}
 import ru.sber.cb.ap.gusli.actor.core.Project.{EntityFound, EntityNotFound, FindEntity}
 import ru.sber.cb.ap.gusli.actor.core.Workflow._
 import ru.sber.cb.ap.gusli.actor.core._
 
 
-class BindEntitySpec extends TestKit(ActorSystem("BindEntity")) with ImplicitSender with WordSpecLike with Matchers with BeforeAndAfterAll {
+class BindEntitySpec extends ActorBaseTest("BindEntity") {
   val projectProbe = TestProbe()
   val workflow = system.actorOf(Workflow(WorkflowMetaDefault("wf-1", Map("file" -> "select 1"), Map.empty), projectProbe.ref))
 

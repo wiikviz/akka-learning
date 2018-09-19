@@ -1,14 +1,13 @@
 package ru.sber.cb.ap.gusli.actor.core.project
 
-import akka.actor.{ActorRef, ActorSystem}
-import akka.testkit.{ImplicitSender, TestKit, TestProbe}
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import akka.actor.ActorRef
+import akka.testkit.{TestKit, TestProbe}
 import ru.sber.cb.ap.gusli.actor.core.Entity.{AddChildEntity, ChildrenEntityList, EntityCreated, GetChildren}
 import ru.sber.cb.ap.gusli.actor.core.Project._
 import ru.sber.cb.ap.gusli.actor.core._
 import ru.sber.cb.ap.gusli.actor.core.search.EntitySearcher
 
-class EntityFoundSpec extends TestKit(ActorSystem("EntityFoundSpec")) with ImplicitSender with WordSpecLike with Matchers with BeforeAndAfterAll {
+class EntityFoundSpec extends ActorBaseTest("EntityFoundSpec") {
 
   val project: ActorRef = system.actorOf(Project(ProjectMetaDefault("project")), "project")
 

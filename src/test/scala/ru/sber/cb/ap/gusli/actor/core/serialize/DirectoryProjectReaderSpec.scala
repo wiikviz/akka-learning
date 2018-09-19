@@ -2,26 +2,26 @@ package ru.sber.cb.ap.gusli.actor.core.serialize
 
 import java.nio.file.Paths
 
-import akka.actor.{ActorRef, ActorSystem}
-import akka.testkit.{ImplicitSender, TestKit}
-import org.scalatest.{BeforeAndAfterAll, Ignore, Matchers, WordSpecLike}
+import akka.actor.ActorRef
+import akka.testkit.TestKit
+import org.scalatest.Ignore
 import ru.sber.cb.ap.gusli.actor.core.Category.{apply => _, _}
 import ru.sber.cb.ap.gusli.actor.core.Entity.{EntityMetaResponse, GetEntityMeta}
-import ru.sber.cb.ap.gusli.actor.core.{CategoryMetaDefault, EntityMetaDefault, ProjectMetaDefault}
 import ru.sber.cb.ap.gusli.actor.core.Project.{apply => _, _}
+import ru.sber.cb.ap.gusli.actor.core.{ActorBaseTest, CategoryMetaDefault, EntityMetaDefault, ProjectMetaDefault}
 import ru.sber.cb.ap.gusli.actor.projects.DirectoryProjectReader
 import ru.sber.cb.ap.gusli.actor.projects.DirectoryProjectReader._
 
 @Ignore
-class DirectoryProjectReaderSpec extends TestKit(ActorSystem("DirectoryProjectSpec")) with ImplicitSender with WordSpecLike with Matchers with BeforeAndAfterAll {
+class DirectoryProjectReaderSpec extends ActorBaseTest("DirectoryProjectSpec") {
   val directoryProjectReader: ActorRef = system.actorOf(DirectoryProjectReader())
   val correctPath = Paths.get(".\\src\\test\\resources\\project_test")
   val incorrectPath = Paths.get("incorrect_path_here")
-  
+
   override def afterAll: Unit = {
     TestKit.shutdownActorSystem(system)
   }
-  
+
   "Directory project reader" when {
     "receive ReadProject(correctPath)" should {
       var project: ActorRef = null

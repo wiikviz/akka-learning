@@ -4,7 +4,7 @@ import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
-abstract class ActorBaseTest(name:String) extends TestKit(ActorSystem(name))
+abstract class ActorBaseTest(name: String) extends TestKit(ActorSystem(name))
   with ImplicitSender
   with WordSpecLike
   with Matchers
@@ -14,5 +14,4 @@ abstract class ActorBaseTest(name:String) extends TestKit(ActorSystem(name))
     TestKit.shutdownActorSystem(system)
     super.afterAll()
   }
-
 }
