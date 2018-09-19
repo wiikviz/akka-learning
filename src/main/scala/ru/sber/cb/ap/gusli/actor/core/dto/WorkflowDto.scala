@@ -1,4 +1,4 @@
-package ru.sber.cb.ap.gusli.actor.core.diff.dto
+package ru.sber.cb.ap.gusli.actor.core.dto
 
 import ru.sber.cb.ap.gusli.actor.core.WorkflowMeta
 

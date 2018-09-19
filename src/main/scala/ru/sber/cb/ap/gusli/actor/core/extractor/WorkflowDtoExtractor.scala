@@ -1,9 +1,10 @@
-package ru.sber.cb.ap.gusli.actor.core.diff.dto
+package ru.sber.cb.ap.gusli.actor.core.extractor
 
 import akka.actor.{ActorRef, Props}
 import ru.sber.cb.ap.gusli.actor.core.Workflow.{GetWorkflowMeta, WorkflowMetaResponse}
 import ru.sber.cb.ap.gusli.actor.core.WorkflowMeta
-import ru.sber.cb.ap.gusli.actor.core.diff.dto.EntityIdExtractor.EntityIdExtracted
+import ru.sber.cb.ap.gusli.actor.core.dto.WorkflowDto
+import ru.sber.cb.ap.gusli.actor.core.extractor.EntityIdExtractor.EntityIdExtracted
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Response}
 
 object WorkflowDtoExtractor {

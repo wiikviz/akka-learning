@@ -1,4 +1,4 @@
-package ru.sber.cb.ap.gusli.actor.core.diff.dto
+package ru.sber.cb.ap.gusli.actor.core.dto
 
 import akka.actor.ActorRef
 import akka.testkit.TestProbe
@@ -6,7 +6,8 @@ import ru.sber.cb.ap.gusli.actor.core.Entity.{EntityMetaResponse, GetEntityMeta}
 import ru.sber.cb.ap.gusli.actor.core.Project.{EntityFound, FindEntity}
 import ru.sber.cb.ap.gusli.actor.core.Workflow.{BindEntity, BindEntitySuccessful}
 import ru.sber.cb.ap.gusli.actor.core._
-import ru.sber.cb.ap.gusli.actor.core.diff.dto.WorkflowDtoExtractor.WorkflowExtracted
+import ru.sber.cb.ap.gusli.actor.core.extractor.WorkflowDtoExtractor
+import ru.sber.cb.ap.gusli.actor.core.extractor.WorkflowDtoExtractor.WorkflowExtracted
 
 class WorkflowDtoExtractorSpec extends ActorBaseTest("WorkflowDtoExtractorSpec") {
   private val receiver = TestProbe()
