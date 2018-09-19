@@ -39,9 +39,9 @@ class WorkflowDtoExtractor extends BaseActor {
 
       val wf: Workflow = sender()
       wfMeta = wfMeta + (wf -> m)
-      //awaitExtract(wf) ! WorkflowExtracted(dto)
-      //awaitExtract = awaitExtract - wf
-    case EntityList(entities)=>
+    //awaitExtract(wf) ! WorkflowExtracted(dto)
+    //awaitExtract = awaitExtract - wf
+    case EntityList(entities) =>
       entities.foreach(_ ! GetEntityMeta())
   }
 }
