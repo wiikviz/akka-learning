@@ -18,15 +18,15 @@ object YamlEntityMapper extends App {
     val mapper: ObjectMapper = new ObjectMapper(new YAMLFactory())
     mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
     mapper.registerModule(DefaultScalaModule)
+    
     val entityMetaFromYaml = mapper.readValue(lines, classOf[EntityFromYaml])
-    EntityMetaDefault(0, null, entityMetaFromYaml.path.getOrElse(""), YamlFilePathWorker.getParentIdFromPath(path))
+    
+    EntityMetaDefault(0, null, entityMetaFromYaml.path.getOrElse(""), YamlFilePathWorker.extractParentIdFromPath(path))
   }
   
   def read(path: Path, id: Long, name: String): EntityMetaDefault = {
     this.read(path).copy(id = id, name = name)
   }
-  
-
 }
 
 class EntityFromYaml {
