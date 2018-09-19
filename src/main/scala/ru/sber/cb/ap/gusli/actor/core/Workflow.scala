@@ -15,18 +15,14 @@ object Workflow {
   case class BindEntity(entityId: Long, replyTo: Option[ActorRef] = None) extends Request
 
   case class GetEntityList(replyTo: Option[ActorRef] = None) extends Request
-  case class GetEntityIndexesSet(replyTo: Option[ActorRef] = None) extends Request
 
-
-
+  //responses
   case class WorkflowMetaResponse(workflowMeta: WorkflowMeta) extends Response
 
   case class BindEntitySuccessful(entityId: Long) extends Response
   case class BindEntityFailedBecauseItNotExists(entityId: Long) extends Response
 
   case class EntityList(actorList: Seq[ActorRef]) extends ActorListResponse
-  case class EntityIndexesSet(BindEntityIndexesSet:Set[Long]) extends Response
-
 }
 
 class Workflow(meta: WorkflowMeta, project: ActorRef) extends BaseActor {
@@ -60,10 +56,6 @@ class Workflow(meta: WorkflowMeta, project: ActorRef) extends BaseActor {
 
     case GetEntityList(sendTo) =>
       sendTo getOrElse sender ! EntityList(boundEntitySet.values.toSeq)
-
-    case GetEntityIndexesSet(sendTo) =>
-      sendTo getOrElse sender ! EntityIndexesSet(boundEntitySet.keys.toSet)
-
   }
 }
 
