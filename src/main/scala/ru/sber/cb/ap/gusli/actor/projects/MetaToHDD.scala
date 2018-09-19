@@ -25,7 +25,7 @@ object MetaToHDD {
 
 
 
-  def writeWorkflowMetaToPath(meta:WorkflowMeta, dir:Path, categoryMeta: CategoryMeta): Path ={
+  def writeWorkflowMetaToPath(meta:WorkflowMeta, dir:Path, categoryMeta: CategoryMeta, bindEntityIndexesSet:Set[Long]): Path ={
     val workflowFolder = createNewFolder(meta.name, dir)
 
 

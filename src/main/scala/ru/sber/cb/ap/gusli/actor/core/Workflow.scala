@@ -12,17 +12,20 @@ object Workflow {
 
   case class GetWorkflowMeta(replyTo: Option[ActorRef] = None) extends Request
 
-  case class GetEntityList(replyTo: Option[ActorRef] = None) extends Request
+  case class BindEntity(entityId: Long, replyTo: Option[ActorRef] = None) extends Request
 
-  /*private*/ case class BindEntity(entityId: Long, replyTo: Option[ActorRef] = None) extends Request
+  case class GetEntityList(replyTo: Option[ActorRef] = None) extends Request
+  case class GetEntityIndexesSet(replyTo: Option[ActorRef] = None) extends Request
+
+
+
+  case class WorkflowMetaResponse(workflowMeta: WorkflowMeta) extends Response
 
   case class BindEntitySuccessful(entityId: Long) extends Response
-
   case class BindEntityFailedBecauseItNotExists(entityId: Long) extends Response
 
   case class EntityList(actorList: Seq[ActorRef]) extends ActorListResponse
-
-  case class WorkflowMetaResponse(workflowMeta: WorkflowMeta) extends Response
+  case class EntityIndexesSet(BindEntityIndexesSet:Set[Long]) extends Response
 
 }
 
@@ -31,7 +34,7 @@ class Workflow(meta: WorkflowMeta, project: ActorRef) extends BaseActor {
   import Workflow._
 
   var awaitEntityBind: Map[Long, immutable.List[ActorRef]] = HashMap.empty[Long, List[ActorRef]]
-  var boundEntitySet: Set[ActorRef] = Set.empty[ActorRef]
+  var boundEntitySet: Map[Long, ActorRef] = Map.empty[Long, ActorRef]
 
   override def receive: Receive = {
     case GetWorkflowMeta(sendTo) => sendTo.getOrElse(sender) ! WorkflowMetaResponse(meta)
@@ -51,12 +54,15 @@ class Workflow(meta: WorkflowMeta, project: ActorRef) extends BaseActor {
       awaitEntityBind = awaitEntityBind.filterKeys(id => id != entityId)
 
     case EntityFound(meta, entityRef) =>
-      boundEntitySet = boundEntitySet + entityRef
+      boundEntitySet = boundEntitySet + (meta.id -> entityRef)
       awaitEntityBind getOrElse(meta.id, Nil) foreach (_ ! BindEntitySuccessful(meta.id))
       awaitEntityBind = awaitEntityBind - meta.id
 
     case GetEntityList(sendTo) =>
-      sendTo getOrElse sender ! EntityList(boundEntitySet.toSeq)
+      sendTo getOrElse sender ! EntityList(boundEntitySet.values.toSeq)
+
+    case GetEntityIndexesSet(sendTo) =>
+      sendTo getOrElse sender ! EntityIndexesSet(boundEntitySet.keys.toSet)
 
   }
 }
