@@ -12,3 +12,18 @@ case class WorkflowDto(name: String,
                        params: Map[String, String] = Map.empty,
                        stats: Set[Long] = Set.empty,
                        entities: Set[Long] = Set.empty) extends WorkflowMeta
+
+object WorkflowDto {
+  def apply(meta: WorkflowMeta, entities: Set[Long]): WorkflowDto =
+    WorkflowDto(
+      meta.name,
+      meta.sql,
+      meta.sqlMap,
+      meta.init,
+      meta.user,
+      meta.queue,
+      meta.grenkiVersion,
+      meta.params,
+      meta.stats,
+      entities)
+}

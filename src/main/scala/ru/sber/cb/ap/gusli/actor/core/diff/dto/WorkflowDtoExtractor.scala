@@ -1,47 +1,43 @@
 package ru.sber.cb.ap.gusli.actor.core.diff.dto
 
 import akka.actor.{ActorRef, Props}
-import ru.sber.cb.ap.gusli.actor.core.Entity.GetEntityMeta
-import ru.sber.cb.ap.gusli.actor.core.Workflow.{EntityList, GetEntityList, GetWorkflowMeta, WorkflowMetaResponse}
-import ru.sber.cb.ap.gusli.actor.core.{EntityMeta, WorkflowMeta}
-import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
+import ru.sber.cb.ap.gusli.actor.core.Workflow.{GetWorkflowMeta, WorkflowMetaResponse}
+import ru.sber.cb.ap.gusli.actor.core.WorkflowMeta
+import ru.sber.cb.ap.gusli.actor.core.diff.dto.EntityIdExtractor.EntityIdExtracted
+import ru.sber.cb.ap.gusli.actor.{BaseActor, Response}
 
 object WorkflowDtoExtractor {
-  def apply(): Props = Props(new WorkflowDtoExtractor())
-
-  case class Extract(wf: ActorRef, replyTo: Option[ActorRef] = None) extends Request
+  def apply(wf: ActorRef, receiver: ActorRef): Props = Props(new WorkflowDtoExtractor(wf, receiver))
 
   case class WorkflowExtracted(dto: WorkflowDto) extends Response
 
 }
 
-class WorkflowDtoExtractor extends BaseActor {
-  type Workflow = ActorRef
-  type Requester = ActorRef
-  type Entity = ActorRef
+class WorkflowDtoExtractor(wf: ActorRef, receiver: ActorRef) extends BaseActor {
 
   import WorkflowDtoExtractor._
 
-  var awaitExtract: Map[Workflow, Requester] = Map.empty
-  var wfMeta: Map[Workflow, WorkflowMeta] = Map.empty
-  var entityIds: Map[Workflow, Seq[Long]] = Map.empty
-  var entityMetas: Map[Long, EntityMeta] = Map.empty
+  var meta: Option[WorkflowMeta] = None
+  var ids: Option[Set[Long]] = None
+
+  override def preStart(): Unit = {
+    context.actorOf(EntityIdExtractor(wf, self))
+    wf ! GetWorkflowMeta()
+  }
 
   override def receive: Receive = {
-    case Extract(wf, sendTo) =>
-      val replyTo = sendTo getOrElse sender
-      awaitExtract = awaitExtract + (wf -> replyTo)
-      wf ! GetWorkflowMeta()
-      wf ! GetEntityList()
     case WorkflowMetaResponse(m) =>
-      //todo: replace for unapply
-      val dto = WorkflowDto(m.name, m.sql, m.sqlMap, m.init, m.user, m.queue, m.grenkiVersion, m.params, m.stats, Set.empty)
+      meta = Some(m)
+      checkFinish()
+    case EntityIdExtracted(e) =>
+      ids = Some(e)
+      checkFinish()
+  }
 
-      val wf: Workflow = sender()
-      wfMeta = wfMeta + (wf -> m)
-    //awaitExtract(wf) ! WorkflowExtracted(dto)
-    //awaitExtract = awaitExtract - wf
-    case EntityList(entities) =>
-      entities.foreach(_ ! GetEntityMeta())
+  def checkFinish(): Unit = {
+    for (m <- meta; i <- ids) yield {
+      receiver ! WorkflowExtracted(WorkflowDto(m, i))
+      context.stop(self)
+    }
   }
 }

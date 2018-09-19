@@ -34,7 +34,7 @@ class EntityIdExtractorSpec extends ActorBaseTest("EntityIdExtractorSpec") {
       entity1.expectMsg(GetEntityMeta())
       entity1.reply(EntityMetaResponse(EntityMetaDefault(1, "entity1", "/entity1", None)))
       "send back EntityIdExtracted(Seq(1,2,3))" in {
-        receiver.expectMsg(EntityIdExtracted(Seq(1, 2)))
+        receiver.expectMsg(EntityIdExtracted(Set(1, 2)))
       }
     }
   }
