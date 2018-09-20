@@ -6,7 +6,7 @@ import java.nio.file.{Files, Path}
 
 import ru.sber.cb.ap.gusli.actor.core.dto.WorkflowDto
 import ru.sber.cb.ap.gusli.actor.core.{CategoryMeta, EntityMeta, ProjectMeta}
-import ru.sber.cb.ap.gusli.actor.projects.writeres.MetaToYamlSerialization.convertEntityMetaToYAMLFileContent
+import ru.sber.cb.ap.gusli.actor.projects.writeres.MetaToYamlSerialization._
 
 object MetaToHDD {
   def writeProjectMetaToPath(meta: ProjectMeta, path: Path): Path =
@@ -21,23 +21,28 @@ object MetaToHDD {
   }
 
 
-  def writeWorkflowMetaToPath(dto: WorkflowDto, dir: Path, categoryMeta: CategoryMeta): Path = {
-    val workflowFolder = createNewFolder(dto.name, dir)
+  def writeWorkflowMetaToPath(dto: WorkflowDto, dir: Path, categoryMeta: CategoryMeta): Either[Path,Path] = {
+    val fileContent = convertWorkflowMetaToYAMLFileContent(dto,categoryMeta)
+
+//    val workflowFolder = createNewFolder(dto.name, dir)
+    val wriitenFile = writeYAMLTextFileToDirectory(fileContent, s"wf-${dto.name}", dir)
 
 
-    workflowFolder
+    Left(wriitenFile)
+
+
   }
 
 
-  def writeEntityMetaToPath(meta: EntityMeta, dir: Path, parentMeta: EntityMeta, hasChildren: Boolean): Path = {
+  def writeEntityMetaToPath(meta: EntityMeta, dir: Path, parentMeta: EntityMeta, hasChildren: Boolean): Either[Path,Path] = {
     val fileContent = convertEntityMetaToYAMLFileContent(meta, parentMeta)
     if (hasChildren) {
       val entityFolder = createNewFolder(meta.name, dir)
       writeYAMLTextFileToDirectory(fileContent, "entity", entityFolder)
-      entityFolder
+      Right(entityFolder)
     }
     else
-      writeYAMLTextFileToDirectory(fileContent, s"${meta.id} ${meta.id}", dir)
+      Left(writeYAMLTextFileToDirectory(fileContent, s"${meta.id} ${meta.id}", dir))
   }
 
 
