@@ -25,10 +25,8 @@ case class EntityFolderReader(meta: EntityFolderReaderMeta) extends BaseActor {
   
   override def receive: Receive = {
     case ReadEntity(sender) =>
-      println(s"ReadEntity STARTED IN $path with $entity")
       val files: List[Path] = getAllValidEntityChilds(path)
       files.foreach { p =>
-        s"FOUND FILE/FOLDER ${p.getFileName}"
         doIfYaml(p)
         doIfFolder(p)
       }
@@ -40,14 +38,12 @@ case class EntityFolderReader(meta: EntityFolderReaderMeta) extends BaseActor {
   private def doIfYaml(path: Path): Unit = {
     if (isYaml(path)) {
       this.meta.entity ! AddChildEntity(createMetaFromFile(path))
-      println(s"SEND AddChildEntity WITH FILE ${path.getFileName}")
     }
   }
   
   private def doIfFolder(path: Path): Unit = {
     if (!isYaml(path)) {
       entity ! AddChildEntity(createMetaFromFolder(path))
-      s"SEND AddChildEntity WITH FOLDER ${path.getFileName}"
     }
   }
   

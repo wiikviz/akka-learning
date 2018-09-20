@@ -25,20 +25,15 @@ case class DirectoryProjectReader(meta: DirectoryProjectReaderMeta) extends Base
   override def receive: Receive = {
     case ReadProject(sendTo: Option[ActorRef]) =>
       val categoryMeta = initializeCategoryMeta()
-      println(s"initialized categoryMeta = $categoryMeta")
       val project = createProject(categoryMeta)
-      println(s"created project $project")
       fillProjectWithEntities(project)
       sendTo.getOrElse(sender) ! ProjectReaded(project)
     
     case EntityRoot(entity) =>
       val entityReader = context.actorOf(EntityFolderReader(EntityFolderReaderMetaDefault(path.resolve("entity"), entity)))
-      println(s"CREATED entityReader = $entityReader")
       entityReader ! ReadEntity()
-      println(s"SEND ReadEntity TO EntityFolderReader")
       Thread.sleep(1000)
       entityReader ! PoisonPill
-      println(s"SEND POISON PILL TO ROOT ENTITY")
   }
   
   private def initializeCategoryMeta() = {
