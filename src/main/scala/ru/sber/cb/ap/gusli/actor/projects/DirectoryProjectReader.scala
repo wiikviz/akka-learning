@@ -26,15 +26,19 @@ class DirectoryProjectReader() extends BaseActor {
     case ReadProject(pathToReadFolder: Path, sendTo: Option[ActorRef]) =>
       this.path = pathToReadFolder
       val categoryMeta = initializeCategoryMeta()
+      println(s"initialized categoryMeta = $categoryMeta")
       val project = createProject(categoryMeta)
+      println(s"created project $project")
       fillProjectWithEntities(project)
       sendTo.getOrElse(sender) ! ProjectReaded(project)
     
     case EntityRoot(entity) =>
       val entityReader = context.actorOf(EntityFolderReader(EntityFolderReaderMetaDefault(path.resolve("entity"), entity)))
+      println(s"CREATED entityReader = $entityReader")
       entityReader ! ReadEntity()
-      entityReader ! PoisonPill
-      self ! PoisonPill
+      println(s"SEND ReadEntity TO ROOT ENTITY")
+//      entityReader ! PoisonPill
+      println(s"SEND POISON PILL TO ROOT ENTITY")
   }
   
   private def initializeCategoryMeta() = {

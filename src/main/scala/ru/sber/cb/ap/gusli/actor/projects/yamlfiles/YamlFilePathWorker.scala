@@ -47,9 +47,11 @@ object YamlFilePathWorker {
   def getAllValidChilds1(path: Path): List[Path] = path.toFile.listFiles().map(_.toPath).toList
   
   def getAllValidEntityChilds(path: Path): List[Path] = {
+    println(s"getAllValidEntityChilds TRY TO FIND FILES IN PATH $path")
     val files = path.toFile.listFiles(new FilenameFilter {
       override def accept(dir: File, name: String): Boolean = name.matches("[0-9]+\\s.*")
     })
+    s"FOUND FILES $files"
     files.map(_.toPath).toList
   }
   
