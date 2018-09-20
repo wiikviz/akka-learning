@@ -40,7 +40,7 @@ class EntitySpec extends ActorBaseTest("EntitySpec") {
     }
 
     "receive again GetChildren" should {
-      "send back empty ChildrenEntityList" in {
+      "send back list with size 1" in {
         entity ! GetChildren()
         expectMsgPF() {
           case ChildrenEntityList(list) => assert(list.size == 1)
