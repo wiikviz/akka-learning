@@ -64,16 +64,16 @@ class YamlFilePathWorkerSpec extends ActorBaseTest("YamlFilePathWorkerSpec") {
         assert(parseIdAndNameFrom(Paths.get("23 lalala")) == (23, "lalala"))
       }
     }
-    "receive getAllValidChilds(\\src\\test\\resources\\project_test-2\\entity)" should {
+    "receive getAllValidChilds(/src/test/resources/project_test-2/entity)" should {
       "return 1 folder" in {
-        val childs = getAllValidEntityChilds(Paths.get(".\\src\\test\\resources\\project_test-2\\entity"))
+        val childs = getAllValidEntityChilds(Paths.get("./src/test/resources/project_test-2/entity"))
         assert(childs(0).getFileName.toString == "105000000 entity-root")
         assert(childs.size == 1)
       }
     }
-    "receive getAllValidChilds(.\\src\\test\\resources\\project_test-2\\entity\\105000000 entity-root\\105060000 entity-parent\\105067000 entity-children)" should {
+    "receive getAllValidChilds(./src/test/resources/project_test-2/entity/105000000 entity-root/105060000 entity-parent/105067000 entity-children)" should {
       "return list with size 3" in {
-        val childs = getAllValidEntityChilds(Paths.get(".\\src\\test\\resources\\project_test-2\\entity\\105000000 entity-root\\105060000 entity-parent\\105067000 entity-children"))
+        val childs = getAllValidEntityChilds(Paths.get("./src/test/resources/project_test-2/entity/105000000 entity-root/105060000 entity-parent/105067000 entity-children"))
         assert(childs.size == 3)
       }
     }
