@@ -1,4 +1,4 @@
-package ru.sber.cb.ap.gusli.actor.projects
+package ru.sber.cb.ap.gusli.actor.projects.read.entity
 
 import java.nio.file.Path
 
@@ -6,10 +6,10 @@ import akka.actor.{ActorRef, Props}
 import ru.sber.cb.ap.gusli.actor.BaseActor
 import ru.sber.cb.ap.gusli.actor.core.Entity.{AddChildEntity, EntityCreated}
 import ru.sber.cb.ap.gusli.actor.core.EntityMetaDefault
-import ru.sber.cb.ap.gusli.actor.projects.EntityFolderReader.ReadEntity
-import ru.sber.cb.ap.gusli.actor.projects.EntityFolderResolver.ResolvePath
-import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.{YamlEntityMapper, YamlFilePathWorker}
+import EntityFolderResolver.ResolvePath
+import ru.sber.cb.ap.gusli.actor.projects.read.entity.EntityFolderReader.ReadEntity
 import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.YamlFilePathWorker._
+import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.{YamlEntityMapper, YamlFilePathWorker}
 
 object EntityFolderReader {
   def apply(meta: EntityFolderReaderMeta): Props = Props(new EntityFolderReader(meta))
