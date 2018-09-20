@@ -12,10 +12,9 @@ import ru.sber.cb.ap.gusli.actor.core.{ActorBaseTest, CategoryMetaDefault, Entit
 import ru.sber.cb.ap.gusli.actor.projects.DirectoryProjectReader
 import ru.sber.cb.ap.gusli.actor.projects.DirectoryProjectReader._
 
-@Ignore
 class DirectoryProjectReaderSpec extends ActorBaseTest("DirectoryProjectSpec") {
   val directoryProjectReader: ActorRef = system.actorOf(DirectoryProjectReader())
-  val correctPath = Paths.get(".\\src\\test\\resources\\project_test")
+  val correctPath = Paths.get(".\\src\\test\\resources\\project_test2")
   val incorrectPath = Paths.get("incorrect_path_here")
 
   override def afterAll: Unit = {
@@ -37,14 +36,14 @@ class DirectoryProjectReaderSpec extends ActorBaseTest("DirectoryProjectSpec") {
       }
       "and project receiving GetProjectMeta should send back ProjectMetaResponse" in {
         project ! GetProjectMeta()
-        expectMsg(ProjectMetaResponse(ProjectMetaDefault("project_test")))
+        expectMsg(ProjectMetaResponse(ProjectMetaDefault("project_test2")))
       }
       "receiving GetEntityRoot should send back EntityRoot" in {
         project ! GetEntityRoot()
         expectMsgPF() {
           case EntityRoot(root) =>
             root ! GetEntityMeta()
-            expectMsg(EntityMetaResponse(EntityMetaDefault(0, "entity", "/data", None)))
+            expectMsg(EntityMetaResponse(EntityMetaDefault(0, "entity", "", None)))
         }
       }
       "receiving GetCategoryRoot should send back CategoryRoot" in {
@@ -56,7 +55,12 @@ class DirectoryProjectReaderSpec extends ActorBaseTest("DirectoryProjectSpec") {
             expectMsg(CategoryMetaResponse(CategoryMetaDefault("category", Map.empty)))
         }
       }
+      "receiving FindEntity(0) should send back EntityFound" in {
+        project ! FindEntity(0)
+        expectMsgAnyClassOf(classOf[EntityFound])
+      }
       "receiving FindEntity(1) should send back EntityNotFound" in {
+        Thread.sleep(5000)
         project ! FindEntity(1)
         expectMsgAnyClassOf(classOf[EntityNotFound])
       }
