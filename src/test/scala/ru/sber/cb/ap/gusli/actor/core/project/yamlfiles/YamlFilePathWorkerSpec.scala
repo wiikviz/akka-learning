@@ -6,7 +6,7 @@ import ru.sber.cb.ap.gusli.actor.core.ActorBaseTest
 import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.YamlFilePathWorker._
 
 class YamlFilePathWorkerSpec extends ActorBaseTest("YamlFilePathWorkerSpec") {
-  val path = ".\\src\\test\\resources\\project_test-2\\entity\\105000000 entity-root\\105060000 entity-parent"
+  val path = "./src/test/resources/project_test-2/entity/105000000 entity-root/105060000 entity-parent"
   
   "A YamlFilePathWorker" when {
   
@@ -36,7 +36,7 @@ class YamlFilePathWorkerSpec extends ActorBaseTest("YamlFilePathWorkerSpec") {
     }
     "receive isYaml(./entity/entity.yaml)" should {
       "return true" in {
-        assert(isYaml(Paths.get(".\\src\\test\\resources\\project_test-2\\entity\\entity.yaml")))
+        assert(isYaml(Paths.get("./src/test/resources/project_test-2/entity/entity.yaml")))
       }
     }
     "receive isYaml(./entity/entity)" should {
