@@ -1,0 +1,16 @@
+---
+grenkiVersion: 0.2
+queue: root.platform
+user: pupkin
+init:
+  - init.hql
+  - init2.hql
+map:
+  - map.config
+  - map2.config
+param:
+  - p1: 1
+  - p2: I'm String
+stats:
+  - 2
+entities: 105067300
