@@ -1,7 +1,7 @@
 package ru.sber.cb.ap.gusli.actor.projects.yamlfiles
 
 import java.io.{File, FilenameFilter}
-import java.nio.file.Path
+import java.nio.file.{Path, Paths}
 
 object YamlFilePathWorker {
   
@@ -47,11 +47,13 @@ object YamlFilePathWorker {
   def getAllValidChilds1(path: Path): List[Path] = path.toFile.listFiles().map(_.toPath).toList
   
   def getAllValidEntityChilds(path: Path): List[Path] = {
-    println(s"getAllValidEntityChilds TRY TO FIND FILES IN PATH $path")
+    println(s"YamlFilePathWorker STARTS getAllValidEntityChilds")
+    println(s"getAllValidEntityChilds FINDS FILES IN PATH $path")
     val files = path.toFile.listFiles(new FilenameFilter {
       override def accept(dir: File, name: String): Boolean = name.matches("[0-9]+\\s.*")
     })
-    s"FOUND FILES $files"
+    
+    files.foreach(f => println(s"FOUND FILE ${f.getName}"))
     files.map(_.toPath).toList
   }
   

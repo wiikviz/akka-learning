@@ -15,7 +15,7 @@ import ru.sber.cb.ap.gusli.actor.projects.DirectoryProjectReader._
 @Ignore
 class DirectoryProjectReaderSpec extends ActorBaseTest("DirectoryProjectSpec") {
   val directoryProjectReader: ActorRef = system.actorOf(DirectoryProjectReader())
-  val correctPath = Paths.get("./src/test/resources/project_test2")
+  val correctPath = Paths.get("./src/test/resources/project_test-2")
   val incorrectPath = Paths.get("incorrect_path_here")
 
   override def afterAll: Unit = {
@@ -31,13 +31,14 @@ class DirectoryProjectReaderSpec extends ActorBaseTest("DirectoryProjectSpec") {
       var rbCategory: ActorRef = null
       "send back ProjectReaded(project)" in {
         directoryProjectReader ! ReadProject(correctPath)
+        Thread.sleep(1000)
         expectMsgPF() {
           case ProjectReaded(inputProject) => project = inputProject
         }
       }
       "and project receiving GetProjectMeta should send back ProjectMetaResponse" in {
         project ! GetProjectMeta()
-        expectMsg(ProjectMetaResponse(ProjectMetaDefault("project_test2")))
+        expectMsg(ProjectMetaResponse(ProjectMetaDefault("project_test-2")))
       }
       "receiving GetEntityRoot should send back EntityRoot" in {
         project ! GetEntityRoot()
@@ -59,11 +60,6 @@ class DirectoryProjectReaderSpec extends ActorBaseTest("DirectoryProjectSpec") {
       "receiving FindEntity(0) should send back EntityFound" in {
         project ! FindEntity(0)
         expectMsgAnyClassOf(classOf[EntityFound])
-      }
-      "receiving FindEntity(1) should send back EntityNotFound" in {
-        Thread.sleep(5000)
-        project ! FindEntity(1)
-        expectMsgAnyClassOf(classOf[EntityNotFound])
       }
       "receiving FindEntity(105000000) should send back EntityFound" in {
         project ! FindEntity(105000000)
@@ -88,6 +84,10 @@ class DirectoryProjectReaderSpec extends ActorBaseTest("DirectoryProjectSpec") {
       "receiving FindEntity(105067300) should send back EntityFound" in {
         project ! FindEntity(105067300)
         expectMsgAnyClassOf(classOf[EntityFound])
+      }
+      "receiving FindEntity(1) should send back EntityNotFound" in {
+        project ! FindEntity(1)
+        expectMsg(EntityNotFound(1))
       }
       "and root-category receiving ListSubcategory should send back SubcategoryList with 'cb'" in {
         rootCategory ! ListSubcategory()

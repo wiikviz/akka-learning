@@ -33,7 +33,7 @@ case class EntityFolderReader(meta: EntityFolderReaderMeta) extends BaseActor {
         doIfFolder(p)
       }
     case EntityCreated(child: Entity) =>
-      val pathResolver = context.actorOf(EntityFolderResolver(EntityFolderResolverMetaDefault(path, entity)))
+      val pathResolver = context.actorOf(EntityFolderResolver(EntityFolderResolverMetaDefault(path, child)))
       pathResolver ! ResolvePath()
   }
   
@@ -60,7 +60,7 @@ case class EntityFolderReader(meta: EntityFolderReaderMeta) extends BaseActor {
     val (id, name) = parseIdAndNameFrom(path)
     val entityYaml = path.resolve("entity.yaml")
     if (entityYaml.toFile.exists())
-      YamlEntityMapper.read(path, id, name)
+      YamlEntityMapper.read(entityYaml, id, name)
     else
       EntityMetaDefault(id, name, "", YamlFilePathWorker.extractParentIdFromPath(path))
   }
