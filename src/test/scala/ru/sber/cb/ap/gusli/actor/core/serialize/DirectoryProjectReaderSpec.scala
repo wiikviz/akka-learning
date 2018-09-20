@@ -14,9 +14,9 @@ import ru.sber.cb.ap.gusli.actor.projects.DirectoryProjectReader._
 
 @Ignore
 class DirectoryProjectReaderSpec extends ActorBaseTest("DirectoryProjectSpec") {
-  val directoryProjectReader: ActorRef = system.actorOf(DirectoryProjectReader())
   val correctPath = Paths.get("./src/test/resources/project_test-2")
   val incorrectPath = Paths.get("incorrect_path_here")
+  val directoryProjectReader: ActorRef = system.actorOf(DirectoryProjectReader(correctPath))
 
   override def afterAll: Unit = {
     TestKit.shutdownActorSystem(system)
@@ -30,7 +30,7 @@ class DirectoryProjectReaderSpec extends ActorBaseTest("DirectoryProjectSpec") {
       var apCategory: ActorRef = null
       var rbCategory: ActorRef = null
       "send back ProjectReaded(project)" in {
-        directoryProjectReader ! ReadProject(correctPath)
+        directoryProjectReader ! ReadProject()
         Thread.sleep(1000)
         expectMsgPF() {
           case ProjectReaded(inputProject) => project = inputProject

@@ -9,22 +9,21 @@ import ru.sber.cb.ap.gusli.actor.projects.EntityFolderReader.ReadEntity
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
 
 object DirectoryProjectReader {
-  def apply(): Props = Props(new DirectoryProjectReader())
+  def apply(path: Path): Props = Props(new DirectoryProjectReader(DirectoryProjectReaderMetaDefault(path)))
   
-  case class ReadProject(path: Path, replyTo: Option[ActorRef] = None) extends Request
+  case class ReadProject(replyTo: Option[ActorRef] = None) extends Request
   
   case class ProjectReaded(actorRef: ActorRef) extends Response
   case class ProjectNotReaded(path: Path) extends Response
 }
 
-class DirectoryProjectReader() extends BaseActor {
+case class DirectoryProjectReader(meta: DirectoryProjectReaderMeta) extends BaseActor {
   import DirectoryProjectReader._
-  var path: Path = _
+  val path: Path = this.meta.path
 //  private var nextStage: ActorRef = _//context.actorOf(EntityFolderReader(EntityFolderReaderMetaDefault()))
   
   override def receive: Receive = {
-    case ReadProject(pathToReadFolder: Path, sendTo: Option[ActorRef]) =>
-      this.path = pathToReadFolder
+    case ReadProject(sendTo: Option[ActorRef]) =>
       val categoryMeta = initializeCategoryMeta()
       println(s"initialized categoryMeta = $categoryMeta")
       val project = createProject(categoryMeta)
@@ -36,8 +35,9 @@ class DirectoryProjectReader() extends BaseActor {
       val entityReader = context.actorOf(EntityFolderReader(EntityFolderReaderMetaDefault(path.resolve("entity"), entity)))
       println(s"CREATED entityReader = $entityReader")
       entityReader ! ReadEntity()
-      println(s"SEND ReadEntity TO ROOT ENTITY")
-//      entityReader ! PoisonPill
+      println(s"SEND ReadEntity TO EntityFolderReader")
+      Thread.sleep(1000)
+      entityReader ! PoisonPill
       println(s"SEND POISON PILL TO ROOT ENTITY")
   }
   
@@ -58,3 +58,9 @@ class DirectoryProjectReader() extends BaseActor {
   
   }
 }
+
+trait DirectoryProjectReaderMeta {
+  val path: Path
+}
+
+case class DirectoryProjectReaderMetaDefault(path: Path) extends DirectoryProjectReaderMeta
