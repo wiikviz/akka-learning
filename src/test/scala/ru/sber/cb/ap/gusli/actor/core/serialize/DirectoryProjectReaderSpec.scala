@@ -12,9 +12,10 @@ import ru.sber.cb.ap.gusli.actor.core.{ActorBaseTest, CategoryMetaDefault, Entit
 import ru.sber.cb.ap.gusli.actor.projects.DirectoryProjectReader
 import ru.sber.cb.ap.gusli.actor.projects.DirectoryProjectReader._
 
+@Ignore
 class DirectoryProjectReaderSpec extends ActorBaseTest("DirectoryProjectSpec") {
   val directoryProjectReader: ActorRef = system.actorOf(DirectoryProjectReader())
-  val correctPath = Paths.get(".\\src\\test\\resources\\project_test2")
+  val correctPath = Paths.get("./src/test/resources/project_test2")
   val incorrectPath = Paths.get("incorrect_path_here")
 
   override def afterAll: Unit = {
