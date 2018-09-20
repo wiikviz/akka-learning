@@ -1,11 +1,13 @@
-package ru.sber.cb.ap.gusli.actor.projects
+package ru.sber.cb.ap.gusli.actor.projects.read
 
 import java.nio.file.Path
 
 import akka.actor.{ActorRef, PoisonPill, Props}
 import ru.sber.cb.ap.gusli.actor.core.Project.{EntityRoot, GetEntityRoot}
 import ru.sber.cb.ap.gusli.actor.core.{CategoryMeta, CategoryMetaDefault, Project, ProjectMetaDefault}
-import ru.sber.cb.ap.gusli.actor.projects.EntityFolderReader.ReadEntity
+import ru.sber.cb.ap.gusli.actor.projects.read.entity.EntityFolderReader.ReadEntity
+import ru.sber.cb.ap.gusli.actor.projects._
+import ru.sber.cb.ap.gusli.actor.projects.read.entity.{EntityFolderReader, EntityFolderReaderMetaDefault}
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
 
 object DirectoryProjectReader {

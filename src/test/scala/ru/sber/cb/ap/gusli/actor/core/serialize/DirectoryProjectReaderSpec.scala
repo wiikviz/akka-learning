@@ -9,10 +9,9 @@ import ru.sber.cb.ap.gusli.actor.core.Category.{apply => _, _}
 import ru.sber.cb.ap.gusli.actor.core.Entity.{EntityMetaResponse, GetEntityMeta}
 import ru.sber.cb.ap.gusli.actor.core.Project.{apply => _, _}
 import ru.sber.cb.ap.gusli.actor.core.{ActorBaseTest, CategoryMetaDefault, EntityMetaDefault, ProjectMetaDefault}
-import ru.sber.cb.ap.gusli.actor.projects.DirectoryProjectReader
-import ru.sber.cb.ap.gusli.actor.projects.DirectoryProjectReader._
+import ru.sber.cb.ap.gusli.actor.projects.read.DirectoryProjectReader._
+import ru.sber.cb.ap.gusli.actor.projects.read.DirectoryProjectReader
 
-@Ignore
 class DirectoryProjectReaderSpec extends ActorBaseTest("DirectoryProjectSpec") {
   val correctPath = Paths.get("./src/test/resources/project_test-2")
   val incorrectPath = Paths.get("incorrect_path_here")
