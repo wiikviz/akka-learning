@@ -19,6 +19,10 @@ class EntityNotFoundSpec extends ActorBaseTest("EntityNotFoundSpec") {
         project ! FindEntity(1)
         expectMsg(EntityNotFound(1))
       }
+
+      "and EntityNotFound(1) received only once time" in {
+        expectNoMessage()
+      }
     }
   }
 }
