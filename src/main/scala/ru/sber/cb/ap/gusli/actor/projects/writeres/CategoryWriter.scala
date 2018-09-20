@@ -1,4 +1,4 @@
-package ru.sber.cb.ap.gusli.actor.projects
+package ru.sber.cb.ap.gusli.actor.projects.writeres
 
 import java.nio.file.Path
 
@@ -11,7 +11,7 @@ import ru.sber.cb.ap.gusli.actor.core.Workflow.GetWorkflowMeta
 
 class CategoryWriter(path:Path, parentMeta:CategoryMeta) extends BaseActor{
 
-  var createdForThisCatrgoryFolderPath:Path = _
+  var createdForThisCategoryFolderPath:Path = _
   var meta: CategoryMeta = _
 
   override def receive: Receive = {
@@ -20,20 +20,20 @@ class CategoryWriter(path:Path, parentMeta:CategoryMeta) extends BaseActor{
       categoryRootActorRef ! GetCategoryMeta(Some(context.self))
 
     case CategoryMetaResponse(categoryMeta: CategoryMeta) =>
-      createdForThisCatrgoryFolderPath = MetaToHDD.writeCategoryMetaToPath(categoryMeta,path, parentMeta)
+      createdForThisCategoryFolderPath = MetaToHDD.writeCategoryMetaToPath(categoryMeta,path, parentMeta)
       meta = categoryMeta
       sender ! ListSubcategory(Some(context.self))
       sender ! ListWorkflow(Some(context.self))
 
     case SubcategoryList(subcategoryActorRefList) =>
       for (subcategory <- subcategoryActorRefList){
-        val categoryWriterActorRef = context actorOf CategoryWriter(createdForThisCatrgoryFolderPath, meta)
+        val categoryWriterActorRef = context actorOf CategoryWriter(createdForThisCategoryFolderPath, meta)
         subcategory ! GetCategoryMeta(Some(categoryWriterActorRef))
       }
 
     case WorkflowList(workflowActorRefList) =>
       for(workflow <- workflowActorRefList){
-        val workflowWriterActorRef = context actorOf WorkflowWriter(createdForThisCatrgoryFolderPath, meta)
+        val workflowWriterActorRef = context actorOf WorkflowWriter(createdForThisCategoryFolderPath, meta)
         workflow ! GetWorkflowMeta(Some(workflowWriterActorRef))
       }
   }
