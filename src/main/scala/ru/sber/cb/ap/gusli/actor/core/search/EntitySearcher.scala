@@ -47,7 +47,8 @@ class EntitySearcher(entityRefs: Seq[ActorRef], entityId: Long, replyTo: ActorRe
         replyTo ! EntityNotFound(entityId)
         context.stop(self)
       }
-      checkNotFound()
+      else
+        checkNotFound()
     case r: EntityFound =>
       replyTo ! r
       context.stop(self)
