@@ -48,7 +48,7 @@ object CreateActorByPattern extends App {
     
     trait ${actorName}Meta {}
     
-    case class ${actorName}MetaDefault()
+    case class ${actorName}MetaDefault() extends ${actorName}Meta
     """
   
   println(pattern)
