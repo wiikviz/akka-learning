@@ -78,7 +78,7 @@ class YamlFilePathWorkerSpec extends ActorBaseTest("YamlFilePathWorkerSpec") {
       }
     }
     "receive getAllValidCategoryChilds(./src/test/resources/project_test-2/category/cb)" should {
-      "return list with size 3" in {
+      "return list with size 4" in {
         val childs = getAllValidCategoryChilds(Paths.get("./src/test/resources/project_test-2/category/cb"), scala.collection.mutable.ArrayBuffer("cb-wf1.sql", "AP"))
         assert(childs.size == 4)
       }
