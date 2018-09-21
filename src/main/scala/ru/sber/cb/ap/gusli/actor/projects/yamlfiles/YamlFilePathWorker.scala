@@ -44,16 +44,18 @@ object YamlFilePathWorker {
     parseIdAndNameFrom(path.getFileName.toString)
   }
   
-  def getAllValidChilds1(path: Path): List[Path] = path.toFile.listFiles().map(_.toPath).toList
-  
   def getAllValidEntityChilds(path: Path): List[Path] = {
-    println(s"YamlFilePathWorker STARTS getAllValidEntityChilds")
-    println(s"getAllValidEntityChilds FINDS FILES IN PATH $path")
     val files = path.toFile.listFiles(new FilenameFilter {
       override def accept(dir: File, name: String): Boolean = name.matches("[0-9]+\\s.*")
     })
-    
-    files.foreach(f => println(s"FOUND FILE ${f.getName}"))
+    files.map(_.toPath).toList
+  }
+  
+  def getAllValidCategoryChilds(path: Path, filterNames: scala.collection.mutable.ArrayBuffer[String]): List[Path] = {
+    val files = path.toFile.listFiles(new FilenameFilter {
+      override def accept(dir: File, name: String): Boolean =
+        !filterNames.contains(name)
+    })
     files.map(_.toPath).toList
   }
   
