@@ -22,7 +22,7 @@ object YamlFilePathWorker {
   }
   
   def isYaml(path: Path): Boolean = {
-    path.toFile.isFile && path.getFileName.toString.endsWith(".yaml")
+    path.toFile.isFile && path.getFileName.toString.toLowerCase.endsWith(".yaml")
   }
   
   def parseIdAndNameFromYaml(path: Path): (Long, String) =
@@ -54,10 +54,10 @@ object YamlFilePathWorker {
   def getAllValidCategoryChilds(path: Path, filterNames: scala.collection.mutable.ArrayBuffer[String]): List[Path] = {
     val files = path.toFile.listFiles(new FilenameFilter {
       override def accept(dir: File, name: String): Boolean =
-        !filterNames.contains(name)
+        (path.resolve(name).toFile.isDirectory || name.toLowerCase.endsWith(".sql")) && !filterNames.map(_.toLowerCase).contains(name.toLowerCase)
     })
     files.map(_.toPath).toList
   }
   
-  def isEntityYaml(path: Path): Boolean = path.getFileName.toString == "entity.yaml"
+  def isEntityYaml(path: Path): Boolean = path.getFileName.toString.toLowerCase == "entity.yaml"
 }
