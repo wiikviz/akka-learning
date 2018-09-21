@@ -3,7 +3,7 @@ package ru.sber.cb.ap.gusli.actor.projects.read.entity
 import java.nio.file.Path
 
 import akka.actor.{ActorRef, Props}
-import ru.sber.cb.ap.gusli.actor.BaseActor
+import ru.sber.cb.ap.gusli.actor.{BaseActor, Request}
 import ru.sber.cb.ap.gusli.actor.core.Entity.{AddChildEntity, EntityCreated}
 import ru.sber.cb.ap.gusli.actor.core.EntityMetaDefault
 import EntityFolderResolver.ResolvePath
@@ -14,7 +14,7 @@ import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.{YamlEntityMapper, YamlFileP
 object EntityFolderReader {
   def apply(meta: EntityFolderReaderMeta): Props = Props(new EntityFolderReader(meta))
   
-  case class ReadEntity(replyTo: Option[ActorRef] = None)
+  case class ReadEntity(replyTo: Option[ActorRef] = None) extends Request
 }
 
 case class EntityFolderReader(meta: EntityFolderReaderMeta) extends BaseActor {
