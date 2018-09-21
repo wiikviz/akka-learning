@@ -18,14 +18,12 @@ case class EntityFolderResolver(meta: EntityFolderResolverMeta) extends BaseActo
   type Entity = ActorRef
   
   override def receive: Receive = {
-    case ResolvePath(sendTo) =>
-      this.meta.entity ! GetEntityMeta()
+    case ResolvePath(sendTo) => this.meta.entity ! GetEntityMeta()
     case EntityMetaResponse(meta) =>
       val newPath = this.meta.path.resolve(s"${meta.id} ${meta.name}")
       val entityReader = context.actorOf(EntityFolderReader(EntityFolderReaderMetaDefault(newPath, this.meta.entity)))
       entityReader ! ReadEntity()
   }
-  
 }
 
 trait EntityFolderResolverMeta {
