@@ -24,25 +24,26 @@ case class ActorPatternMetaDefault()
 
 
 object CreateActorByPattern extends App {
-  val actorName = "CategoryPathResolver"
-  val requestMessage1 = "ResolvePath"
-  val responseMessage1 = "PathResolved"
+  val actorName = "WorkflowCreatorByFolder"
+  val objectRequestMessages = "ReadFolder" :: Nil
+  val objectResponseMessages = "WorkflowRead" :: Nil
+  val receiveMessages = "ReadFolder" :: "CategoryMetaResponse" :: "WorkflowCreated" :: Nil
   val pattern = s"""
     import akka.actor.{ActorRef, Props}
-    import ru.sber.cb.ap.PACKAGE_HERE.$actorName.{$requestMessage1, $responseMessage1}
+    import ru.sber.cb.ap.PACKAGE_HERE.$actorName.{${objectRequestMessages.mkString(", ")}, ${objectResponseMessages.mkString(",")}}
     import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
     
     object $actorName {
       def apply(meta: ${actorName}Meta): Props = Props(new $actorName(meta))
     
-      case class $requestMessage1(replyTo: Option[ActorRef] = None) extends Request
+      ${objectRequestMessages.map(m => s"case class $m(replyTo: Option[ActorRef] = None) extends Request").mkString("\n")}
     
-      case class $responseMessage1(replyTo: Option[ActorRef] = None) extends Response
+      ${objectResponseMessages.map(m => s"case class $m(replyTo: Option[ActorRef] = None) extends Response").mkString("\n")}
     }
     
     class $actorName(meta: ${actorName}Meta) extends BaseActor {
       override def receive: Receive = {
-        case $requestMessage1(replyTo) => replyTo.getOrElse(sender) ! $responseMessage1()
+        ${receiveMessages.map(m => s"case $m(replyTo) => ").mkString("\n")}
       }
     }
     
