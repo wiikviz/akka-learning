@@ -5,7 +5,8 @@ import java.nio.file.Path
 import akka.actor.{ActorRef, Props}
 import ru.sber.cb.ap.gusli.actor.BaseActor
 import ru.sber.cb.ap.gusli.actor.projects.read.category.CategoryFolderReader.ReadCategoryFolder
-import ru.sber.cb.ap.gusli.actor.projects.read.category.WorkflowCreatorBySql.{ReadSqlFile, ReadWorkflowFolder}
+import ru.sber.cb.ap.gusli.actor.projects.read.category.WorkflowCreatorByFolder.ReadWorkflowFolder
+import ru.sber.cb.ap.gusli.actor.projects.read.category.WorkflowCreatorBySql.ReadSqlFile
 import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.YamlFilePathWorker
 
 object CategoryFolderReader {
