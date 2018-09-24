@@ -1,5 +1,5 @@
 ---
-grenkiVersion: 0.2
+grenki: 0.2
 queue: root.platform
 user: pupkin
 init:
