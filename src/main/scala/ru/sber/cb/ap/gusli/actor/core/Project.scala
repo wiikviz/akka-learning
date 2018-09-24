@@ -1,6 +1,7 @@
 package ru.sber.cb.ap.gusli.actor.core
 
 import akka.actor.{ActorRef, Props}
+import ru.sber.cb.ap.gusli.actor.core.search.EntitySearcher
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
 
 object Project {
@@ -23,14 +24,14 @@ object Project {
   case class EntityNotFound(entityId: Long) extends Response
 
 
-  case class ProjectMetaResponse(name: String) extends Response with ProjectMeta
+  case class ProjectMetaResponse(meta: ProjectMeta) extends Response
 
   case class CategoryRoot(root: ActorRef) extends Response
 
   case class EntityRoot(root: ActorRef) extends Response
 }
 
-class Project(meta: ProjectMeta, categoryMeta: CategoryMeta = CategoryMetaDefault("category", Nil)) extends BaseActor {
+class Project(meta: ProjectMeta, categoryMeta: CategoryMeta = CategoryMetaDefault("category", Map.empty)) extends BaseActor {
   
   import Project._
   
@@ -38,11 +39,11 @@ class Project(meta: ProjectMeta, categoryMeta: CategoryMeta = CategoryMetaDefaul
   val categoryRoot = context.actorOf(Category(categoryMeta, context.self), "category")
   
   override def receive: Receive = {
-    case GetProjectMeta(sendTo) => sendTo getOrElse sender ! ProjectMetaResponse(meta.name)
+    case GetProjectMeta(sendTo) => sendTo getOrElse sender ! ProjectMetaResponse(meta)
     case GetCategoryRoot(sendTo) => sendTo getOrElse sender ! CategoryRoot(categoryRoot)
     case GetEntityRoot(sendTo) => sendTo getOrElse sender ! EntityRoot(entityRoot)
-    case m @ FindEntity(id, sendTo) =>
-      entityRoot tell(m, sendTo getOrElse sender)
+    case FindEntity(id, sendTo) =>
+      context.actorOf(EntitySearcher(Seq(entityRoot), id, sendTo getOrElse sender))
   }
 }
 

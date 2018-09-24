@@ -1,0 +1,22 @@
+---
+grenkiVersion: 0.2
+queue: root.platform
+user: pupkin
+init:
+  - init.hql
+  - init2.hql
+sqlMap:
+  - map.config
+  - map2.config
+sql:
+  - rb-vek5555sel.sql
+  - rb-car433ds.sql
+param:
+  p1: 2
+  p2: I'm String2
+stats:
+  - 2
+  - 11
+entities: 
+  - 105067100
+  - 105067200

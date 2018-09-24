@@ -5,8 +5,12 @@ import java.io.File
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import java.nio.file.{Files, Paths}
 
+import akka.actor.Actor
+import akka.stream.StreamRefMessages.ActorRef
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import ru.sber.cb.ap.gusli.actor.BaseActor
+import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.{YamlEntityMapper, YamlFilePathWorker}
 
 import scala.io.Source
 
@@ -63,4 +67,24 @@ object SerializationFromYamlWithMergeCaseClasses extends App {
   println(hehFile)
   println(hehPar)
   println(tik)
+}
+
+object EntitySer extends App {
+  val path = Paths.get(".\\src\\test\\resources\\project_test-2\\entity\\entity.yaml")
+//  val file = path.toFile.listFiles()(2)
+  val word = "111 ah ah ah"
+  
+  val words = word.split(" ", 2)
+  val (a1, a2) = (words(0).toLong, words(1))
+  println(a1, a2)
+  
+//  scala.reflect.io.Path.extension()
+}
+
+
+object EntityRead extends App{
+  val path = Paths.get(".\\src\\test\\resources\\project_test-2\\entity\\105000000 entity-root\\105060000 entity-parent")
+  val parentId = YamlFilePathWorker.extractParentIdFromPath(path)
+  println(parentId)
+  
 }

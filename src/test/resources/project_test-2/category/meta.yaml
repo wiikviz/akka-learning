@@ -1,9 +1,0 @@
----
-grenki: 0.2
-queue: root.platform
-user: pupkin
-init: init.sql
-map: map.config
-param:
-- p1: 1
-- p2: I'm String

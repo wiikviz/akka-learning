@@ -44,26 +44,26 @@ class Category(meta: CategoryMeta, project: ActorRef) extends BaseActor {
       val replyTo = sendTo.getOrElse(sender())
       replyTo ! CategoryMetaResponse(meta)
 
-    case m@AddSubcategory(meta, sendTo) =>
-      log.info("{}", m)
+    case mess@AddSubcategory(m, sendTo) =>
+      log.info("{}", mess)
       val replyTo = sendTo.getOrElse(sender())
-      subcategoresRegistry.get(meta.name) match {
+      subcategoresRegistry.get(m.name) match {
         case Some(subcat) => replyTo ! subcat
         case None =>
-          val subcat = context.actorOf(Category(meta, project))
-          subcategoresRegistry = subcategoresRegistry + (meta.name -> subcat)
+          val subcat = context.actorOf(Category(m, project))
+          subcategoresRegistry = subcategoresRegistry + (m.name -> subcat)
           replyTo ! SubcategoryCreated(subcat)
       }
     case ListSubcategory(sendTo) =>
       sendTo getOrElse sender ! SubcategoryList(subcategoresRegistry.values.toSeq)
       
-    case m@AddWorkflow(meta, sendTo) =>
-      log.info("{}", m)
+    case mess@AddWorkflow(m, sendTo) =>
+      log.info("{}", mess)
       val replyTo = sendTo getOrElse sender
-      val fromRegisty = workflowsRegistry get meta.name
-      if(fromRegisty isEmpty){
-        val newWorkflow = context.actorOf(Workflow(meta, project))
-        workflowsRegistry = workflowsRegistry + (meta.name -> newWorkflow)
+      val fromRegisty = workflowsRegistry get m.name
+      if(fromRegisty.isEmpty){
+        val newWorkflow = context.actorOf(Workflow(m, project))
+        workflowsRegistry = workflowsRegistry + (m.name -> newWorkflow)
         replyTo ! WorkflowCreated(newWorkflow)
       } else replyTo ! WorkflowCreated(fromRegisty.get)
 
@@ -75,12 +75,11 @@ class Category(meta: CategoryMeta, project: ActorRef) extends BaseActor {
 
 trait CategoryMeta {
   def name: String
+
   // Content
-  def sql: List[String]
+  def sqlMap: Map[String, String]
   // Content
-  def sqlMap: List[String]
-  // Content
-  def init: List[String]
+  def init: Map[String, String]
   
   def user: Option[String]
   
@@ -89,7 +88,19 @@ trait CategoryMeta {
   def grenkiVersion: Option[String]
   
   def params: Map[String, String]
+  
+  def stats: Set[Long]
+  
+  def entities: Set[Long]
 }
 
-case class CategoryMetaDefault(name: String, sql: List[String], sqlMap: List[String] = Nil, init: List[String] = Nil,
-  user: Option[String] = None, queue: Option[String] = None, grenkiVersion: Option[String] = None, params: Map[String, String] = Map.empty) extends CategoryMeta
+case class CategoryMetaDefault(name: String,
+                               sqlMap: Map[String, String] = Map.empty,
+                               init: Map[String, String] = Map.empty,
+                               user: Option[String] = None,
+                               queue: Option[String] = None,
+                               grenkiVersion: Option[String] = None,
+                               params: Map[String, String] = Map.empty,
+                               stats: Set[Long] = Set.empty,
+                               entities: Set[Long] = Set.empty
+) extends CategoryMeta

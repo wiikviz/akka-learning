@@ -1,22 +1,23 @@
 package ru.sber.cb.ap.gusli.actor.core.workflow
 
-import akka.actor.{ActorRef, ActorSystem}
-import akka.testkit.{ImplicitSender, TestKit, TestProbe}
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import akka.actor.ActorRef
+import akka.testkit.{TestKit, TestProbe}
 import ru.sber.cb.ap.gusli.actor.core.Workflow.{GetWorkflowMeta, WorkflowMetaResponse}
 import ru.sber.cb.ap.gusli.actor.core._
 
-class WorkflowSpec extends TestKit(ActorSystem("WorkflowSpec")) with ImplicitSender with WordSpecLike with Matchers with BeforeAndAfterAll {
+class WorkflowSpec extends ActorBaseTest("WorkflowSpec") {
   override def afterAll: Unit = {
     TestKit.shutdownActorSystem(system)
   }
 
   "A Workflow" when {
-    val workflow: ActorRef = system.actorOf(Workflow(WorkflowMetaDefault("wf-1", List("select 1"), Nil), TestProbe().ref))
+    val project = TestProbe()
+    val metaDefault = WorkflowMetaDefault("wf-1", Map("file" -> "select 1"), Map.empty)
+    val workflow: ActorRef = system.actorOf(Workflow(metaDefault, project.ref))
     "receive GetWorkflowMeta" should {
-      workflow ! GetWorkflowMeta()
       "send back WorkflowMetaResponse" in {
-        expectMsg(WorkflowMetaResponse(WorkflowMetaDefault("wf-1", List("select 1"), Nil)))
+        workflow ! GetWorkflowMeta()
+        expectMsg(WorkflowMetaResponse(metaDefault))
       }
     }
   }

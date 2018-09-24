@@ -7,14 +7,14 @@ import ru.sber.cb.ap.gusli.actor.core.Category.{AddSubcategory, SubcategoryCreat
 import ru.sber.cb.ap.gusli.actor.core.Workflow.{GetWorkflowMeta, WorkflowMetaResponse}
 import ru.sber.cb.ap.gusli.actor.core._
 
-class CategorySpec extends TestKit(ActorSystem("CategorySpec"))
+class CategorySpec extends ActorBaseTest("CategorySpec")
   with ImplicitSender
   with WordSpecLike
   with Matchers
   with BeforeAndAfterAll {
   
   private val probe: TestProbe = TestProbe()
-  val cat = system.actorOf(Category(CategoryMetaDefault("category", Nil), probe.ref), "category")
+  val cat = system.actorOf(Category(CategoryMetaDefault("category", Map.empty), probe.ref), "category")
   
   override def afterAll: Unit = {
     TestKit.shutdownActorSystem(system)
@@ -24,7 +24,7 @@ class CategorySpec extends TestKit(ActorSystem("CategorySpec"))
     "send GetCategoryMeta" should {
       cat ! GetCategoryMeta()
       "send back CategoryMetaResponse(\"category\")" in {
-        expectMsg(CategoryMetaResponse(CategoryMetaDefault("category", Nil)))
+        expectMsg(CategoryMetaResponse(CategoryMetaDefault("category", Map.empty)))
       }
     }
     
@@ -44,7 +44,7 @@ class CategorySpec extends TestKit(ActorSystem("CategorySpec"))
     
     "send AddSubcategory" should {
       "send back SubcategoryCreated" in {
-        val meta = CategoryMetaDefault("cat-a", Nil)
+        val meta = CategoryMetaDefault("cat-a", Map.empty)
         cat ! AddSubcategory(meta)
         expectMsgPF() {
           case SubcategoryCreated(catA) =>
@@ -56,7 +56,7 @@ class CategorySpec extends TestKit(ActorSystem("CategorySpec"))
     
     "send AddWorkflow" should {
       "send back WorkflowCreated" in {
-        val meta = WorkflowMetaDefault("wf-1", List("select 1"), Nil)
+        val meta = WorkflowMetaDefault("wf-1", Map("file" -> "select 1"), Map.empty)
         cat ! AddWorkflow(meta)
         expectMsgPF() {
           case WorkflowCreated(wf) =>
@@ -86,7 +86,7 @@ class CategorySpec extends TestKit(ActorSystem("CategorySpec"))
   
     "send second time AddSubcategory" should {
       "send back SubcategoryCreated" in {
-        val meta = CategoryMetaDefault("cat-b", Nil)
+        val meta = CategoryMetaDefault("cat-b", Map.empty)
         cat ! AddSubcategory(meta)
         expectMsgPF() {
           case SubcategoryCreated(catA) =>
@@ -98,7 +98,7 @@ class CategorySpec extends TestKit(ActorSystem("CategorySpec"))
   
     "send second time AddWorkflow" should {
       "send back WorkflowCreated" in {
-        val meta = WorkflowMetaDefault("wf-2", List("select 1"), Nil)
+        val meta = WorkflowMetaDefault("wf-2", Map("file" -> "select 1"), Map.empty)
         cat ! AddWorkflow(meta)
         expectMsgPF() {
           case WorkflowCreated(wf) =>

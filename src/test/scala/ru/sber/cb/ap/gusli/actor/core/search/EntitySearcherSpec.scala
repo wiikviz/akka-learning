@@ -1,14 +1,12 @@
 package ru.sber.cb.ap.gusli.actor.core.search
 
-import akka.actor.ActorSystem
-import akka.testkit.{ImplicitSender, TestKit, TestProbe}
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import akka.testkit.{TestKit, TestProbe}
 import ru.sber.cb.ap.gusli.actor.core.Entity.{ChildrenEntityList, EntityMetaResponse, GetChildren, GetEntityMeta}
-import ru.sber.cb.ap.gusli.actor.core.EntityMetaDefault
 import ru.sber.cb.ap.gusli.actor.core.Project.{EntityFound, EntityNotFound}
+import ru.sber.cb.ap.gusli.actor.core.{ActorBaseTest, EntityMetaDefault}
 
 
-class EntitySearcherSpec extends TestKit(ActorSystem("EntitySearcherSpec")) with ImplicitSender with WordSpecLike with Matchers with BeforeAndAfterAll {
+class EntitySearcherSpec extends ActorBaseTest("EntitySearcherSpec") {
   override def afterAll: Unit = {
     TestKit.shutdownActorSystem(system)
   }
