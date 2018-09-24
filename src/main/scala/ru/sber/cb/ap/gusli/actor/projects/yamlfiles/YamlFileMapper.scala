@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import ru.sber.cb.ap.gusli.actor.core.CategoryMetaDefault
+import ru.sber.cb.ap.gusli.actor.core.dto.WorkflowDto
 
 object YamlFileMapper {
   
@@ -23,6 +24,24 @@ object YamlFileMapper {
       deserializedCat.param.get,
       deserializedCat.stats.get.map(_.toLong),
       deserializedCat.entities.get.map(_.toLong)
+    )
+  }
+  
+  def readToWorkflowDtoMetaFromFolder(path: Path) = {
+    val wfName = path.getFileName.toString.replaceFirst("wf-", "")
+    val fileFields = readWorkflowFile(path.resolve("meta.yaml"))
+  
+    WorkflowDto(
+      wfName,
+      fileNamesToMapWithFileContent(path, fileFields.sql).getOrElse(Map.empty),
+      fileNamesToMapWithFileContent(path, fileFields.map).getOrElse(Map.empty),
+      fileNamesToMapWithFileContent(path, fileFields.init).getOrElse(Map.empty),
+      fileFields.user,
+      fileFields.queue,
+      fileFields.grenki,
+      fileFields.param.get,
+      fileFields.stats.get.map(_.toLong),
+      fileFields.entities.get.map(_.toLong)
     )
   }
   

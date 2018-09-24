@@ -8,7 +8,7 @@ import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.YamlFileMapper
 class YamlFileMapperSpec extends FlatSpec {
   
   "YamlCategoryMapper" should "read category file" in {
-    val categoryDeserialized = YamlFileMapper.readCategoryFile(Paths.get("./src/test/resources/project_test-2/category/category.yaml"))
+    val categoryDeserialized = YamlFileMapper.readCategoryFile(Paths.get("./src/test/resources/project_test-2/category/meta.yaml"))
     
     assert(categoryDeserialized.grenki.contains("0.2"))
     assert(categoryDeserialized.queue.contains("root.platform"))
@@ -33,5 +33,12 @@ class YamlFileMapperSpec extends FlatSpec {
   it should "read workflow file" in {
     val wfDeserialized = YamlFileMapper.readWorkflowFile(Paths.get("./src/test/resources/project_test-2/category/cb/ap/rb/wf-rb-sv/meta.yaml"))
     assert(wfDeserialized.sql.contains(Set("rb-vek5555sel.sql", "rb-car433ds.sql")))
+  }
+  
+  it should "transform file to WorkflowDtoMeta" in {
+    val wfDtoMeta = YamlFileMapper.readToWorkflowDtoMetaFromFolder(Paths.get("./src/test/resources/project_test-2/category/cb/ap/rb/wf-rb-sv/"))
+    assert(wfDtoMeta.name.contains("rb-sv"))
+    assert(wfDtoMeta.sql("rb-vek5555sel.sql").contains("select 2"))
+    assert(wfDtoMeta.sql("rb-car433ds.sql").contains("select 2"))
   }
 }
