@@ -1,25 +1,14 @@
 package ru.sber.cb.ap.gusli.actor.core.project.yamlfiles
 
+import java.nio.file.Paths
+
 import org.scalatest._
 import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.YamlCategoryMapper
 
 class YamlCategoryMapperSpec extends FlatSpec {
   
-  "YamlCategoryMapper" should "return case class without param" in {
-    val catYamlContext =
-      "grenki: 0.2" +
-         "\nqueue: root.platform" +
-         "\nuser: pupkin" +
-         "\ninit:" +
-         "\n  - init.hql" +
-         "\n  - init2.hql" +
-         "\nmap:" +
-         "\n  - map.config" +
-         "\n  - map2.config" +
-         "\nstats:" +
-         "\n  - 2" +
-         "\nentities: 105067300"
-    val categoryDeserialized = YamlCategoryMapper.read(catYamlContext)
+  "YamlCategoryMapper" should "return case class from file" in {
+    val categoryDeserialized = YamlCategoryMapper.read(Paths.get("./src/test/resources/project_test-2/category/category.yaml"))
     
     assert(categoryDeserialized.grenki.contains("0.2"))
     assert(categoryDeserialized.queue.contains("root.platform"))
@@ -28,18 +17,16 @@ class YamlCategoryMapperSpec extends FlatSpec {
     assert(categoryDeserialized.init.get(1) == "init2.hql")
     assert(categoryDeserialized.map.get(0) == "map.config")
     assert(categoryDeserialized.map.get(1) == "map2.config")
+    assert(categoryDeserialized.param.get("p1") == "1")
+    assert(categoryDeserialized.param.get("p2") == "I'm String")
     assert(categoryDeserialized.stats.get.head == 2)
     assert(categoryDeserialized.entities.get.head == 105067300)
   }
   
-    it should "return case class with param" in {
-    val catYamlContext =
-      "param:" +
-        "\n  p1: 1" +
-        "\n  p2: b"
-    val categoryDeserialized = YamlCategoryMapper.read(catYamlContext)
-  
-    assert(categoryDeserialized.param.get("p1") == 1)
-    assert(categoryDeserialized.param.get("p2") == "b")
+  it should "return CategoryMeta" in {
+    val categoryMeta = YamlCategoryMapper.readToCategoryMeta(Paths.get("./src/test/resources/project_test-2/category/"))
+    assert(categoryMeta.name == "category")
+    assert(categoryMeta.init.get("init.hql").contains("select 1"))
+    assert(categoryMeta.init.get("init2.hql").contains("select 1"))
   }
 }
