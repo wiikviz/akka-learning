@@ -18,10 +18,6 @@ class DirectoryProjectReaderSpec extends ActorBaseTest("DirectoryProjectSpec") {
   val incorrectPath = Paths.get("incorrect_path_here")
   val directoryProjectReader: ActorRef = system.actorOf(DirectoryProjectReader(correctPath))
 
-  override def afterAll: Unit = {
-    TestKit.shutdownActorSystem(system)
-  }
-
   "Directory project reader" when {
     "receive ReadProject(correctPath)" should {
       var project: ActorRef = null

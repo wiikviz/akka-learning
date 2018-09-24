@@ -10,10 +10,6 @@ class ProjectSpec extends ActorBaseTest("ProjectSpec") {
 
   val project: ActorRef = system.actorOf(Project(ProjectMetaDefault("project")), "project")
 
-  override def afterAll: Unit = {
-    TestKit.shutdownActorSystem(system)
-  }
-
   "A new project" when {
     "send GetProjectMeta" should {
       project ! GetProjectMeta()
