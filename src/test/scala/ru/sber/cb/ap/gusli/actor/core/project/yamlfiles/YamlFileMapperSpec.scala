@@ -10,6 +10,8 @@ class YamlFileMapperSpec extends FlatSpec {
   "YamlCategoryMapper" should "read category file" in {
     val categoryDeserialized = YamlFileMapper.readCategoryFile(Paths.get("./src/test/resources/project_test-2/category/meta.yaml"))
     
+    println(categoryDeserialized)
+    
     assert(categoryDeserialized.grenki.contains("0.2"))
     assert(categoryDeserialized.queue.contains("root.platform"))
     assert(categoryDeserialized.user.contains("pupkin"))
@@ -36,9 +38,17 @@ class YamlFileMapperSpec extends FlatSpec {
   }
   
   it should "transform file to WorkflowDtoMeta" in {
-    val wfDtoMeta = YamlFileMapper.readToWorkflowDtoMetaFromFolder(Paths.get("./src/test/resources/project_test-2/category/cb/ap/rb/wf-rb-sv/"))
+    val wfDtoMeta = YamlFileMapper.readToWorkflowDtoMeta(Paths.get("./src/test/resources/project_test-2/category/cb/ap/rb/wf-rb-sv/"))
     assert(wfDtoMeta.name.contains("rb-sv"))
     assert(wfDtoMeta.sql("rb-vek5555sel.sql").contains("select 2"))
     assert(wfDtoMeta.sql("rb-car433ds.sql").contains("select 2"))
+  }
+  
+  it should "print not all fields" in {
+    val wfFile = YamlFileMapper.readWorkflowFile(Paths.get("./src/test/resources/project_test-2/category/cb/ap/rb/wf-rb-sv/garbage/test.yaml"))
+//    println(wfFile)
+//    println()
+//    println(wfFile.sql.get)
+//    println(wfFile.param.get)
   }
 }
