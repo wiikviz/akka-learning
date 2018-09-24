@@ -10,7 +10,7 @@ import ru.sber.cb.ap.gusli.actor.core.dto.WorkflowDto
 
 object YamlFileMapper {
   
-  def readToCategoryMeta(path: Path) = {
+  def readToCategoryMeta(path: Path): CategoryMetaDefault = {
     val catName = path.getFileName.toString
     val deserializedCat = readCategoryFile(path.resolve("meta.yaml"))
   
@@ -27,7 +27,7 @@ object YamlFileMapper {
     )
   }
   
-  def readToWorkflowDtoMetaFromFolder(path: Path) = {
+  def readToWorkflowDtoMeta(path: Path): WorkflowDto = {
     val wfName = path.getFileName.toString.replaceFirst("wf-", "")
     val fileFields = readWorkflowFile(path.resolve("meta.yaml"))
   
@@ -56,7 +56,6 @@ object YamlFileMapper {
     val mapper: ObjectMapper = initMapper
     mapper.readValue(categoryYamlContent, classOf[CategoryFileFields])
   }
-
   
   private def readFileContent(path: Path): String = {
     val source = scala.io.Source.fromFile(path.toFile)
@@ -75,26 +74,30 @@ object YamlFileMapper {
   
   private def initMapper = {
     val mapper: ObjectMapper = new ObjectMapper(new YAMLFactory())
-    
-    mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
-    mapper.registerModule(DefaultScalaModule)
+      .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+      .registerModule(DefaultScalaModule)
     mapper
   }
 }
 
+//Single: "" -> Some(), empty -> None
+//List: [] -> Some(Set()), empty -> None
+//MapElem: "" -> "", empty-elem -> null
+//Map: {} -> Some(Map()), empty -> None
 case class CategoryFileFields(
 grenki: Option[String] = None,
   queue: Option[String] = None,
-  user: Option[String] = Some("ChangeMe"),
-  init: Option[List[String]] = Some(Nil),
+  user: Option[String] = None,
+  init: Option[List[String]] = Some(List("ChangeMe")),
   map: Option[List[String]] = Some(List("ChangeMe")),
   param: Option[Map[String, String]] = Some(Map.empty),
   stats: Option[Set[Int]] = Some(Set.empty),
-  entities: Option[Set[Int]] = Some(Set.empty)) extends generalFileFields
+  entities: Option[Set[Int]] = Some(Set.empty)
+) extends generalFileFields(grenki, queue, user, init, map, param, stats, entities)
 
 case class WorkflowFileFields(
   grenki: Option[String] = None,
-  queue: Option[String] = None,
+  queue: Option[String] = Some("ChangeMe"),
   user: Option[String] = Some("ChangeMe"),
   init: Option[List[String]] = Some(Nil),
   map: Option[List[String]] = Some(List("ChangeMe")),
@@ -102,19 +105,19 @@ case class WorkflowFileFields(
   stats: Option[Set[Int]] = Some(Set.empty),
   entities: Option[Set[Int]] = Some(Set.empty),
   sql: Option[Set[String]]
-) extends generalFileFields {
+) extends generalFileFields(grenki, queue, user, init, map, param, stats, entities) {
   
   override def toString(): String = super.toString() + "\nsql:" + sql
 }
 
-abstract class generalFileFields(grenki: Option[String] = None,
-  queue: Option[String] = None,
-  user: Option[String] = Some("ChangeMe"),
-  init: Option[List[String]] = Some(Nil),
-  map: Option[List[String]] = Some(List("ChangeMe")),
-  param: Option[Map[String, String]] = Some(Map.empty),
-  stats: Option[Set[Int]] = Some(Set.empty),
-  entities: Option[Set[Int]] = Some(Set.empty)) {
+abstract class generalFileFields(grenki: Option[String],
+  queue: Option[String],
+  user: Option[String],
+  init: Option[List[String]],
+  map: Option[List[String]],
+  param: Option[Map[String, String]],
+  stats: Option[Set[Int]],
+  entities: Option[Set[Int]]) {
   
   override def toString() = {
     s"\ngrenki: " + grenki +

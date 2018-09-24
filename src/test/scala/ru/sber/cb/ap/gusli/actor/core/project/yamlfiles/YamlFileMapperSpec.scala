@@ -10,8 +10,6 @@ class YamlFileMapperSpec extends FlatSpec {
   "YamlCategoryMapper" should "read category file" in {
     val categoryDeserialized = YamlFileMapper.readCategoryFile(Paths.get("./src/test/resources/project_test-2/category/meta.yaml"))
     
-    println(categoryDeserialized)
-    
     assert(categoryDeserialized.grenki.contains("0.2"))
     assert(categoryDeserialized.queue.contains("root.platform"))
     assert(categoryDeserialized.user.contains("pupkin"))
@@ -46,9 +44,6 @@ class YamlFileMapperSpec extends FlatSpec {
   
   it should "print not all fields" in {
     val wfFile = YamlFileMapper.readWorkflowFile(Paths.get("./src/test/resources/project_test-2/category/cb/ap/rb/wf-rb-sv/garbage/test.yaml"))
-//    println(wfFile)
-//    println()
-//    println(wfFile.sql.get)
-//    println(wfFile.param.get)
+
   }
 }
