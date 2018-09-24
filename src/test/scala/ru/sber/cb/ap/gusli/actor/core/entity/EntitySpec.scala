@@ -1,14 +1,10 @@
 package ru.sber.cb.ap.gusli.actor.core.entity
 
 import akka.actor.ActorRef
-import akka.testkit.TestKit
 import ru.sber.cb.ap.gusli.actor.core.Entity._
 import ru.sber.cb.ap.gusli.actor.core.{ActorBaseTest, Entity, EntityMetaDefault}
 
 class EntitySpec extends ActorBaseTest("EntitySpec") {
-  override def afterAll: Unit = {
-    TestKit.shutdownActorSystem(system)
-  }
 
   "An Entity" when {
     val meta = EntityMetaDefault(0, "root-entity", "file.ent", None)
