@@ -3,6 +3,8 @@ package ru.sber.cb.ap.gusli.actor.core
 import akka.actor.{ActorRef, Props}
 import ru.sber.cb.ap.gusli.actor.core.Entity._
 import ru.sber.cb.ap.gusli.actor._
+import ru.sber.cb.ap.gusli.actor.core.Project.FindEntity
+import ru.sber.cb.ap.gusli.actor.core.search.EntitySearcher
 
 import scala.collection.immutable.HashMap
 
@@ -38,6 +40,9 @@ case class Entity(meta: EntityMeta) extends BaseActor {
       } else replyTo ! EntityCreated(fromRegistry.get)
     case GetChildren(sendTo) =>
       sendTo getOrElse sender ! ChildrenEntityList(children.values.toSeq)
+    case m @ FindEntity(entityId, sendTo) =>
+      val searcher = context actorOf EntitySearcher(children.values.toSeq, entityId, sendTo getOrElse sender)
+      searcher forward m
   }
   
   private def sendEntityMeta(sendTo: Option[ActorRef]) = {
