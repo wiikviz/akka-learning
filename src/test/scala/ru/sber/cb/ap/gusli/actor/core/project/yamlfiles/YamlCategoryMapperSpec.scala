@@ -1,11 +1,11 @@
 package ru.sber.cb.ap.gusli.actor.core.project.yamlfiles
 
 import org.scalatest._
-import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.{CategoryFile, YamlCategoryMapper}
+import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.YamlCategoryMapper
 
 class YamlCategoryMapperSpec extends FlatSpec {
   
-  "YamlCategoryMapper without param" should "return case class without param" in {
+  "YamlCategoryMapper" should "return case class without param" in {
     val catYamlContext =
       "grenki: 0.2" +
          "\nqueue: root.platform" +
@@ -24,22 +24,22 @@ class YamlCategoryMapperSpec extends FlatSpec {
     assert(categoryDeserialized.grenki.contains("0.2"))
     assert(categoryDeserialized.queue.contains("root.platform"))
     assert(categoryDeserialized.user.contains("pupkin"))
-    assert(categoryDeserialized.init(0) == "init.hql")
-    assert(categoryDeserialized.init(1) == "init2.hql")
-    assert(categoryDeserialized.map(0) == "map.config")
-    assert(categoryDeserialized.map(1) == "map2.config")
-    assert(categoryDeserialized.stats.head == 2)
-    assert(categoryDeserialized.entities.head == 105067300)
+    assert(categoryDeserialized.init.get(0) == "init.hql")
+    assert(categoryDeserialized.init.get(1) == "init2.hql")
+    assert(categoryDeserialized.map.get(0) == "map.config")
+    assert(categoryDeserialized.map.get(1) == "map2.config")
+    assert(categoryDeserialized.stats.get.head == 2)
+    assert(categoryDeserialized.entities.get.head == 105067300)
   }
   
-  "YamlCategoryMapper with param" should "return case class with param" in {
+    it should "return case class with param" in {
     val catYamlContext =
       "param:" +
         "\n  p1: 1" +
         "\n  p2: b"
     val categoryDeserialized = YamlCategoryMapper.read(catYamlContext)
   
-    assert(categoryDeserialized.param.get("p1") == Some(1))
-    assert(categoryDeserialized.param.get("p2") == Some("b"))
+    assert(categoryDeserialized.param.get("p1") == 1)
+    assert(categoryDeserialized.param.get("p2") == "b")
   }
 }

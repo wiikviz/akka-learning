@@ -5,8 +5,17 @@ import java.nio.file.Path
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import ru.sber.cb.ap.gusli.actor.core.CategoryMetaDefault
 
 object YamlCategoryMapper {
+  
+  def readToCategoryMeta(path: Path) = {
+    val catName = path.getFileName
+    val deserializedCat = read(path)
+//    val catMeta = CategoryMetaDefault(
+//
+//    )
+  }
   
   def read(path: Path): CategoryFile = {
     //"./src/test/resources/project_test-2/category/category.yaml"
@@ -30,11 +39,11 @@ case class CategoryFile(
   grenki: Option[String] = None,
   queue: Option[String] = None,
   user: Option[String] = Some("ChangeMe"),
-  init: List[String] = Nil,
-  map: List[String] = List("ChangeMe"),
-  param: Map[String, Any] = Map.empty,
-  stats: List[Int],
-  entities: List[Int]) {
+  init: Option[List[String]] = Some(Nil),
+  map: Option[List[String]] = Some(List("ChangeMe")),
+  param: Option[Map[String, Any]] = Some(Map.empty),
+  stats: Option[List[Int]] = Some(Nil),
+  entities: Option[List[Int]] = Some(Nil)) {
   
   override def toString() =
     s"\ngrenki: " + grenki +
