@@ -12,8 +12,8 @@ sql:
   - rb-vek5555sel.sql
   - rb-car433ds.sql
 param:
-  - p1: 2
-  - p2: I'm String2
+  p1: 2
+  p2: I'm String2
 stats:
   - 2
   - 11

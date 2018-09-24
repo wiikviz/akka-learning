@@ -9,8 +9,8 @@ map:
   - map.config
   - map2.config
 param:
-  - p1: 1
-  - p2: I'm String
+  p1: 1
+  p2: I'm String
 stats:
   - 2
 entities: 105067300

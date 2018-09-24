@@ -23,7 +23,7 @@ class WorkflowCreatorBySql(meta: WorkflowCreatorBeSqlMeta) extends BaseActor {
   
   override def receive: Receive = {
     case ReadSqlFile(replyTo) =>
-      this.meta.category ! GetCategoryMeta
+      this.meta.category ! GetCategoryMeta()
     
     case CategoryMetaResponse(meta) => {
       //readFile
