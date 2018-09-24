@@ -13,8 +13,8 @@ class CategorySpec extends ActorBaseTest("CategorySpec")
   with Matchers
   with BeforeAndAfterAll {
   
-  private val probe: TestProbe = TestProbe()
-  val cat = system.actorOf(Category(CategoryMetaDefault("category", Map.empty), probe.ref), "category")
+  private val projectProbe: TestProbe = TestProbe()
+  private val cat = system.actorOf(Category(CategoryMetaDefault("category", Map.empty), projectProbe.ref), "category")
   
   override def afterAll: Unit = {
     TestKit.shutdownActorSystem(system)

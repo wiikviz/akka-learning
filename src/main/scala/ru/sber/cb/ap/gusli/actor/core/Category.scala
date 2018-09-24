@@ -60,12 +60,12 @@ class Category(meta: CategoryMeta, project: ActorRef) extends BaseActor {
     case mess@AddWorkflow(m, sendTo) =>
       log.info("{}", mess)
       val replyTo = sendTo getOrElse sender
-      val fromRegisty = workflowsRegistry get m.name
-      if(fromRegisty.isEmpty){
+      val fromRegistry = workflowsRegistry get m.name
+      if(fromRegistry.isEmpty){
         val newWorkflow = context.actorOf(Workflow(m, project))
         workflowsRegistry = workflowsRegistry + (m.name -> newWorkflow)
         replyTo ! WorkflowCreated(newWorkflow)
-      } else replyTo ! WorkflowCreated(fromRegisty.get)
+      } else replyTo ! WorkflowCreated(fromRegistry.get)
 
     case ListWorkflow(sendTo) =>
       sendTo getOrElse sender ! WorkflowList(workflowsRegistry.values.toSeq)
