@@ -1,7 +1,7 @@
 package ru.sber.cb.ap.gusli.actor.core.diff
 
 import akka.actor.{ActorRef, Props}
-import ru.sber.cb.ap.gusli.actor.core.CategoryMeta
+import ru.sber.cb.ap.gusli.actor.core.{Category, CategoryMeta}
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Response}
 
 
@@ -37,6 +37,10 @@ class CategoryDiffer(diffProject: ActorRef, currentCat: ActorRef, prevCat: Actor
       for (curr <- currentMeta; prev <- prevMeta) {
         if (curr == prev)
           receiver ! CategoryEquals(currentCat, prevCat)
+        else {
+          val diff = context.system.actorOf(Category(curr, diffProject))
+          receiver ! CategoryDelta(diff)
+        }
         context.stop(self)
       }
   }
