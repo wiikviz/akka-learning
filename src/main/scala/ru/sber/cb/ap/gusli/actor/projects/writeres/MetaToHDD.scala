@@ -18,7 +18,7 @@ object MetaToHDD {
     val child = meta.asInstanceOf[CategoryMetaDefault]
     val parent = parentMeta.asInstanceOf[CategoryMetaDefault]
     if(child.copy(name = parent.name) != parent){
-      val fileContent = convertCategoryMetaToYAMLFileContent(child,parent)
+      val fileContent = convertCategoryMetaDefaultToYAMLFileContent(child,parent)
       writeYAMLTextFileToDirectory(fileContent, "category", categoryFolder)
     }
     categoryFolder

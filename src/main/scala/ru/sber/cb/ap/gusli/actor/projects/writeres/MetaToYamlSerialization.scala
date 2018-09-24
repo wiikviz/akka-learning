@@ -62,7 +62,7 @@ object MetaToYamlSerialization {
 
 
 
-  def convertCategoryMetaToYAMLFileContent(meta: CategoryMetaDefault, parentMeta: CategoryMetaDefault): String = {
+  def convertCategoryMetaDefaultToYAMLFileContent(metaDefault: CategoryMetaDefault, parentMetaDefault: CategoryMetaDefault): String = {
 
 
 
