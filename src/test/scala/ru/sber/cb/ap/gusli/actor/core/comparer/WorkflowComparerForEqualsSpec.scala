@@ -30,7 +30,6 @@ class WorkflowComparerForEqualsSpec extends ActorBaseTest("WorkflowComparerForEq
     }
 
     "after add entities with same id" in {
-
       wf ! BindEntity(1)
       projectProbe.expectMsg(FindEntity(1))
 
