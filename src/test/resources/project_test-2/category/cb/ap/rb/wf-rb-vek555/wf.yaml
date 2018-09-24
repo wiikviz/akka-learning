@@ -1,11 +1,11 @@
 ---
-grenkiVersion: 0.2
+grenki: 0.2
 queue: root.platform
 user: pupkin
 init:
   - init.hql
   - init2.hql
-sqlMap:
+map:
   - map.config
   - map2.config
 sql:

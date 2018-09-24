@@ -3,12 +3,12 @@ package ru.sber.cb.ap.gusli.actor.core.project.yamlfiles
 import java.nio.file.Paths
 
 import org.scalatest._
-import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.YamlCategoryMapper
+import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.YamlFileMapper
 
-class YamlCategoryMapperSpec extends FlatSpec {
+class YamlFileMapperSpec extends FlatSpec {
   
-  "YamlCategoryMapper" should "return case class from file" in {
-    val categoryDeserialized = YamlCategoryMapper.read(Paths.get("./src/test/resources/project_test-2/category/category.yaml"))
+  "YamlCategoryMapper" should "read category file" in {
+    val categoryDeserialized = YamlFileMapper.readCategoryFile(Paths.get("./src/test/resources/project_test-2/category/category.yaml"))
     
     assert(categoryDeserialized.grenki.contains("0.2"))
     assert(categoryDeserialized.queue.contains("root.platform"))
@@ -23,10 +23,15 @@ class YamlCategoryMapperSpec extends FlatSpec {
     assert(categoryDeserialized.entities.get.head == 105067300)
   }
   
-  it should "return CategoryMeta" in {
-    val categoryMeta = YamlCategoryMapper.readToCategoryMeta(Paths.get("./src/test/resources/project_test-2/category/"))
+  it should "transform data from file to CategoryMeta" in {
+    val categoryMeta = YamlFileMapper.readToCategoryMeta(Paths.get("./src/test/resources/project_test-2/category/"))
     assert(categoryMeta.name == "category")
     assert(categoryMeta.init.get("init.hql").contains("select 1"))
     assert(categoryMeta.init.get("init2.hql").contains("select 1"))
+  }
+  
+  it should "read workflow file" in {
+    val wfDeserialized = YamlFileMapper.readWorkflowFile(Paths.get("./src/test/resources/project_test-2/category/cb/ap/rb/wf-rb-sv/meta.yaml"))
+    assert(wfDeserialized.sql.contains(Set("rb-vek5555sel.sql", "rb-car433ds.sql")))
   }
 }
