@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 
 import ru.sber.cb.ap.gusli.actor.core.dto.WorkflowDto
-import ru.sber.cb.ap.gusli.actor.core.{CategoryMeta, EntityMeta, ProjectMeta}
+import ru.sber.cb.ap.gusli.actor.core.{CategoryMeta, CategoryMetaDefault, EntityMeta, ProjectMeta}
 import ru.sber.cb.ap.gusli.actor.projects.writeres.MetaToYamlSerialization._
 
 object MetaToHDD {
@@ -15,8 +15,12 @@ object MetaToHDD {
 
   def writeCategoryMetaToPath(meta: CategoryMeta, dir: Path, parentMeta: CategoryMeta): Path = {
     val categoryFolder = createNewFolder(meta.name, dir)
-
-
+    val child = meta.asInstanceOf[CategoryMetaDefault]
+    val parent = parentMeta.asInstanceOf[CategoryMetaDefault]
+    if(child.copy(name = parent.name) != parent){
+      val fileContent = convertCategoryMetaToYAMLFileContent(child,parent)
+      writeYAMLTextFileToDirectory(fileContent, "category", categoryFolder)
+    }
     categoryFolder
   }
 

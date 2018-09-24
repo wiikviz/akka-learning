@@ -1,7 +1,7 @@
 package ru.sber.cb.ap.gusli.actor.projects.writeres
 
 import ru.sber.cb.ap.gusli.actor.core.dto.WorkflowDto
-import ru.sber.cb.ap.gusli.actor.core.{CategoryMeta, EntityMeta}
+import ru.sber.cb.ap.gusli.actor.core.{CategoryMeta, CategoryMetaDefault, EntityMeta}
 
 object MetaToYamlSerialization {
   //  trait CategoryMeta {
@@ -62,7 +62,9 @@ object MetaToYamlSerialization {
 
 
 
-  def convertCategoryMetaToYAMLFileContent(meta: CategoryMeta, parentMeta: CategoryMeta): String = {
+  def convertCategoryMetaToYAMLFileContent(meta: CategoryMetaDefault, parentMeta: CategoryMetaDefault): String = {
+
+
 
 
     "CategoryMeta  YAMLfile  Content"
