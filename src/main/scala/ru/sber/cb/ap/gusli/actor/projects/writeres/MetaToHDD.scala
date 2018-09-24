@@ -29,20 +29,19 @@ object MetaToHDD {
 
 
     Left(wriitenFile)
-
-
   }
 
 
   def writeEntityMetaToPath(meta: EntityMeta, dir: Path, parentMeta: EntityMeta, hasChildren: Boolean): Either[Path,Path] = {
     val fileContent = convertEntityMetaToYAMLFileContent(meta, parentMeta)
+    val entityNameOnHDD = s"${meta.id} ${meta.id}"
     if (hasChildren) {
-      val entityFolder = createNewFolder(meta.name, dir)
+      val entityFolder = createNewFolder(entityNameOnHDD, dir)
       writeYAMLTextFileToDirectory(fileContent, "entity", entityFolder)
       Right(entityFolder)
     }
     else
-      Left(writeYAMLTextFileToDirectory(fileContent, s"${meta.id} ${meta.id}", dir))
+      Left(writeYAMLTextFileToDirectory(fileContent, entityNameOnHDD, dir))
   }
 
 
