@@ -18,10 +18,6 @@ class WorkflowComparerForEqualsSpec extends ActorBaseTest("WorkflowComparerForEq
   private val entity1 = TestProbe()
   private val entity2 = TestProbe()
 
-  override def afterAll: Unit = {
-    TestKit.shutdownActorSystem(system)
-  }
-
   "WorkflowComparer for workflows with the same meta and without entities " must {
     "be equals" in {
       val receiver = TestProbe()

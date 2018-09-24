@@ -16,10 +16,6 @@ class CategorySpec extends ActorBaseTest("CategorySpec")
   private val projectProbe: TestProbe = TestProbe()
   private val cat = system.actorOf(Category(CategoryMetaDefault("category", Map.empty), projectProbe.ref), "category")
   
-  override def afterAll: Unit = {
-    TestKit.shutdownActorSystem(system)
-  }
-  
   "An empty Category" when {
     "send GetCategoryMeta" should {
       cat ! GetCategoryMeta()

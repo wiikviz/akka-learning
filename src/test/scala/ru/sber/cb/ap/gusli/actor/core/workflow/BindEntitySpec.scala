@@ -1,18 +1,15 @@
 package ru.sber.cb.ap.gusli.actor.core.workflow
 
-import akka.testkit.{TestKit, TestProbe}
+import akka.testkit.TestProbe
 import ru.sber.cb.ap.gusli.actor.core.Project.{EntityFound, EntityNotFound, FindEntity}
 import ru.sber.cb.ap.gusli.actor.core.Workflow._
 import ru.sber.cb.ap.gusli.actor.core._
 
 
 class BindEntitySpec extends ActorBaseTest("BindEntity") {
-  val projectProbe = TestProbe()
-  val workflow = system.actorOf(Workflow(WorkflowMetaDefault("wf-1", Map("file" -> "select 1"), Map.empty), projectProbe.ref))
+  private val projectProbe = TestProbe()
+  private val workflow = system.actorOf(Workflow(WorkflowMetaDefault("wf-1", Map("file" -> "select 1"), Map.empty), projectProbe.ref))
 
-  override def afterAll: Unit = {
-    TestKit.shutdownActorSystem(system)
-  }
 
   "bind entity to project where it's entity not exists" must {
     workflow ! BindEntity(1)

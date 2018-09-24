@@ -14,10 +14,6 @@ class CategoryDiffForEqualsSpec extends ActorBaseTest("CategoryDiffForEqualsSpec
   private val currentCat = system.actorOf(Category(meta1, projectProbe.ref))
   private val prevCat = system.actorOf(Category(meta2, projectProbe.ref))
 
-  override def afterAll: Unit = {
-    TestKit.shutdownActorSystem(system)
-  }
-
   "CategoryDiff for Category with the same meta" must {
     "return CategoryEquals" in {
       val projectDiffProbe = TestProbe()
