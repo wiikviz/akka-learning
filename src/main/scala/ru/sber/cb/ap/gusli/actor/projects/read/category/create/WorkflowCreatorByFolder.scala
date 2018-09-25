@@ -32,7 +32,7 @@ class WorkflowCreatorByFolder(meta: WorkflowCreatorByFolderMeta) extends BaseAct
   }
   
   private def tryCreateWorkflow(meta: CategoryMeta): Unit = {
-    val wfMetaTemp = extractFileFields(meta)
+    val wfMetaTemp = extractMetaFileFields(meta)
     if (wfMetaTemp.isEmpty) Left("Meta File not found in " + this.meta.path)
     else {
       //TODO: Фильтр отрицательных сущностей
@@ -41,7 +41,7 @@ class WorkflowCreatorByFolder(meta: WorkflowCreatorByFolderMeta) extends BaseAct
     }
   }
   
-  private def extractFileFields(meta: CategoryMeta) = YamlFileMapper.readToWorkflowOptionDto(this.meta.path)
+  private def extractMetaFileFields(meta: CategoryMeta) = YamlFileMapper.readToWorkflowOptionDto(this.meta.path)
   
   private def inheritMeta(meta: CategoryMeta, wfMeta: Option[WorkflowOptionDto]) =
     ParentCategoryMetaComparator.workflowNonEmptyMeta(meta, wfMeta.get)

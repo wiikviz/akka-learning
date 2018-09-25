@@ -84,13 +84,13 @@ object YamlFileMapper {
       
       Some(WorkflowOptionDto(
         name = Some(wfName),
-        grenki = fileFields.grenki,
+        grenkiVersion = fileFields.grenki,
         sql = fileNamesToMapWithFileContent(path, fileFields.sql),
-        map = fileNamesToMapWithFileContent(path, fileFields.map),
+        sqlMap = fileNamesToMapWithFileContent(path, fileFields.map),
         init = fileNamesToMapWithFileContent(path, fileFields.init),
         user = fileFields.user,
         queue = fileFields.queue,
-        param = fileFields.param,
+        params = fileFields.param,
         stats = makeSetLongOrNone(fileFields.stats),
         entities = makeSetLongOrNone(fileFields.entities)
       ))
@@ -162,12 +162,12 @@ case class WorkflowFileFields(
 
 case class WorkflowOptionDto(
   name: Option[String] = None,
-  grenki: Option[String] = None,
+  grenkiVersion: Option[String] = None,
   queue: Option[String] = None,
   user: Option[String] = None,
   init: Option[Map[String, String]] = Some(Map.empty),
-  map: Option[Map[String, String]] = Some(Map.empty),
-  param: Option[Map[String, String]] = Some(Map.empty),
+  sqlMap: Option[Map[String, String]] = Some(Map.empty),
+  params: Option[Map[String, String]] = Some(Map.empty),
   stats: Option[Set[Long]] = Some(Set.empty),
   entities: Option[Set[Long]] = Some(Set.empty),
   sql: Option[Map[String, String]]
