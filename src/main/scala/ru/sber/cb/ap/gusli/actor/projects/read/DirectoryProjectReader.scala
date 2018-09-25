@@ -8,6 +8,7 @@ import ru.sber.cb.ap.gusli.actor.core.{CategoryMeta, CategoryMetaDefault, Projec
 import ru.sber.cb.ap.gusli.actor.projects.read.entity.EntityFolderReader.ReadEntity
 import ru.sber.cb.ap.gusli.actor.projects._
 import ru.sber.cb.ap.gusli.actor.projects.read.entity.{EntityFolderReader, EntityFolderReaderMetaDefault}
+import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.YamlFileMapper
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
 
 object DirectoryProjectReader {
@@ -22,7 +23,6 @@ object DirectoryProjectReader {
 case class DirectoryProjectReader(meta: DirectoryProjectReaderMeta) extends BaseActor {
   import DirectoryProjectReader._
   val path: Path = this.meta.path
-//  private var nextStage: ActorRef = _//context.actorOf(EntityFolderReader(EntityFolderReaderMetaDefault()))
   
   override def receive: Receive = {
     case ReadProject(sendTo: Option[ActorRef]) =>
@@ -38,13 +38,13 @@ case class DirectoryProjectReader(meta: DirectoryProjectReaderMeta) extends Base
       entityReader ! PoisonPill
   }
   
-  private def initializeCategoryMeta() = {
-    CategoryMetaDefault("category")
-  }
+  private def initializeCategoryMeta() =
+    YamlFileMapper.readToCategoryMeta(path.resolve("category"))
+    .getOrElse(CategoryMetaDefault("category"))
   
   private def createProject(categoryMeta: CategoryMeta) = {
     val name = path.getFileName.toString
-    context.actorOf(Project(ProjectMetaDefault(name)))
+    context.actorOf(Project(ProjectMetaDefault(name), categoryMeta))
   }
   
   private def fillProjectWithEntities(project: ActorRef) = {

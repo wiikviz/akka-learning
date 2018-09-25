@@ -12,7 +12,6 @@ import ru.sber.cb.ap.gusli.actor.core.{ActorBaseTest, CategoryMetaDefault, Entit
 import ru.sber.cb.ap.gusli.actor.projects.read.DirectoryProjectReader
 import ru.sber.cb.ap.gusli.actor.projects.read.DirectoryProjectReader._
 
-@Ignore
 class DirectoryProjectReaderSpec extends ActorBaseTest("DirectoryProjectSpec") {
   val correctPath = Paths.get("./src/test/resources/project_test-2")
   val incorrectPath = Paths.get("incorrect_path_here")
@@ -50,7 +49,12 @@ class DirectoryProjectReaderSpec extends ActorBaseTest("DirectoryProjectSpec") {
           case CategoryRoot(root) =>
             rootCategory = root
             root ! GetCategoryMeta()
-            expectMsg(CategoryMetaResponse(CategoryMetaDefault("category", Map.empty)))
+            expectMsgPF() {
+              case CategoryMetaResponse(meta) =>
+                assert(meta.name == "category")
+                assert(meta.grenkiVersion.contains("0.2"))
+                assert(meta.init("init.hql").contains("select 1"))
+            }
         }
       }
       "receiving FindEntity(0) should send back EntityFound" in {

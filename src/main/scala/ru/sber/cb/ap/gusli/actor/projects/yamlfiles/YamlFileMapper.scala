@@ -10,10 +10,10 @@ import ru.sber.cb.ap.gusli.actor.core.dto.WorkflowDto
 
 object YamlFileMapper {
   
-  /**
+  /** Extracts meta from folder.
     *
-    * @param path path to category folder
-    * @return Meta from File if it exists, otherwise None
+    * @param path path to folder
+    * @return Meta from File if it exists, None otherwise
     */
   def readToCategoryMeta(path: Path): Option[CategoryMetaDefault] = {
     val catName = path.getFileName.toString
@@ -38,6 +38,11 @@ object YamlFileMapper {
     }
   }
   
+  /** Extracts meta from folder.
+    *
+    * @param path path to folder
+    * @return Meta from File if it exists, None otherwise
+    */
   def readToWorkflowDtoMeta(path: Path): Option[WorkflowDto] = {
     val wfName = path.getFileName.toString.replaceFirst("wf-", "")
     val metaFilePath = path.resolve("meta.yaml")

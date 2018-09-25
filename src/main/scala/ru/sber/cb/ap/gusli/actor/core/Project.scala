@@ -5,8 +5,8 @@ import ru.sber.cb.ap.gusli.actor.core.search.EntitySearcher
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
 
 object Project {
-  def apply(meta: ProjectMeta): Props = {
-    Props(new Project(meta))
+  def apply(meta: ProjectMeta, categoryMeta: CategoryMeta = CategoryMetaDefault("category", Map.empty)): Props = {
+    Props(new Project(meta, categoryMeta))
   }
 
   case class GetProjectMeta(replyTo: Option[ActorRef] = None) extends Request
