@@ -10,39 +10,56 @@ import ru.sber.cb.ap.gusli.actor.core.dto.WorkflowDto
 
 object YamlFileMapper {
   
+  /**
+    *
+    * @param path path to category folder
+    * @return Meta from File if it exists, otherwise None
+    */
   def readToCategoryMeta(path: Path): Option[CategoryMetaDefault] = {
     val catName = path.getFileName.toString
-    val deserializedCat = readCategoryFile(path.resolve("meta.yaml"))
+    val metaFilePath = path.resolve("meta.yaml")
+    
+    if (!metaFilePath.toFile.exists())
+      None
+    else {
+      val deserializedCat = readCategoryFile(metaFilePath)
   
-    Some(CategoryMetaDefault(
-      catName,
-      fileNamesToMapWithFileContent(path, deserializedCat.map).getOrElse(Map.empty),
-      fileNamesToMapWithFileContent(path, deserializedCat.init).getOrElse(Map.empty),
-      deserializedCat.user,
-      deserializedCat.queue,
-      deserializedCat.grenki,
-      deserializedCat.param.get,
-      deserializedCat.stats.get.map(_.toLong),
-      deserializedCat.entities.get.map(_.toLong)
-    ))
+      Some(CategoryMetaDefault(
+        catName,
+        fileNamesToMapWithFileContent(path, deserializedCat.map).getOrElse(Map.empty),
+        fileNamesToMapWithFileContent(path, deserializedCat.init).getOrElse(Map.empty),
+        deserializedCat.user,
+        deserializedCat.queue,
+        deserializedCat.grenki,
+        deserializedCat.param.get,
+        deserializedCat.stats.get.map(_.toLong),
+        deserializedCat.entities.get.map(_.toLong)
+      ))
+    }
   }
   
   def readToWorkflowDtoMeta(path: Path): Option[WorkflowDto] = {
     val wfName = path.getFileName.toString.replaceFirst("wf-", "")
-    val fileFields = readWorkflowFile(path.resolve("meta.yaml"))
+    val metaFilePath = path.resolve("meta.yaml")
   
-    Some(WorkflowDto(
-      wfName,
-      fileNamesToMapWithFileContent(path, fileFields.sql).getOrElse(Map.empty),
-      fileNamesToMapWithFileContent(path, fileFields.map).getOrElse(Map.empty),
-      fileNamesToMapWithFileContent(path, fileFields.init).getOrElse(Map.empty),
-      fileFields.user,
-      fileFields.queue,
-      fileFields.grenki,
-      fileFields.param.get,
-      fileFields.stats.get.map(_.toLong),
-      fileFields.entities.get.map(_.toLong)
-    ))
+    if (!metaFilePath.toFile.exists())
+      None
+    else {
+      val fileFields = readWorkflowFile(metaFilePath)
+      
+      Some(WorkflowDto(
+        wfName,
+        fileNamesToMapWithFileContent(path, fileFields.sql).getOrElse(Map.empty),
+        fileNamesToMapWithFileContent(path, fileFields.map).getOrElse(Map.empty),
+        fileNamesToMapWithFileContent(path, fileFields.init).getOrElse(Map.empty),
+        fileFields.user,
+        fileFields.queue,
+        fileFields.grenki,
+        fileFields.param.get,
+        fileFields.stats.get.map(_.toLong),
+        fileFields.entities.get.map(_.toLong)
+      ))
+    }
   }
   
   def readWorkflowFile(path: Path): WorkflowFileFields = {
