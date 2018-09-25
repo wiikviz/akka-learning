@@ -63,7 +63,7 @@ class YamlFileMapperSpec extends FlatSpec {
     assert(wfFile.get.params.contains(Map.empty))
     assert(wfFile.get.stats.contains(Set.empty))
   }
-  it should "read rewritable fields to None" in {
+  it should "read empty fields to None" in {
     val wfFile = YamlFileMapper.readToWorkflowOptionDto(Paths.get("./src/test/resources/project_test-2/category/cb/ap/rb/wf-rb-sv/garbage/"), "test-nones.yaml")
     assert(wfFile.get.queue.isEmpty)
     assert(wfFile.get.init.isEmpty)
