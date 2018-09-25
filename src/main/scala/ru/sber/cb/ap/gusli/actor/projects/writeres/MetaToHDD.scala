@@ -14,12 +14,15 @@ object MetaToHDD {
 
 
   def writeCategoryMetaToPath(meta: CategoryMeta, dir: Path, parentMeta: CategoryMeta): Path = {
-    val categoryFolder = createNewFolder(meta.name, dir)
+    val categoryFolder: Path = createNewFolder(meta.name, dir)
+
     val child = meta.asInstanceOf[CategoryMetaDefault]
     val parent = parentMeta.asInstanceOf[CategoryMetaDefault]
+
     if(child.copy(name = parent.name) != parent){
-      val fileContent = convertCategoryMetaDefaultToYAMLFileContent(child,parent)
-      writeYAMLTextFileToDirectory(fileContent, "category", categoryFolder)
+      for( (fileName, fileContent) <- getFilesContentFromCategory(child,parent)){
+        writeYAMLTextFileToDirectory(fileName,fileContent, categoryFolder)
+      }
     }
     categoryFolder
   }
@@ -29,7 +32,7 @@ object MetaToHDD {
     val fileContent = convertWorkflowMetaToYAMLFileContent(dto,categoryMeta)
 
 //    val workflowFolder = createNewFolder(dto.name, dir)
-    val wriitenFile = writeYAMLTextFileToDirectory(fileContent, s"wf-${dto.name}", dir)
+    val wriitenFile = writeYAMLTextFileToDirectory(s"wf-${dto.name}.yaml", fileContent, dir)
 
 
     Left(wriitenFile)
@@ -41,11 +44,11 @@ object MetaToHDD {
     val entityNameOnHDD = s"${meta.id} ${meta.id}"
     if (hasChildren) {
       val entityFolder = createNewFolder(entityNameOnHDD, dir)
-      writeYAMLTextFileToDirectory(fileContent, "entity", entityFolder)
+      writeYAMLTextFileToDirectory("entity.yaml", fileContent, entityFolder)
       Right(entityFolder)
     }
     else
-      Left(writeYAMLTextFileToDirectory(fileContent, entityNameOnHDD, dir))
+      Left(writeYAMLTextFileToDirectory(s"$entityNameOnHDD.yaml", fileContent, dir))
   }
 
 
@@ -60,7 +63,6 @@ object MetaToHDD {
     URLEncoder.encode(folderName, charSet.toString)
   }
 
-  private def writeYAMLTextFileToDirectory(fileContent: String, fileName: String, dir: Path): Path = {
-    Files.write(dir.resolve(fileName + ".yaml"), fileContent.getBytes(charSet))
-  }
+  private def writeYAMLTextFileToDirectory(fileName:String, fileContent: String, dir: Path): Path =
+    Files.write(dir.resolve(fileName), fileContent.getBytes(charSet))
 }

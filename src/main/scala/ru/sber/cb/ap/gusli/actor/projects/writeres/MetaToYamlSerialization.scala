@@ -57,17 +57,27 @@ object MetaToYamlSerialization {
 //    - 123
 //    - -124
 
+//  case class CategoryMetaDefault(name: String,
+//                                 sqlMap: Map[String, String] = Map.empty,
+//                                 init: Map[String, String] = Map.empty,
+//                                 user: Option[String] = None,
+//                                 queue: Option[String] = None,
+//                                 grenkiVersion: Option[String] = None,
+//                                 params: Map[String, String] = Map.empty,
+//                                 stats: Set[Long] = Set.empty,
+//                                 entities: Set[Long] = Set.empty
+//                                )
 
 
 
 
-
-  def convertCategoryMetaDefaultToYAMLFileContent(metaDefault: CategoryMetaDefault, parentMetaDefault: CategoryMetaDefault): String = {
-
+  def getFilesContentFromCategory(metaDefault: CategoryMetaDefault, parentMetaDefault: CategoryMetaDefault): Map[String,String] = {
 
 
 
-    "CategoryMeta  YAMLfile  Content"
+
+    Map.empty[String,String]
+
   }
 
   def convertWorkflowMetaToYAMLFileContent(meta: WorkflowDto, categoryMeta: CategoryMeta): String = {
@@ -88,4 +98,32 @@ object MetaToYamlSerialization {
     s"""---
        |path: "${meta.path}"""".stripMargin
   }
+
+  private def getChangeBeetweenTwoMaps(parent:Map[String,String], child:Map[String,String]):(Map[String,String],Set[String]) = {
+    val parentMap = collection.mutable.Map.empty ++ parent
+    val resultMap = collection.mutable.Map.empty[String,String]
+    for( pair @  (fileName, fileContent) <- child ) {
+      if(!parentMap.contains(fileName) || parentMap(fileName) != fileContent){
+        resultMap += pair
+      }
+      parentMap -= fileName
+    }
+    (resultMap.toMap, parentMap.keys.toSet)
+  }
+
+
+  def main(args: Array[String]): Unit = {
+    val first = Map("1"->"a", "2"->"br", "3"->"c", "4"->"d", "5"->"e")
+    val second = Map("1"->"a", "2"->"b", "3"->"c", "6"->"f", "7"->"g")
+
+    val result = getChangeBeetweenTwoMaps(first,second)
+    println(result)
+    assert(result._1.keys.toSet == Set("2","6","7"))
+    assert(result._2 == Set("4","5"))
+  }
+
+
+
+
+
 }
