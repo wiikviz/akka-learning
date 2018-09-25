@@ -6,7 +6,7 @@ import akka.actor.{ActorRef, Props}
 import ru.sber.cb.ap.gusli.actor.core.Category.{AddWorkflow, CategoryMetaResponse, GetCategoryMeta, WorkflowCreated}
 import ru.sber.cb.ap.gusli.actor.core.Workflow.BindEntity
 import ru.sber.cb.ap.gusli.actor.core.{CategoryMeta, WorkflowMeta, WorkflowMetaDefault}
-import ru.sber.cb.ap.gusli.actor.projects.read.category.ParentCategoryMetaComparator
+import ru.sber.cb.ap.gusli.actor.projects.read.category.ProjectMetaMaker
 import ru.sber.cb.ap.gusli.actor.projects.read.category.create.WorkflowCreatorBySql._
 import ru.sber.cb.ap.gusli.actor.projects.read.util.FileContentReader
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
@@ -44,7 +44,7 @@ class WorkflowCreatorBySql(meta: WorkflowCreatorBeSqlMeta) extends BaseActor {
       sql = Map(wfName -> wfSql)
     )
     
-    ParentCategoryMetaComparator.workflowEmptyMeta(meta, wfMetaTemp)
+    ProjectMetaMaker.workflowEmptyMeta(meta, wfMetaTemp)
   }
 }
 

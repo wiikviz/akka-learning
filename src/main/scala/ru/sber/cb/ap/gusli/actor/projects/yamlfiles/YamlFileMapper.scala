@@ -11,7 +11,7 @@ import ru.sber.cb.ap.gusli.actor.projects.read.util.FileContentReader
 
 object YamlFileMapper {
   
-  /** Extracts meta from folder.
+  /** Extracts completed meta from folder.
     *
     * @param path path to folder
     * @return Meta from File if it exists, None otherwise
@@ -39,7 +39,7 @@ object YamlFileMapper {
     }
   }
   
-  /** Extracts meta from folder.
+  /** Extracts completed meta from folder.
     *
     * @param path path to folder
     * @return Meta from File if it exists, None otherwise
@@ -68,7 +68,35 @@ object YamlFileMapper {
     }
   }
   
-  /** Extracts fields to meta-like case class with  from folder.
+  /** Extracts fields to meta-like case class with optional fields from folder.
+    *
+    * @param path path to folder
+    * @return Meta from File if it exists, None otherwise
+    */
+  def readToCategoryOptionalFields(path: Path, metaFileName: String = "meta.yaml"): Option[CategoryOptionalFields] = {
+    val catName = path.getFileName.toString
+    val metaFilePath = path.resolve(metaFileName)
+    
+    if (!metaFilePath.toFile.exists)
+      None
+    else {
+      val fileFields = readCategoryFile(metaFilePath)
+      
+      Some(CategoryOptionalFields(
+        name = catName,
+        grenkiVersion = fileFields.grenki,
+        sqlMap = fileNamesToMapWithFileContent(path, fileFields.map),
+        init = fileNamesToMapWithFileContent(path, fileFields.init),
+        user = fileFields.user,
+        queue = fileFields.queue,
+        params = fileFields.param,
+        stats = makeSetLongOrNone(fileFields.stats),
+        entities = makeSetLongOrNone(fileFields.entities)
+      ))
+    }
+  }
+  
+  /** Extracts fields to meta-like case class with optional fields from folder.
     *
     * @param path path to folder
     * @return Meta from File if it exists, None otherwise
@@ -129,7 +157,6 @@ object YamlFileMapper {
     mapper
   }
 }
-
 //Single: "" -> Some(), empty -> None
 //List: [] -> Some(Set()), empty -> None
 //MapElem: "" -> "", empty-elem -> null
@@ -171,6 +198,18 @@ case class WorkflowOptionDto(
   stats: Option[Set[Long]] = Some(Set.empty),
   entities: Option[Set[Long]] = Some(Set.empty),
   sql: Option[Map[String, String]]
+)
+
+case class CategoryOptionalFields(
+  name: String,
+  grenkiVersion: Option[String] = None,
+  queue: Option[String] = None,
+  user: Option[String] = None,
+  init: Option[Map[String, String]] = Some(Map.empty),
+  sqlMap: Option[Map[String, String]] = Some(Map.empty),
+  params: Option[Map[String, String]] = Some(Map.empty),
+  stats: Option[Set[Long]] = Some(Set.empty),
+  entities: Option[Set[Long]] = Some(Set.empty)
 )
 
 abstract class generalFileFields(grenki: Option[String],

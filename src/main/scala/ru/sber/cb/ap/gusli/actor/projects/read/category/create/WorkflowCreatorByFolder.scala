@@ -7,7 +7,7 @@ import ru.sber.cb.ap.gusli.actor.core.Category.{AddWorkflow, CategoryMetaRespons
 import ru.sber.cb.ap.gusli.actor.core.{CategoryMeta, WorkflowMeta}
 import ru.sber.cb.ap.gusli.actor.core.Workflow.BindEntity
 import ru.sber.cb.ap.gusli.actor.core.dto.WorkflowDto
-import ru.sber.cb.ap.gusli.actor.projects.read.category.ParentCategoryMetaComparator
+import ru.sber.cb.ap.gusli.actor.projects.read.category.ProjectMetaMaker
 import ru.sber.cb.ap.gusli.actor.projects.read.category.create.WorkflowCreatorByFolder.ReadWorkflowFolder
 import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.{WorkflowFileFields, WorkflowOptionDto, YamlFileMapper}
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
@@ -43,8 +43,8 @@ class WorkflowCreatorByFolder(meta: WorkflowCreatorByFolderMeta) extends BaseAct
   
   private def extractMetaFileFields(meta: CategoryMeta) = YamlFileMapper.readToWorkflowOptionDto(this.meta.path)
   
-  private def inheritMeta(meta: CategoryMeta, wfMeta: Option[WorkflowOptionDto]) =
-    ParentCategoryMetaComparator.workflowNonEmptyMeta(meta, wfMeta.get)
+  private def inheritMeta(meta: CategoryMeta, wfMetaTemp: Option[WorkflowOptionDto]) =
+    ProjectMetaMaker.workflowNonEmptyMeta(meta, wfMetaTemp.get)
   
 }
 
