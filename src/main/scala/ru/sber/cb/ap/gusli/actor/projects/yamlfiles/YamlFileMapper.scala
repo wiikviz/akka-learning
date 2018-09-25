@@ -7,6 +7,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import ru.sber.cb.ap.gusli.actor.core.CategoryMetaDefault
 import ru.sber.cb.ap.gusli.actor.core.dto.WorkflowDto
+import ru.sber.cb.ap.gusli.actor.projects.read.util.FileContentReader
 
 object YamlFileMapper {
   
@@ -68,28 +69,21 @@ object YamlFileMapper {
   }
   
   def readWorkflowFile(path: Path): WorkflowFileFields = {
-    val categoryYamlContent = readFileContent(path)
+    val categoryYamlContent = FileContentReader.readFileContent(path)
     val mapper: ObjectMapper = initMapper
     mapper.readValue(categoryYamlContent, classOf[WorkflowFileFields])
   }
 
   def readCategoryFile(path: Path): CategoryFileFields = {
-    val categoryYamlContent = readFileContent(path)
+    val categoryYamlContent = FileContentReader.readFileContent(path)
     val mapper: ObjectMapper = initMapper
     mapper.readValue(categoryYamlContent, classOf[CategoryFileFields])
-  }
-  
-  private def readFileContent(path: Path): String = {
-    val source = scala.io.Source.fromFile(path.toFile)
-    val fileContent = try source.mkString
-    finally source.close()
-    fileContent
   }
   
   private def fileNamesToMapWithFileContent(path: Path, list: Option[Iterable[String]]): Option[Map[String, String]] = {
     list.map { listNames =>
       listNames.map { fileName =>
-        (fileName, readFileContent(path.resolve(fileName)))
+        (fileName, FileContentReader.readFileContent(path.resolve(fileName)))
       }.toMap[String, String]
     }
   }
