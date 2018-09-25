@@ -6,10 +6,11 @@ import akka.actor.{ActorRef, Props}
 import ru.sber.cb.ap.gusli.actor.BaseActor
 import ru.sber.cb.ap.gusli.actor.core.Category.{CategoryMetaResponse, GetCategoryMeta}
 import ru.sber.cb.ap.gusli.actor.core.CategoryMeta
-import ru.sber.cb.ap.gusli.actor.projects.read.category.CategoryCreator.ReadFolder
+import ru.sber.cb.ap.gusli.actor.projects.read.category.create.CategoryCreator.ReadFolder
 import ru.sber.cb.ap.gusli.actor.projects.read.category.CategoryFolderReader.ReadCategoryFolder
-import ru.sber.cb.ap.gusli.actor.projects.read.category.WorkflowCreatorByFolder.ReadWorkflowFolder
-import ru.sber.cb.ap.gusli.actor.projects.read.category.WorkflowCreatorBySql.ReadSqlFile
+import ru.sber.cb.ap.gusli.actor.projects.read.category.create._
+import ru.sber.cb.ap.gusli.actor.projects.read.category.create.WorkflowCreatorByFolder.ReadWorkflowFolder
+import ru.sber.cb.ap.gusli.actor.projects.read.category.create.WorkflowCreatorBySql.ReadSqlFile
 import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.YamlFilePathWorker
 
 object CategoryFolderReader {

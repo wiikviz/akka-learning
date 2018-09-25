@@ -56,4 +56,19 @@ class YamlFileMapperSpec extends FlatSpec {
     assert(wfFile.param.contains(Map()))
     assert(wfFile.stats.contains(Set()))
   }
+  "YamlCategoryMapper.readToWorkflowOptionDto" should "read rewritable fields to Some()" in {
+    val wfFile = YamlFileMapper.readToWorkflowOptionDto(Paths.get("./src/test/resources/project_test-2/category/cb/ap/rb/wf-rb-sv/garbage/"), "test-rewrite.yaml")
+    assert(wfFile.get.queue.contains(""))
+    assert(wfFile.get.init.contains(Map.empty))
+    assert(wfFile.get.param.contains(Map.empty))
+    assert(wfFile.get.stats.contains(Set.empty))
+  }
+  it should "read rewritable fields to None" in {
+    val wfFile = YamlFileMapper.readToWorkflowOptionDto(Paths.get("./src/test/resources/project_test-2/category/cb/ap/rb/wf-rb-sv/garbage/"), "test-nones.yaml")
+    assert(wfFile.get.queue.isEmpty)
+    assert(wfFile.get.init.isEmpty)
+    assert(wfFile.get.param.isEmpty)
+    assert(wfFile.get.stats.isEmpty)
+  }
 }
+

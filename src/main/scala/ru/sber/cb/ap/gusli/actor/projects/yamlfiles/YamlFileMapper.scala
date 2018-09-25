@@ -68,6 +68,40 @@ object YamlFileMapper {
     }
   }
   
+  /** Extracts fields to meta-like case class with  from folder.
+    *
+    * @param path path to folder
+    * @return Meta from File if it exists, None otherwise
+    */
+  def readToWorkflowOptionDto(path: Path, metaFileName: String = "meta.yaml"): Option[WorkflowOptionDto] = {
+    val wfName = path.getFileName.toString.replaceFirst("wf-", "")
+    val metaFilePath = path.resolve(metaFileName)
+  
+    if (!metaFilePath.toFile.exists())
+      None
+    else {
+      val fileFields = readWorkflowFile(metaFilePath)
+      
+      Some(WorkflowOptionDto(
+        name = Some(wfName),
+        grenki = fileFields.grenki,
+        sql = fileNamesToMapWithFileContent(path, fileFields.sql),
+        map = fileNamesToMapWithFileContent(path, fileFields.map),
+        init = fileNamesToMapWithFileContent(path, fileFields.init),
+        user = fileFields.user,
+        queue = fileFields.queue,
+        param = fileFields.param,
+        stats = makeSetLongOrNone(fileFields.stats),
+        entities = makeSetLongOrNone(fileFields.entities)
+      ))
+    }
+  }
+  
+  private def makeSetLongOrNone(intIterable: Option[Set[Int]]): Option[Set[Long]] = {
+    if (intIterable.nonEmpty) Some(intIterable.get.map(_.toLong))
+    else None
+  }
+  
   def readWorkflowFile(path: Path): WorkflowFileFields = {
     val categoryYamlContent = FileContentReader.readFileContent(path)
     val mapper: ObjectMapper = initMapper
@@ -125,6 +159,19 @@ case class WorkflowFileFields(
   
   override def toString(): String = super.toString() + "\nsql:" + sql
 }
+
+case class WorkflowOptionDto(
+  name: Option[String] = None,
+  grenki: Option[String] = None,
+  queue: Option[String] = None,
+  user: Option[String] = None,
+  init: Option[Map[String, String]] = Some(Map.empty),
+  map: Option[Map[String, String]] = Some(Map.empty),
+  param: Option[Map[String, String]] = Some(Map.empty),
+  stats: Option[Set[Long]] = Some(Set.empty),
+  entities: Option[Set[Long]] = Some(Set.empty),
+  sql: Option[Map[String, String]]
+)
 
 abstract class generalFileFields(grenki: Option[String],
   queue: Option[String],
