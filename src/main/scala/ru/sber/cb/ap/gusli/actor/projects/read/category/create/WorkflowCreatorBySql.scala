@@ -1,4 +1,4 @@
-package ru.sber.cb.ap.gusli.actor.projects.read.category
+package ru.sber.cb.ap.gusli.actor.projects.read.category.create
 
 import java.nio.file.Path
 
@@ -6,7 +6,8 @@ import akka.actor.{ActorRef, Props}
 import ru.sber.cb.ap.gusli.actor.core.Category.{AddWorkflow, CategoryMetaResponse, GetCategoryMeta, WorkflowCreated}
 import ru.sber.cb.ap.gusli.actor.core.Workflow.BindEntity
 import ru.sber.cb.ap.gusli.actor.core.{CategoryMeta, WorkflowMeta, WorkflowMetaDefault}
-import ru.sber.cb.ap.gusli.actor.projects.read.category.WorkflowCreatorBySql._
+import ru.sber.cb.ap.gusli.actor.projects.read.category.ParentCategoryMetaComparator
+import ru.sber.cb.ap.gusli.actor.projects.read.category.create.WorkflowCreatorBySql._
 import ru.sber.cb.ap.gusli.actor.projects.read.util.FileContentReader
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
 
@@ -23,16 +24,13 @@ class WorkflowCreatorBySql(meta: WorkflowCreatorBeSqlMeta) extends BaseActor {
   private val entities = scala.collection.mutable.ArrayBuffer[Long]()
   
   override def receive: Receive = {
-    case ReadSqlFile(replyTo) =>
-      this.meta.category ! GetCategoryMeta()
+    case ReadSqlFile(replyTo) => this.meta.category ! GetCategoryMeta()
     
-    case CategoryMetaResponse(meta) => {
+    case CategoryMetaResponse(meta) =>
       entities ++= meta.entities
       this.meta.category ! AddWorkflow(createWfMeta(meta))
-    }
 
-    case WorkflowCreated(wf) =>
-      entities.foreach(wf ! BindEntity(_))
+    case WorkflowCreated(wf) => entities.foreach(wf ! BindEntity(_))
   }
   
   private def createWfMetaFromParentCategory(): WorkflowMeta = WorkflowMetaDefault("test", Map.empty)

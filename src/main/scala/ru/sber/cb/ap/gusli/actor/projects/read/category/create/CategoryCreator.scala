@@ -1,11 +1,11 @@
-package ru.sber.cb.ap.gusli.actor.projects.read.category
+package ru.sber.cb.ap.gusli.actor.projects.read.category.create
 
 import java.nio.file.Path
 
 import akka.actor.{ActorRef, Props}
-import ru.sber.cb.ap.gusli.actor.core.Category.{AddSubcategory, CategoryMetaResponse, GetCategoryMeta, WorkflowCreated}
+import ru.sber.cb.ap.gusli.actor.core.Category.{CategoryMetaResponse, GetCategoryMeta, WorkflowCreated}
 import ru.sber.cb.ap.gusli.actor.core.CategoryMeta
-import ru.sber.cb.ap.gusli.actor.projects.read.category.CategoryCreator.ReadFolder
+import ru.sber.cb.ap.gusli.actor.projects.read.category.create.CategoryCreator.ReadFolder
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
 
 object CategoryCreator {
