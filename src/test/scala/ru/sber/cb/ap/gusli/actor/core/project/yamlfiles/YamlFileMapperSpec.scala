@@ -42,8 +42,18 @@ class YamlFileMapperSpec extends FlatSpec {
     assert(wfDtoMeta.sql("rb-car433ds.sql").contains("select 2"))
   }
   
-  it should "print not all fields" in {
-    val wfFile = YamlFileMapper.readWorkflowFile(Paths.get("./src/test/resources/project_test-2/category/cb/ap/rb/wf-rb-sv/garbage/test.yaml"))
-
+  it should "print None for empty fields" in {
+    val wfFile = YamlFileMapper.readWorkflowFile(Paths.get("./src/test/resources/project_test-2/category/cb/ap/rb/wf-rb-sv/garbage/test-nones.yaml"))
+    assert(wfFile.queue.isEmpty)
+    assert(wfFile.init.isEmpty)
+    assert(wfFile.param.isEmpty)
+    assert(wfFile.stats.isEmpty)
+  }
+  it should "print Some() for {}, [] and \"\"" in {
+    val wfFile = YamlFileMapper.readWorkflowFile(Paths.get("./src/test/resources/project_test-2/category/cb/ap/rb/wf-rb-sv/garbage/test-rewrite.yaml"))
+    assert(wfFile.queue.contains(""))
+    assert(wfFile.init.contains(List()))
+    assert(wfFile.param.contains(Map()))
+    assert(wfFile.stats.contains(Set()))
   }
 }
