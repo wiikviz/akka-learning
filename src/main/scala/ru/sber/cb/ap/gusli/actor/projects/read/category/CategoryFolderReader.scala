@@ -4,6 +4,9 @@ import java.nio.file.Path
 
 import akka.actor.{ActorRef, Props}
 import ru.sber.cb.ap.gusli.actor.BaseActor
+import ru.sber.cb.ap.gusli.actor.core.Category.{CategoryMetaResponse, GetCategoryMeta}
+import ru.sber.cb.ap.gusli.actor.core.CategoryMeta
+import ru.sber.cb.ap.gusli.actor.projects.read.category.CategoryCreator.ReadFolder
 import ru.sber.cb.ap.gusli.actor.projects.read.category.CategoryFolderReader.ReadCategoryFolder
 import ru.sber.cb.ap.gusli.actor.projects.read.category.WorkflowCreatorByFolder.ReadWorkflowFolder
 import ru.sber.cb.ap.gusli.actor.projects.read.category.WorkflowCreatorBySql.ReadSqlFile
@@ -17,11 +20,13 @@ object CategoryFolderReader {
 }
 
 class CategoryFolderReader(meta: CategoryFolderReaderMeta) extends BaseActor {
-  val filterFiles = scala.collection.mutable.ArrayBuffer("init.sql")
+  private val filterFiles = scala.collection.mutable.ArrayBuffer[String]("init.sql")
   
   override def receive: Receive = {
-    case ReadCategoryFolder() =>
-      addFilesFromYamlToFilter()
+    case ReadCategoryFolder() => this.meta.category ! GetCategoryMeta()
+    
+    case CategoryMetaResponse(meta) =>
+      addFilesFromMetaToFilter(meta)
       val files = YamlFilePathWorker.getAllValidCategoryChilds(this.meta.path, filterFiles)
       files.foreach { p =>
         doIfWfFile(p)
@@ -35,9 +40,7 @@ class CategoryFolderReader(meta: CategoryFolderReaderMeta) extends BaseActor {
     *
     * @return true - if all files exists
     */
-  private def addFilesFromYamlToFilter(): Boolean = {
-    true
-  }
+  private def addFilesFromMetaToFilter(meta: CategoryMeta) = filterFiles.++=(meta.init.keys).++=(meta.sqlMap.keys)
   
   private def doIfWfFile(path: Path): Unit =
     if (path.toFile.isFile && path.getFileName.toString.toLowerCase.endsWith(".sql"))
@@ -49,7 +52,7 @@ class CategoryFolderReader(meta: CategoryFolderReaderMeta) extends BaseActor {
   
   private def doIfCategoryFolder(path: Path): Unit =
     if (path.toFile.isDirectory && !isWfFolder(path))
-      createCategoryCreator ! ReadCategoryFolder()
+      createCategoryCreator ! ReadFolder()
   
   private def createWorkflowCreatorBySql =
     context.actorOf(WorkflowCreatorBySql(WorkflowCreatorBySqlBeSqlMetaDefault(this.meta.path, this.meta.category)))

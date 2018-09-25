@@ -3,10 +3,12 @@ package ru.sber.cb.ap.gusli.actor.projects.read
 import java.nio.file.Path
 
 import akka.actor.{ActorRef, PoisonPill, Props}
-import ru.sber.cb.ap.gusli.actor.core.Project.{EntityRoot, GetEntityRoot}
+import ru.sber.cb.ap.gusli.actor.core.Project.{CategoryRoot, EntityRoot, GetCategoryRoot, GetEntityRoot}
 import ru.sber.cb.ap.gusli.actor.core.{CategoryMeta, CategoryMetaDefault, Project, ProjectMetaDefault}
 import ru.sber.cb.ap.gusli.actor.projects.read.entity.EntityFolderReader.ReadEntity
 import ru.sber.cb.ap.gusli.actor.projects._
+import ru.sber.cb.ap.gusli.actor.projects.read.category.CategoryFolderReader.ReadCategoryFolder
+import ru.sber.cb.ap.gusli.actor.projects.read.category.{CategoryFolderReader, CategoryFolderReaderMetaDefault}
 import ru.sber.cb.ap.gusli.actor.projects.read.entity.{EntityFolderReader, EntityFolderReaderMetaDefault}
 import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.YamlFileMapper
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
@@ -36,6 +38,12 @@ case class DirectoryProjectReader(meta: DirectoryProjectReaderMeta) extends Base
       entityReader ! ReadEntity()
       Thread.sleep(1000)
       entityReader ! PoisonPill
+
+    case CategoryRoot(category) =>
+      val categoryReader = context.actorOf(CategoryFolderReader(CategoryFolderReaderMetaDefault(path.resolve("category"), category)))
+      categoryReader ! ReadCategoryFolder()
+      Thread.sleep(1000)
+      categoryReader ! PoisonPill
   }
   
   private def initializeCategoryMeta() =
@@ -52,7 +60,7 @@ case class DirectoryProjectReader(meta: DirectoryProjectReaderMeta) extends Base
   }
   
   private def fillProjectWithCategories(project: ActorRef) = {
-  
+    project ! GetCategoryRoot()
   }
 }
 

@@ -7,6 +7,7 @@ import ru.sber.cb.ap.gusli.actor.core.Category.{AddWorkflow, CategoryMetaRespons
 import ru.sber.cb.ap.gusli.actor.core.Workflow.BindEntity
 import ru.sber.cb.ap.gusli.actor.core.{CategoryMeta, WorkflowMeta, WorkflowMetaDefault}
 import ru.sber.cb.ap.gusli.actor.projects.read.category.WorkflowCreatorBySql._
+import ru.sber.cb.ap.gusli.actor.projects.read.util.FileContentReader
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
 
 object WorkflowCreatorBySql {
@@ -19,27 +20,39 @@ object WorkflowCreatorBySql {
 }
 
 class WorkflowCreatorBySql(meta: WorkflowCreatorBeSqlMeta) extends BaseActor {
-  val entities = scala.collection.mutable.ArrayBuffer[Long]()
+  private val entities = scala.collection.mutable.ArrayBuffer[Long]()
   
   override def receive: Receive = {
     case ReadSqlFile(replyTo) =>
       this.meta.category ! GetCategoryMeta()
     
     case CategoryMetaResponse(meta) => {
-      //readFile
-      //fillEntities
-      this.meta.category ! AddWorkflow(createWfMetaFromWfFolder())
+      entities ++= meta.entities
+      this.meta.category ! AddWorkflow(createWfMeta(meta))
     }
 
     case WorkflowCreated(wf) =>
       entities.foreach(wf ! BindEntity(_))
-      
   }
   
   private def createWfMetaFromParentCategory(): WorkflowMeta = WorkflowMetaDefault("test", Map.empty)
   
-  private def createWfMetaFromWfFolder(): WorkflowMeta = WorkflowMetaDefault("test", Map.empty)
-  
+  private def createWfMeta(meta: CategoryMeta): WorkflowMeta = {
+    val wfName = this.meta.path.getFileName.toString
+    val wfSql = FileContentReader.readFileContent(this.meta.path)
+    
+    WorkflowMetaDefault(
+      name = wfName,
+      sql = Map(wfName -> wfSql),
+      sqlMap = meta.sqlMap,
+      init = meta.init,
+      user = meta.user,
+      queue = meta.queue,
+      grenkiVersion = meta.grenkiVersion,
+      params = meta.params,
+      stats = meta.stats
+    )
+  }
 }
 
 trait WorkflowCreatorBeSqlMeta {
