@@ -10,11 +10,11 @@ import ru.sber.cb.ap.gusli.actor.core.dto.WorkflowDto
 
 object YamlFileMapper {
   
-  def readToCategoryMeta(path: Path): CategoryMetaDefault = {
+  def readToCategoryMeta(path: Path): Option[CategoryMetaDefault] = {
     val catName = path.getFileName.toString
     val deserializedCat = readCategoryFile(path.resolve("meta.yaml"))
   
-    CategoryMetaDefault(
+    Some(CategoryMetaDefault(
       catName,
       fileNamesToMapWithFileContent(path, deserializedCat.map).getOrElse(Map.empty),
       fileNamesToMapWithFileContent(path, deserializedCat.init).getOrElse(Map.empty),
@@ -24,14 +24,14 @@ object YamlFileMapper {
       deserializedCat.param.get,
       deserializedCat.stats.get.map(_.toLong),
       deserializedCat.entities.get.map(_.toLong)
-    )
+    ))
   }
   
-  def readToWorkflowDtoMeta(path: Path): WorkflowDto = {
+  def readToWorkflowDtoMeta(path: Path): Option[WorkflowDto] = {
     val wfName = path.getFileName.toString.replaceFirst("wf-", "")
     val fileFields = readWorkflowFile(path.resolve("meta.yaml"))
   
-    WorkflowDto(
+    Some(WorkflowDto(
       wfName,
       fileNamesToMapWithFileContent(path, fileFields.sql).getOrElse(Map.empty),
       fileNamesToMapWithFileContent(path, fileFields.map).getOrElse(Map.empty),
@@ -42,7 +42,7 @@ object YamlFileMapper {
       fileFields.param.get,
       fileFields.stats.get.map(_.toLong),
       fileFields.entities.get.map(_.toLong)
-    )
+    ))
   }
   
   def readWorkflowFile(path: Path): WorkflowFileFields = {

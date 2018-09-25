@@ -25,9 +25,9 @@ class YamlFileMapperSpec extends FlatSpec {
   
   it should "transform data from file to CategoryMeta" in {
     val categoryMeta = YamlFileMapper.readToCategoryMeta(Paths.get("./src/test/resources/project_test-2/category/"))
-    assert(categoryMeta.name == "category")
-    assert(categoryMeta.init.get("init.hql").contains("select 1"))
-    assert(categoryMeta.init.get("init2.hql").contains("select 1"))
+    assert(categoryMeta.get.name == "category")
+    assert(categoryMeta.get.init.get("init.hql").contains("select 1"))
+    assert(categoryMeta.get.init.get("init2.hql").contains("select 1"))
   }
   
   it should "read workflow file" in {
@@ -37,9 +37,9 @@ class YamlFileMapperSpec extends FlatSpec {
   
   it should "transform file to WorkflowDtoMeta" in {
     val wfDtoMeta = YamlFileMapper.readToWorkflowDtoMeta(Paths.get("./src/test/resources/project_test-2/category/cb/ap/rb/wf-rb-sv/"))
-    assert(wfDtoMeta.name.contains("rb-sv"))
-    assert(wfDtoMeta.sql("rb-vek5555sel.sql").contains("select 2"))
-    assert(wfDtoMeta.sql("rb-car433ds.sql").contains("select 2"))
+    assert(wfDtoMeta.get.name.contains("rb-sv"))
+    assert(wfDtoMeta.get.sql("rb-vek5555sel.sql").contains("select 2"))
+    assert(wfDtoMeta.get.sql("rb-car433ds.sql").contains("select 2"))
   }
   
   it should "print None for empty fields" in {
