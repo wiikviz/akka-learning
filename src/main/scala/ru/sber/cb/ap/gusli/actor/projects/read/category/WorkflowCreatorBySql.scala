@@ -41,17 +41,12 @@ class WorkflowCreatorBySql(meta: WorkflowCreatorBeSqlMeta) extends BaseActor {
     val wfName = this.meta.path.getFileName.toString
     val wfSql = FileContentReader.readFileContent(this.meta.path)
     
-    WorkflowMetaDefault(
+    val wfMetaTemp = WorkflowMetaDefault(
       name = wfName,
-      sql = Map(wfName -> wfSql),
-      sqlMap = meta.sqlMap,
-      init = meta.init,
-      user = meta.user,
-      queue = meta.queue,
-      grenkiVersion = meta.grenkiVersion,
-      params = meta.params,
-      stats = meta.stats
+      sql = Map(wfName -> wfSql)
     )
+    
+    ParentCategoryMetaComparator.workflowEmptyMeta(meta, wfMetaTemp)
   }
 }
 
