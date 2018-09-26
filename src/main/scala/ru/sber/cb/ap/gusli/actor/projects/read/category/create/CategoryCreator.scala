@@ -5,6 +5,7 @@ import java.nio.file.Path
 import akka.actor.{ActorRef, Props}
 import ru.sber.cb.ap.gusli.actor.core.Category._
 import ru.sber.cb.ap.gusli.actor.core.CategoryMeta
+import ru.sber.cb.ap.gusli.actor.projects.read.category.CategoryFolderReader.ReadCategoryFolder
 import ru.sber.cb.ap.gusli.actor.projects.read.category.{CategoryFolderReader, CategoryFolderReaderMetaDefault, ProjectMetaMaker}
 import ru.sber.cb.ap.gusli.actor.projects.read.category.create.CategoryCreator.ReadFolder
 import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.{CategoryOptionalFields, YamlFileMapper}
@@ -20,16 +21,16 @@ object CategoryCreator {
 
 class CategoryCreator(meta: CategoryCreatorMeta) extends BaseActor {
   override def receive: Receive = {
-    case ReadFolder(replyTo) => this.meta.category ! GetCategoryMeta()
+    case ReadFolder(replyTo) => this.meta.paretnCategory ! GetCategoryMeta()
     case CategoryMetaResponse(meta) => tryCreateCategory(meta)
-    case SubcategoryCreated(category) =>
-      context.actorOf(CategoryFolderReader(CategoryFolderReaderMetaDefault(this.meta.path, category)))
+    case SubcategoryCreated(childCategory) =>
+      context.actorOf(CategoryFolderReader(CategoryFolderReaderMetaDefault(this.meta.path, childCategory))) ! ReadCategoryFolder()
   }
   
   private def tryCreateCategory(meta: CategoryMeta): Unit = {
     val catMetaTemp: Option[CategoryOptionalFields] = extractMetaFileFields(meta)
     //TODO: фильтр отрицательных сущностей
-    this.meta.category ! AddSubcategory(inheritMeta(meta, catMetaTemp))
+    this.meta.paretnCategory ! AddSubcategory(inheritMeta(meta, catMetaTemp))
   }
   
   private def extractMetaFileFields(meta: CategoryMeta) = YamlFileMapper.readToCategoryOptionalFields(this.meta.path)
@@ -44,7 +45,7 @@ class CategoryCreator(meta: CategoryCreatorMeta) extends BaseActor {
 
 trait CategoryCreatorMeta {
   val path: Path
-  val category: ActorRef
+  val paretnCategory: ActorRef
 }
 
-case class CategoryCreatorMetaDefault(path: Path, category: ActorRef) extends CategoryCreatorMeta
+case class CategoryCreatorMetaDefault(path: Path, paretnCategory: ActorRef) extends CategoryCreatorMeta

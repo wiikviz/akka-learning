@@ -23,11 +23,6 @@ object CategoryFolderReader {
 class CategoryFolderReader(meta: CategoryFolderReaderMeta) extends BaseActor {
   val filterFiles: scala.collection.mutable.ArrayBuffer[String] = scala.collection.mutable.ArrayBuffer[String]("init.sql")
   
-  override def preStart(): Unit = {
-    super.preStart()
-//    filterFiles ++= scala.collection.mutable.ArrayBuffer[String]("init.sql")
-  }
-  
   override def receive: Receive = {
     case ReadCategoryFolder(replyTo) => this.meta.category ! GetCategoryMeta()
     
