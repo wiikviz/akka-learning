@@ -58,10 +58,13 @@ class WorkflowListDiffer(current: Set[ActorRef], prev: Set[ActorRef], receiver: 
             checkCompare += 1
             context.actorOf(WorkflowComparer(wf, prevMap(name), self))
           }
-          else if (!prevMap.contains(name)){
-            val bool = prevMap.contains(name)
-            println(s"$bool, $name")
+          else if (!prevMap.contains(name)) {
             delta += wf
+
+            if (delta.size == current.size) {
+              receiver ! WorkflowListDelta(delta)
+              context.stop(self)
+            }
           }
         }
       }
