@@ -70,7 +70,7 @@ case class EntityFolderReader(meta: EntityFolderReaderMeta) extends BaseActor {
       EntityMetaDefault(id, name, "", YamlFilePathWorker.extractParentIdFromPath(path))
   }
   
-  private def checkFinish(): Unit = if (childrenCount == 0 || childrenCount == answeredChildrenCount) {
+  private def checkFinish(): Unit = if (childrenCount == answeredChildrenCount) {
     sendAnswerToParent()
     context.stop(self)
   }
