@@ -3,7 +3,7 @@ package ru.sber.cb.ap.gusli.actor.projects.read.category
 import java.nio.file.Path
 
 import akka.actor.{ActorRef, Props}
-import ru.sber.cb.ap.gusli.actor.BaseActor
+import ru.sber.cb.ap.gusli.actor.{BaseActor, Request}
 import ru.sber.cb.ap.gusli.actor.core.Category.{CategoryMetaResponse, GetCategoryMeta}
 import ru.sber.cb.ap.gusli.actor.core.CategoryMeta
 import ru.sber.cb.ap.gusli.actor.projects.read.category.create.CategoryCreator.ReadFolder
@@ -16,15 +16,20 @@ import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.YamlFilePathWorker
 object CategoryFolderReader {
   def apply(meta: CategoryFolderReaderMeta): Props = Props(new CategoryFolderReader(meta))
   
-  case class ReadCategoryFolder()
+  case class ReadCategoryFolder(replyTo: Option[ActorRef] = None) extends Request
   
 }
 
 class CategoryFolderReader(meta: CategoryFolderReaderMeta) extends BaseActor {
-  private val filterFiles = scala.collection.mutable.ArrayBuffer[String]("init.sql")
+  val filterFiles: scala.collection.mutable.ArrayBuffer[String] = scala.collection.mutable.ArrayBuffer[String]("init.sql")
+  
+  override def preStart(): Unit = {
+    super.preStart()
+//    filterFiles ++= scala.collection.mutable.ArrayBuffer[String]("init.sql")
+  }
   
   override def receive: Receive = {
-    case ReadCategoryFolder() => this.meta.category ! GetCategoryMeta()
+    case ReadCategoryFolder(replyTo) => this.meta.category ! GetCategoryMeta()
     
     case CategoryMetaResponse(meta) =>
       addFilesFromMetaToFilter(meta)
@@ -45,24 +50,24 @@ class CategoryFolderReader(meta: CategoryFolderReaderMeta) extends BaseActor {
   
   private def doIfWfFile(path: Path): Unit =
     if (path.toFile.isFile && path.getFileName.toString.toLowerCase.endsWith(".sql"))
-      createWorkflowCreatorBySql ! ReadSqlFile()
+      createWorkflowCreatorBySql(path) ! ReadSqlFile()
   
   private def doIfWfFolder(path: Path): Unit =
     if (path.toFile.isDirectory && isWfFolder(path))
-      createWorkflowCreatorByFolder ! ReadWorkflowFolder()
+      createWorkflowCreatorByFolder(path) ! ReadWorkflowFolder()
   
   private def doIfCategoryFolder(path: Path): Unit =
     if (path.toFile.isDirectory && !isWfFolder(path))
-      createCategoryCreator ! ReadFolder()
+      createCategoryCreator(path) ! ReadFolder()
   
-  private def createWorkflowCreatorBySql =
-    context.actorOf(WorkflowCreatorBySql(WorkflowCreatorBySqlBeSqlMetaDefault(this.meta.path, this.meta.category)))
+  private def createWorkflowCreatorBySql(path: Path) =
+    context.actorOf(WorkflowCreatorBySql(WorkflowCreatorBySqlBeSqlMetaDefault(path, this.meta.category)))
   
-  private def createWorkflowCreatorByFolder =
-    context.actorOf(WorkflowCreatorByFolder(WorkflowCreatorByFolderMetaDefault(this.meta.path, this.meta.category)))
+  private def createWorkflowCreatorByFolder(path: Path) =
+    context.actorOf(WorkflowCreatorByFolder(WorkflowCreatorByFolderMetaDefault(path, this.meta.category)))
   
-  private def createCategoryCreator =
-    context.actorOf(CategoryCreator(CategoryCreatorMetaDefault(this.meta.path, this.meta.category)))
+  private def createCategoryCreator(path: Path) =
+    context.actorOf(CategoryCreator(CategoryCreatorMetaDefault(path, this.meta.category)))
   
   private def isWfFolder(path: Path) = path.getFileName.toString.toLowerCase.startsWith("wf-")
 }
