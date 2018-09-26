@@ -40,8 +40,8 @@ class CategoryDiffer(diffProject: ActorRef, currentCat: ActorRef, prevCat: Actor
         else {
           val diff = context.system.actorOf(Category(curr, diffProject))
           receiver ! CategoryDelta(diff)
+          context.stop(self)
         }
-        context.stop(self)
       }
   }
 }
