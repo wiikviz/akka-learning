@@ -16,7 +16,7 @@ object WorkflowCreatorBySql {
   
   case class ReadSqlFile(replyTo: Option[ActorRef] = None) extends Request
   
-  case class FileRead(sendTo: Option[ActorRef] = None) extends Response
+  case class FileRead() extends Response
   
 }
 

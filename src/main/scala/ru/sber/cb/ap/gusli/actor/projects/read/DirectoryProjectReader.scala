@@ -5,7 +5,7 @@ import java.nio.file.Path
 import akka.actor.{ActorRef, PoisonPill, Props}
 import ru.sber.cb.ap.gusli.actor.core.Project.{CategoryRoot, EntityRoot, GetCategoryRoot, GetEntityRoot}
 import ru.sber.cb.ap.gusli.actor.core.{CategoryMeta, CategoryMetaDefault, Project, ProjectMetaDefault}
-import ru.sber.cb.ap.gusli.actor.projects.read.entity.EntityFolderReader.ReadEntity
+import ru.sber.cb.ap.gusli.actor.projects.read.entity.EntityFolderReader.{EntityRead, ReadEntity}
 import ru.sber.cb.ap.gusli.actor.projects._
 import ru.sber.cb.ap.gusli.actor.projects.read.category.CategoryFolderReader.ReadCategoryFolder
 import ru.sber.cb.ap.gusli.actor.projects.read.category.{CategoryFolderReader, CategoryFolderReaderMetaDefault}
@@ -25,34 +25,36 @@ object DirectoryProjectReader {
 case class DirectoryProjectReader(meta: DirectoryProjectReaderMeta) extends BaseActor {
   import DirectoryProjectReader._
   val path: Path = this.meta.path
+  var project: ActorRef = _
+  var replyReceiver: ActorRef = _
   
   override def receive: Receive = {
     case ReadProject(sendTo: Option[ActorRef]) =>
+      replyReceiver = sendTo.getOrElse(sender)
       val categoryMeta = initializeCategoryMeta()
-      val project = createProject(categoryMeta)
+      project = createProject(categoryMeta)
       fillProjectWithEntities(project)
-//      Thread.sleep(1000)
-      fillProjectWithCategories(project)
-      sendTo.getOrElse(sender) ! ProjectReaded(project)
+//      sendTo.getOrElse(sender) ! ProjectReaded(project)
 
     case EntityRoot(entity) =>
       val entityReader = context.actorOf(EntityFolderReader(EntityFolderReaderMetaDefault(path.resolve("entity"), entity)))
       entityReader ! ReadEntity()
-      Thread.sleep(1000)
-      entityReader ! PoisonPill
 
+    case EntityRead() => fillProjectWithCategories(project)
+    
     case CategoryRoot(category) =>
       val categoryReader = context.actorOf(CategoryFolderReader(CategoryFolderReaderMetaDefault(path.resolve("category"), category)))
       categoryReader ! ReadCategoryFolder()
       Thread.sleep(1000)
       categoryReader ! PoisonPill
+      replyReceiver ! ProjectReaded(project)
   }
   
   private def initializeCategoryMeta() =
     YamlFileMapper.readToCategoryMeta(path.resolve("category"))
     .getOrElse(CategoryMetaDefault("category"))
   
-  private def createProject(categoryMeta: CategoryMeta) = {
+  private def createProject(categoryMeta: CategoryMeta): ActorRef = {
     val name = path.getFileName.toString
     context.actorOf(Project(ProjectMetaDefault(name), categoryMeta))
   }
