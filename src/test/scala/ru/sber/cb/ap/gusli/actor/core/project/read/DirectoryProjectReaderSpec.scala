@@ -1,14 +1,13 @@
-package ru.sber.cb.ap.gusli.actor.core.serialize
+package ru.sber.cb.ap.gusli.actor.core.project.read
 
 import java.nio.file.Paths
 
 import akka.actor.ActorRef
-import akka.testkit.TestKit
 import org.scalatest.Ignore
 import ru.sber.cb.ap.gusli.actor.core.Category.{apply => _, _}
 import ru.sber.cb.ap.gusli.actor.core.Entity.{EntityMetaResponse, GetEntityMeta}
 import ru.sber.cb.ap.gusli.actor.core.Project.{apply => _, _}
-import ru.sber.cb.ap.gusli.actor.core.{ActorBaseTest, CategoryMetaDefault, EntityMetaDefault, ProjectMetaDefault}
+import ru.sber.cb.ap.gusli.actor.core.{ActorBaseTest, EntityMetaDefault, ProjectMetaDefault}
 import ru.sber.cb.ap.gusli.actor.projects.read.DirectoryProjectReader
 import ru.sber.cb.ap.gusli.actor.projects.read.DirectoryProjectReader._
 
