@@ -31,7 +31,7 @@ case class DirectoryProjectReader(meta: DirectoryProjectReaderMeta) extends Base
       val categoryMeta = initializeCategoryMeta()
       val project = createProject(categoryMeta)
       fillProjectWithEntities(project)
-      Thread.sleep(1000)
+//      Thread.sleep(1000)
       fillProjectWithCategories(project)
       sendTo.getOrElse(sender) ! ProjectReaded(project)
 

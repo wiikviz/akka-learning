@@ -11,7 +11,7 @@ import ru.sber.cb.ap.gusli.actor.core.{ActorBaseTest, EntityMetaDefault, Project
 import ru.sber.cb.ap.gusli.actor.projects.read.DirectoryProjectReader
 import ru.sber.cb.ap.gusli.actor.projects.read.DirectoryProjectReader._
 
-@Ignore
+
 class DirectoryProjectReaderSpec extends ActorBaseTest("DirectoryProjectSpec") {
   val correctPath = Paths.get("./src/test/resources/project_test-2")
   val incorrectPath = Paths.get("incorrect_path_here")
@@ -26,7 +26,7 @@ class DirectoryProjectReaderSpec extends ActorBaseTest("DirectoryProjectSpec") {
       var rbCategory: ActorRef = null
       "send back ProjectReaded(project)" in {
         directoryProjectReader ! ReadProject()
-        Thread.sleep(1000)
+        Thread.sleep(2000)
         expectMsgPF() {
           case ProjectReaded(inputProject) => project = inputProject
         }
