@@ -5,9 +5,9 @@ import java.nio.file.Path
 import akka.actor.{ActorRef, Props}
 import ru.sber.cb.ap.gusli.actor.core.Category._
 import ru.sber.cb.ap.gusli.actor.core.CategoryMeta
-import ru.sber.cb.ap.gusli.actor.projects.read.category.CategoryFolderReader.ReadCategoryFolder
+import ru.sber.cb.ap.gusli.actor.projects.read.category.CategoryFolderReader.{CategoryFolderRead, ReadCategoryFolder}
 import ru.sber.cb.ap.gusli.actor.projects.read.category.{CategoryFolderReader, CategoryFolderReaderMetaDefault, ProjectMetaMaker}
-import ru.sber.cb.ap.gusli.actor.projects.read.category.create.CategoryCreator.ReadFolder
+import ru.sber.cb.ap.gusli.actor.projects.read.category.create.CategoryCreator.{CategoryRead, ReadFolder}
 import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.{CategoryOptionalFields, YamlFileMapper}
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
 
@@ -16,7 +16,7 @@ object CategoryCreator {
   
   case class ReadFolder(replyTo: Option[ActorRef] = None) extends Request
   
-  case class FolderCreated(replyTo: Option[ActorRef] = None) extends Response
+  case class CategoryRead(replyTo: Option[ActorRef] = None) extends Response
 }
 
 class CategoryCreator(meta: CategoryCreatorMeta) extends BaseActor {
@@ -25,6 +25,9 @@ class CategoryCreator(meta: CategoryCreatorMeta) extends BaseActor {
     case CategoryMetaResponse(meta) => tryCreateCategory(meta)
     case SubcategoryCreated(childCategory) =>
       context.actorOf(CategoryFolderReader(CategoryFolderReaderMetaDefault(this.meta.path, childCategory))) ! ReadCategoryFolder()
+    case CategoryFolderRead(replyTo) =>
+      context.parent ! CategoryRead()
+      context.stop(self)
   }
   
   private def tryCreateCategory(meta: CategoryMeta): Unit = {

@@ -9,7 +9,7 @@ import ru.sber.cb.ap.gusli.actor.projects.read.category.CategoryFolderReader.Rea
 import ru.sber.cb.ap.gusli.actor.projects.read.category.{CategoryFolderReader, CategoryFolderReaderMetaDefault}
 import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.YamlFileMapper
 
-class CategoryFolderReaderSpec extends ActorBaseTest("DirectoryProjectSpec") {
+class CategoryReaderSpec extends ActorBaseTest("DirectoryProjectSpec") {
   val correctPath = Paths.get("./src/test/resources/project_test-2/category")
   val project: ActorRef = system.actorOf(Project(ProjectMetaDefault("test_project2")))
   val categoryMeta = YamlFileMapper.readToCategoryMeta(correctPath).get

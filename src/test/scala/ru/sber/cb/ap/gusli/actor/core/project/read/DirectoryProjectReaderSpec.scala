@@ -26,7 +26,6 @@ class DirectoryProjectReaderSpec extends ActorBaseTest("DirectoryProjectSpec") {
       var rbCategory: ActorRef = null
       "send back ProjectReaded(project)" in {
         directoryProjectReader ! ReadProject()
-        Thread.sleep(2000)
         expectMsgPF() {
           case ProjectReaded(inputProject) => project = inputProject
         }

@@ -26,11 +26,11 @@ case class DirectoryProjectReader(meta: DirectoryProjectReaderMeta) extends Base
   import DirectoryProjectReader._
   val path: Path = this.meta.path
   var project: ActorRef = _
-  var replyReceiver: ActorRef = _
+  var answerReceiver: ActorRef = _
   
   override def receive: Receive = {
     case ReadProject(sendTo: Option[ActorRef]) =>
-      replyReceiver = sendTo.getOrElse(sender)
+      answerReceiver = sendTo.getOrElse(sender)
       val categoryMeta = initializeCategoryMeta()
       project = createProject(categoryMeta)
       fillProjectWithEntities(project)
@@ -45,9 +45,7 @@ case class DirectoryProjectReader(meta: DirectoryProjectReaderMeta) extends Base
     case CategoryRoot(category) =>
       val categoryReader = context.actorOf(CategoryFolderReader(CategoryFolderReaderMetaDefault(path.resolve("category"), category)))
       categoryReader ! ReadCategoryFolder()
-      Thread.sleep(1000)
-      categoryReader ! PoisonPill
-      replyReceiver ! ProjectReaded(project)
+      answerReceiver ! ProjectReaded(project)
   }
   
   private def initializeCategoryMeta() =

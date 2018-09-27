@@ -3,14 +3,14 @@ package ru.sber.cb.ap.gusli.actor.projects.read.category
 import java.nio.file.Path
 
 import akka.actor.{ActorRef, Props}
-import ru.sber.cb.ap.gusli.actor.{BaseActor, Request}
+import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
 import ru.sber.cb.ap.gusli.actor.core.Category.{CategoryMetaResponse, GetCategoryMeta}
 import ru.sber.cb.ap.gusli.actor.core.CategoryMeta
-import ru.sber.cb.ap.gusli.actor.projects.read.category.create.CategoryCreator.ReadFolder
-import ru.sber.cb.ap.gusli.actor.projects.read.category.CategoryFolderReader.ReadCategoryFolder
+import ru.sber.cb.ap.gusli.actor.projects.read.category.create.CategoryCreator.{CategoryRead, ReadFolder}
+import ru.sber.cb.ap.gusli.actor.projects.read.category.CategoryFolderReader.{CategoryFolderRead, ReadCategoryFolder}
 import ru.sber.cb.ap.gusli.actor.projects.read.category.create._
-import ru.sber.cb.ap.gusli.actor.projects.read.category.create.WorkflowCreatorByFolder.ReadWorkflowFolder
-import ru.sber.cb.ap.gusli.actor.projects.read.category.create.WorkflowCreatorBySql.ReadSqlFile
+import ru.sber.cb.ap.gusli.actor.projects.read.category.create.WorkflowCreatorByFolder.{ReadWorkflowFolder, WorkflowFolderRead}
+import ru.sber.cb.ap.gusli.actor.projects.read.category.create.WorkflowCreatorBySql.{ReadSqlFile, WorkflowFileRead}
 import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.YamlFilePathWorker
 
 object CategoryFolderReader {
@@ -18,24 +18,37 @@ object CategoryFolderReader {
   
   case class ReadCategoryFolder(replyTo: Option[ActorRef] = None) extends Request
   
+  case class CategoryFolderRead(replyTo: Option[ActorRef] = None) extends Response
 }
 
 class CategoryFolderReader(meta: CategoryFolderReaderMeta) extends BaseActor {
   val filterFiles: scala.collection.mutable.ArrayBuffer[String] = scala.collection.mutable.ArrayBuffer[String]("init.sql")
+  private var childrenCount = 0
+  private var answeredChildrenCount = 0
   
+
   override def receive: Receive = {
     case ReadCategoryFolder(replyTo) => this.meta.category ! GetCategoryMeta()
     
     case CategoryMetaResponse(meta) =>
       addFilesFromMetaToFilter(meta)
       val files = YamlFilePathWorker.getAllValidCategoryChilds(this.meta.path, filterFiles)
+      childrenCount = files.size
       files.foreach { p =>
         doIfWfFile(p)
         doIfWfFolder(p)
         doIfCategoryFolder(p)
       }
+      checkFinish()
+    case CategoryRead(c) =>
+      answeredChildrenCount += 1
+      checkFinish()
+    case WorkflowFileRead() | WorkflowFolderRead()=>
+      answeredChildrenCount += 1
+      checkFinish()
   }
   
+  //TODO: boolean
   /**
     * Функция смотрит файлы в yaml файле и ищет их в директории. Если находит, то добавляет в поле-фильтр.
     *
@@ -63,6 +76,11 @@ class CategoryFolderReader(meta: CategoryFolderReaderMeta) extends BaseActor {
   
   private def createCategoryCreator(path: Path) =
     context.actorOf(CategoryCreator(CategoryCreatorMetaDefault(path, this.meta.category)))
+  
+  private def checkFinish(): Unit = if (answeredChildrenCount == childrenCount) {
+    context.parent ! CategoryFolderRead()
+    context.stop(self)
+  }
   
   private def isWfFolder(path: Path) = path.getFileName.toString.toLowerCase.startsWith("wf-")
 }

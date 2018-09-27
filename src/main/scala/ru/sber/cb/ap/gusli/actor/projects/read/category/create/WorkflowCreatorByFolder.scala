@@ -8,7 +8,7 @@ import ru.sber.cb.ap.gusli.actor.core.{CategoryMeta, WorkflowMeta}
 import ru.sber.cb.ap.gusli.actor.core.Workflow.BindEntity
 import ru.sber.cb.ap.gusli.actor.core.dto.WorkflowDto
 import ru.sber.cb.ap.gusli.actor.projects.read.category.ProjectMetaMaker
-import ru.sber.cb.ap.gusli.actor.projects.read.category.create.WorkflowCreatorByFolder.ReadWorkflowFolder
+import ru.sber.cb.ap.gusli.actor.projects.read.category.create.WorkflowCreatorByFolder.{ReadWorkflowFolder, WorkflowFolderRead}
 import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.{WorkflowFileFields, WorkflowOptionDto, YamlFileMapper}
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
 
@@ -17,7 +17,7 @@ object WorkflowCreatorByFolder {
   
   case class ReadWorkflowFolder(replyTo: Option[ActorRef] = None) extends Request
   
-  case class WorkflowRead(replyTo: Option[ActorRef] = None) extends Response
+  case class WorkflowFolderRead() extends Response
   
 }
 
@@ -28,7 +28,10 @@ class WorkflowCreatorByFolder(meta: WorkflowCreatorByFolderMeta) extends BaseAct
     case ReadWorkflowFolder(replyTo) => this.meta.category ! GetCategoryMeta()
     case CategoryMetaResponse(meta) =>
       tryCreateWorkflow(meta)
-    case WorkflowCreated(wf) => entities.foreach(wf ! BindEntity(_))
+    case WorkflowCreated(wf) =>
+      entities.foreach(wf ! BindEntity(_))
+      context.parent ! WorkflowFolderRead()
+      context.stop(self)
   }
   
   private def tryCreateWorkflow(meta: CategoryMeta): Unit = {

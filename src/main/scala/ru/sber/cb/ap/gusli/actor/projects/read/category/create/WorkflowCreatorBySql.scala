@@ -16,7 +16,7 @@ object WorkflowCreatorBySql {
   
   case class ReadSqlFile(replyTo: Option[ActorRef] = None) extends Request
   
-  case class FileRead() extends Response
+  case class WorkflowFileRead() extends Response
   
 }
 
@@ -30,7 +30,10 @@ class WorkflowCreatorBySql(meta: WorkflowCreatorBeSqlMeta) extends BaseActor {
       entities ++= meta.entities
       this.meta.category ! AddWorkflow(createWfMeta(meta))
 
-    case WorkflowCreated(wf) => entities.foreach(wf ! BindEntity(_))
+    case WorkflowCreated(wf) =>
+      entities.foreach(wf ! BindEntity(_))
+      context.parent ! WorkflowFileRead()
+      context.stop(self)
   }
   
   private def createWfMetaFromParentCategory(): WorkflowMeta = WorkflowMetaDefault("test", Map.empty)
