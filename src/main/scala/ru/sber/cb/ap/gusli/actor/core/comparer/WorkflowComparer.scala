@@ -7,15 +7,15 @@ import ru.sber.cb.ap.gusli.actor.core.extractor.WorkflowDtoExtractor.WorkflowExt
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Response}
 
 object WorkflowComparer {
-  def apply(wf1: ActorRef, wf2: ActorRef, receiver: ActorRef): Props = Props(new WorkflowComparer(wf1, wf2, receiver))
+  def apply(current: ActorRef, prev: ActorRef, receiver: ActorRef): Props = Props(new WorkflowComparer(current, prev, receiver))
 
-  case class WorkflowEquals(wf1: ActorRef, wf2: ActorRef) extends Response
+  case class WorkflowEquals(current: ActorRef, prev: ActorRef) extends Response
 
-  case class WorkflowNotEquals(wf1: ActorRef, wf2: ActorRef) extends Response
+  case class WorkflowNotEquals(current: ActorRef, prev: ActorRef) extends Response
 
 }
 
-class WorkflowComparer(wf1: ActorRef, wf2: ActorRef, receiver: ActorRef) extends BaseActor {
+class WorkflowComparer(current: ActorRef, prev: ActorRef, receiver: ActorRef) extends BaseActor {
 
   import WorkflowComparer._
 
@@ -26,8 +26,8 @@ class WorkflowComparer(wf1: ActorRef, wf2: ActorRef, receiver: ActorRef) extends
   var ext2: ActorRef = _
 
   override def preStart(): Unit = {
-    ext1 = context.actorOf(WorkflowDtoExtractor(wf1, self))
-    ext2 = context.actorOf(WorkflowDtoExtractor(wf2, self))
+    ext1 = context.actorOf(WorkflowDtoExtractor(current, self))
+    ext2 = context.actorOf(WorkflowDtoExtractor(prev, self))
   }
 
 
@@ -40,9 +40,9 @@ class WorkflowComparer(wf1: ActorRef, wf2: ActorRef, receiver: ActorRef) extends
 
       for (d1 <- dto1; d2 <- dto2) {
         if (d1 == d2)
-          receiver ! WorkflowEquals(wf1, wf2)
+          receiver ! WorkflowEquals(current, prev)
         else
-          receiver ! WorkflowNotEquals(wf1, wf2)
+          receiver ! WorkflowNotEquals(current, prev)
 
         context.stop(self)
       }

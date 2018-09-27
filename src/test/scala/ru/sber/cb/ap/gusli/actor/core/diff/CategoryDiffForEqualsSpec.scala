@@ -1,6 +1,6 @@
 package ru.sber.cb.ap.gusli.actor.core.diff
 
-import akka.testkit.{TestKit, TestProbe}
+import akka.testkit.TestProbe
 import ru.sber.cb.ap.gusli.actor.core._
 
 class CategoryDiffForEqualsSpec extends ActorBaseTest("CategoryDiffForEqualsSpec") {
@@ -9,8 +9,8 @@ class CategoryDiffForEqualsSpec extends ActorBaseTest("CategoryDiffForEqualsSpec
 
   private val projectProbe = TestProbe()
   private val receiverProbe = TestProbe()
-  private val meta1 = CategoryMetaDefault("category", Map("p1"->"111", "p2"->"222"))
-  private val meta2 = CategoryMetaDefault("category", Map("p2"->"222", "p1"->"111"))
+  private val meta1 = CategoryMetaDefault("category", Map("p1" -> "111", "p2" -> "222"))
+  private val meta2 = CategoryMetaDefault("category", Map("p2" -> "222", "p1" -> "111"))
   private val currentCat = system.actorOf(Category(meta1, projectProbe.ref))
   private val prevCat = system.actorOf(Category(meta2, projectProbe.ref))
 
