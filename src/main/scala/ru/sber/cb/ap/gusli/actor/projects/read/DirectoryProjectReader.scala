@@ -7,7 +7,7 @@ import ru.sber.cb.ap.gusli.actor.core.Project.{CategoryRoot, EntityRoot, GetCate
 import ru.sber.cb.ap.gusli.actor.core.{CategoryMeta, CategoryMetaDefault, Project, ProjectMetaDefault}
 import ru.sber.cb.ap.gusli.actor.projects.read.entity.EntityFolderReader.{EntityRead, ReadEntity}
 import ru.sber.cb.ap.gusli.actor.projects._
-import ru.sber.cb.ap.gusli.actor.projects.read.category.CategoryFolderReader.ReadCategoryFolder
+import ru.sber.cb.ap.gusli.actor.projects.read.category.CategoryFolderReader.{CategoryFolderRead, ReadCategoryFolder}
 import ru.sber.cb.ap.gusli.actor.projects.read.category.{CategoryFolderReader, CategoryFolderReaderMetaDefault}
 import ru.sber.cb.ap.gusli.actor.projects.read.entity.{EntityFolderReader, EntityFolderReaderMetaDefault}
 import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.YamlFileMapper
@@ -39,12 +39,15 @@ case class DirectoryProjectReader(meta: DirectoryProjectReaderMeta) extends Base
     case EntityRoot(entity) =>
       val entityReader = context.actorOf(EntityFolderReader(EntityFolderReaderMetaDefault(path.resolve("entity"), entity)))
       entityReader ! ReadEntity()
+      
 
     case EntityRead() => fillProjectWithCategories(project)
     
     case CategoryRoot(category) =>
       val categoryReader = context.actorOf(CategoryFolderReader(CategoryFolderReaderMetaDefault(path.resolve("category"), category)))
       categoryReader ! ReadCategoryFolder()
+
+    case CategoryFolderRead(replyTo) =>
       answerReceiver ! ProjectReaded(project)
   }
   
