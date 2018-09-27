@@ -1,6 +1,7 @@
 package ru.sber.cb.ap.gusli.actor.projects.read.category
 
 import ru.sber.cb.ap.gusli.actor.core.{CategoryMeta, CategoryMetaDefault, WorkflowMeta, WorkflowMetaDefault}
+import ru.sber.cb.ap.gusli.actor.projects.read.MetaToChildInheritor
 import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.{CategoryOptionalFields, WorkflowOptionDto}
 
 object ProjectMetaMaker {
@@ -28,7 +29,7 @@ object ProjectMetaMaker {
       queue = workflowMeta.queue.orElse(parentCategoryMeta.queue),
       grenkiVersion = workflowMeta.grenkiVersion.orElse(parentCategoryMeta.grenkiVersion),
       params = workflowMeta.params.getOrElse(parentCategoryMeta.params),
-      stats = workflowMeta.stats.getOrElse(parentCategoryMeta.stats)
+      stats = MetaToChildInheritor.inheritSetOfLong(parentCategoryMeta.stats, workflowMeta.stats)
     )
   }
   
@@ -41,8 +42,8 @@ object ProjectMetaMaker {
       queue = childMeta.queue.orElse(parentCategoryMeta.queue),
       grenkiVersion = childMeta.grenkiVersion.orElse(parentCategoryMeta.grenkiVersion),
       params = childMeta.params.getOrElse(parentCategoryMeta.params),
-      stats = childMeta.stats.getOrElse(parentCategoryMeta.stats),
-      entities = childMeta.entities.getOrElse(parentCategoryMeta.entities)
+      stats = MetaToChildInheritor.inheritSetOfLong(parentCategoryMeta.entities, childMeta.entities),
+      entities = MetaToChildInheritor.inheritSetOfLong(parentCategoryMeta.stats, childMeta.stats)
     )
   }
 }

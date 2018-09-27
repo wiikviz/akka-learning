@@ -7,6 +7,7 @@ import ru.sber.cb.ap.gusli.actor.core.Category.{AddWorkflow, CategoryMetaRespons
 import ru.sber.cb.ap.gusli.actor.core.{CategoryMeta, WorkflowMeta}
 import ru.sber.cb.ap.gusli.actor.core.Workflow.BindEntity
 import ru.sber.cb.ap.gusli.actor.core.dto.WorkflowDto
+import ru.sber.cb.ap.gusli.actor.projects.read.MetaToChildInheritor
 import ru.sber.cb.ap.gusli.actor.projects.read.category.ProjectMetaMaker
 import ru.sber.cb.ap.gusli.actor.projects.read.category.create.WorkflowCreatorByFolder.{ReadWorkflowFolder, WorkflowFolderRead}
 import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.{WorkflowFileFields, WorkflowOptionDto, YamlFileMapper}
@@ -22,7 +23,7 @@ object WorkflowCreatorByFolder {
 }
 
 class WorkflowCreatorByFolder(meta: WorkflowCreatorByFolderMeta) extends BaseActor {
-  private val entities = scala.collection.mutable.ArrayBuffer[Long]()
+  private val entities = scala.collection.mutable.HashSet[Long]()
   
   override def receive: Receive = {
     case ReadWorkflowFolder(replyTo) => this.meta.category ! GetCategoryMeta()
@@ -39,7 +40,7 @@ class WorkflowCreatorByFolder(meta: WorkflowCreatorByFolderMeta) extends BaseAct
     if (wfMetaTemp.isEmpty) Left("Meta File not found in " + this.meta.path)
     else {
       //TODO: Фильтр отрицательных сущностей
-      entities ++= meta.entities
+      entities ++= MetaToChildInheritor.inheritSetOfLong(meta.entities, wfMetaTemp.get.entities)
       this.meta.category ! AddWorkflow(inheritMeta(meta, wfMetaTemp))
     }
   }
@@ -57,4 +58,3 @@ trait WorkflowCreatorByFolderMeta {
 }
 
 case class WorkflowCreatorByFolderMetaDefault(path: Path, category: ActorRef) extends WorkflowCreatorByFolderMeta
-    

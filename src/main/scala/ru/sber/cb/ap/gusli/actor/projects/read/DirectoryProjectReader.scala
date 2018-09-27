@@ -34,7 +34,6 @@ case class DirectoryProjectReader(meta: DirectoryProjectReaderMeta) extends Base
       val categoryMeta = initializeCategoryMeta()
       project = createProject(categoryMeta)
       fillProjectWithEntities(project)
-//      sendTo.getOrElse(sender) ! ProjectReaded(project)
 
     case EntityRoot(entity) =>
       val entityReader = context.actorOf(EntityFolderReader(EntityFolderReaderMetaDefault(path.resolve("entity"), entity)))
