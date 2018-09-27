@@ -23,12 +23,12 @@ object ProjectMetaMaker {
     WorkflowMetaDefault(
       name = workflowMeta.name.get,
       sql = workflowMeta.sql.get,
-      sqlMap = workflowMeta.sqlMap.getOrElse(parentCategoryMeta.sqlMap),
-      init = workflowMeta.init.getOrElse(parentCategoryMeta.init),
+      sqlMap = MetaToChildInheritor.inheritMap(parentCategoryMeta.sqlMap, workflowMeta.sqlMap),
+      init = MetaToChildInheritor.inheritMap(parentCategoryMeta.init, workflowMeta.init),
       user = workflowMeta.user.orElse(parentCategoryMeta.user),
       queue = workflowMeta.queue.orElse(parentCategoryMeta.queue),
       grenkiVersion = workflowMeta.grenkiVersion.orElse(parentCategoryMeta.grenkiVersion),
-      params = workflowMeta.params.getOrElse(parentCategoryMeta.params),
+      params = MetaToChildInheritor.inheritMap(parentCategoryMeta.params, workflowMeta.params),
       stats = MetaToChildInheritor.inheritSetOfLong(parentCategoryMeta.stats, workflowMeta.stats)
     )
   }
@@ -36,12 +36,12 @@ object ProjectMetaMaker {
   def categoryNonEmptyMeta(parentCategoryMeta: CategoryMeta, childMeta: CategoryOptionalFields): CategoryMeta = {
     CategoryMetaDefault(
       name = childMeta.name,
-      sqlMap = childMeta.sqlMap.getOrElse(parentCategoryMeta.sqlMap),
-      init = childMeta.init.getOrElse(parentCategoryMeta.init),
+      sqlMap = MetaToChildInheritor.inheritMap(parentCategoryMeta.sqlMap, childMeta.sqlMap),
+      init = MetaToChildInheritor.inheritMap(parentCategoryMeta.init, childMeta.init),
       user = childMeta.user.orElse(parentCategoryMeta.user),
       queue = childMeta.queue.orElse(parentCategoryMeta.queue),
       grenkiVersion = childMeta.grenkiVersion.orElse(parentCategoryMeta.grenkiVersion),
-      params = childMeta.params.getOrElse(parentCategoryMeta.params),
+      params = MetaToChildInheritor.inheritMap(parentCategoryMeta.params, childMeta.params),
       stats = MetaToChildInheritor.inheritSetOfLong(parentCategoryMeta.entities, childMeta.entities),
       entities = MetaToChildInheritor.inheritSetOfLong(parentCategoryMeta.stats, childMeta.stats)
     )

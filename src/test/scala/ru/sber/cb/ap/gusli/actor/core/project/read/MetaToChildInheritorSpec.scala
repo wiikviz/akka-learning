@@ -32,4 +32,11 @@ class MetaToChildInheritorSpec extends FlatSpec {
     assert(map.contains("i2.s"))
     assert(map.contains("i3.s"))
   }
+  it should "rewrite values from child" in {
+    val deleteSymbol = "-"
+    val map = MetaToChildInheritor.inheritMap(
+      Map("i.s" -> "select 1", "i2.s" -> "select 1"),
+      Option(Map("i.s" -> "select 2", "i3.s" -> "select 1")))
+    assert(map.get("i.s").contains("select 2"))
+  }
 }
