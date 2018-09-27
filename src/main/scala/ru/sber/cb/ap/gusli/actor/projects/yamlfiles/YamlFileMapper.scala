@@ -7,6 +7,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import ru.sber.cb.ap.gusli.actor.core.CategoryMetaDefault
 import ru.sber.cb.ap.gusli.actor.core.dto.WorkflowDto
+import ru.sber.cb.ap.gusli.actor.projects.InheritConfig
 import ru.sber.cb.ap.gusli.actor.projects.read.util.FileContentReader
 
 object YamlFileMapper {
@@ -143,8 +144,11 @@ object YamlFileMapper {
   }
   
   private def fileNamesToMapWithFileContent(path: Path, list: Option[Iterable[String]]): Option[Map[String, String]] = {
+    val deleteSymbol = InheritConfig.deleteSymbol
     list.map { listNames =>
-      listNames.map { fileName =>
+      listNames.map { fileName => if (fileName.startsWith(deleteSymbol))
+        (fileName.substring(deleteSymbol.length), deleteSymbol)
+        else
         (fileName, FileContentReader.readFileContent(path.resolve(fileName)))
       }.toMap[String, String]
     }

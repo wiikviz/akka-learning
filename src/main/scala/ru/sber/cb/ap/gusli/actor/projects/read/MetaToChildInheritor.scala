@@ -1,5 +1,7 @@
 package ru.sber.cb.ap.gusli.actor.projects.read
 
+import ru.sber.cb.ap.gusli.actor.projects.InheritConfig
+
 object MetaToChildInheritor {
   /**
     * Compare two sets. If parent
@@ -19,14 +21,14 @@ object MetaToChildInheritor {
   }
   
   def inheritMap(parentMap: Map[String, String], childMap: Option[Map[String, String]]): Map[String, String] = {
-    val deleteSymbol = "-"
+    val deleteSymbol = InheritConfig.deleteSymbol
     if (childMap.isEmpty)
       parentMap
     else {
       val m: scala.collection.mutable.Map[String, String] = scala.collection.mutable.Map.empty
       m ++= parentMap
       childMap.getOrElse(Map.empty).foreach { case (k, v) =>
-        if (v.startsWith(deleteSymbol))
+        if (v == deleteSymbol)
           m.remove(k)
         else
           m += (k -> v)

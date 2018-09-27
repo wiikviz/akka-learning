@@ -23,4 +23,13 @@ class MetaToChildInheritorSpec extends FlatSpec {
     assert(set.contains(3))
     assert(!set.contains(4))
   }
+  "MetaToChildInheritor.inheritMap" should "delete elems with delete symbol" in {
+    val deleteSymbol = "-"
+    val map = MetaToChildInheritor.inheritMap(
+      Map("i.s" -> "select 1", "i2.s" -> "select 1"),
+      Option(Map("i.s" -> deleteSymbol, "i3.s" -> "select 1")))
+    assert(!map.contains("i.s"))
+    assert(map.contains("i2.s"))
+    assert(map.contains("i3.s"))
+  }
 }
