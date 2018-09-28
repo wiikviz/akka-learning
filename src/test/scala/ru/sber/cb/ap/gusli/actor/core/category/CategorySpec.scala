@@ -23,11 +23,6 @@ class CategorySpec extends ActorBaseTest("CategorySpec")
         expectMsg(CategoryMetaResponse(CategoryMetaDefault("category", Map.empty)))
       }
     }
-
-    "send GetProject must return ProjectResponse" in {
-      cat ! GetProject()
-      expectMsg(ProjectResponse(projectProbe.ref))
-    }
     
     "send first time ListSubcategory" should {
       "send back SubcategoryList with empty actors ref" in {
