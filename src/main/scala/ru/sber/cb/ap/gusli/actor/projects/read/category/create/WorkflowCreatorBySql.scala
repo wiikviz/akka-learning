@@ -3,7 +3,7 @@ package ru.sber.cb.ap.gusli.actor.projects.read.category.create
 import java.nio.file.Path
 
 import akka.actor.{ActorRef, Props}
-import ru.sber.cb.ap.gusli.actor.core.Category.{AddWorkflow, CategoryMetaResponse, GetCategoryMeta, WorkflowCreated}
+import ru.sber.cb.ap.gusli.actor.core.Category.{CreateWorkflow, CategoryMetaResponse, GetCategoryMeta, WorkflowCreated}
 import ru.sber.cb.ap.gusli.actor.core.Workflow.BindEntity
 import ru.sber.cb.ap.gusli.actor.core.{CategoryMeta, WorkflowMeta, WorkflowMetaDefault}
 import ru.sber.cb.ap.gusli.actor.projects.read.category.ProjectMetaMaker
@@ -28,7 +28,7 @@ class WorkflowCreatorBySql(meta: WorkflowCreatorBeSqlMeta) extends BaseActor {
     
     case CategoryMetaResponse(meta) =>
       entities ++= meta.entities
-      this.meta.category ! AddWorkflow(createWfMeta(meta))
+      this.meta.category ! CreateWorkflow(createWfMeta(meta))
 
     case WorkflowCreated(wf) =>
       entities.foreach(wf ! BindEntity(_))

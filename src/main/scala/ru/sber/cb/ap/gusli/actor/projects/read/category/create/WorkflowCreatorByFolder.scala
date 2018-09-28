@@ -3,7 +3,7 @@ package ru.sber.cb.ap.gusli.actor.projects.read.category.create
 import java.nio.file.Path
 
 import akka.actor.{ActorRef, Props}
-import ru.sber.cb.ap.gusli.actor.core.Category.{AddWorkflow, CategoryMetaResponse, GetCategoryMeta, WorkflowCreated}
+import ru.sber.cb.ap.gusli.actor.core.Category.{CreateWorkflow, CategoryMetaResponse, GetCategoryMeta, WorkflowCreated}
 import ru.sber.cb.ap.gusli.actor.core.CategoryMeta
 import ru.sber.cb.ap.gusli.actor.core.Workflow.BindEntity
 import ru.sber.cb.ap.gusli.actor.projects.read.MetaToChildInheritor
@@ -40,7 +40,7 @@ class WorkflowCreatorByFolder(meta: WorkflowCreatorByFolderMeta) extends BaseAct
     else {
       //TODO: Фильтр отрицательных сущностей
       entities ++= MetaToChildInheritor.inheritSetOfLong(meta.entities, wfMetaTemp.get.entities)
-      this.meta.category ! AddWorkflow(inheritMeta(meta, wfMetaTemp))
+      this.meta.category ! CreateWorkflow(inheritMeta(meta, wfMetaTemp))
     }
   }
   

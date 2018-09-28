@@ -53,7 +53,7 @@ class CategorySpec extends ActorBaseTest("CategorySpec")
     "send AddWorkflow" should {
       "send back WorkflowCreated" in {
         val meta = WorkflowMetaDefault("wf-1", Map("file" -> "select 1"), Map.empty)
-        cat ! AddWorkflow(meta)
+        cat ! CreateWorkflow(meta)
         expectMsgPF() {
           case WorkflowCreated(wf) =>
             wf ! GetWorkflowMeta()
@@ -95,7 +95,7 @@ class CategorySpec extends ActorBaseTest("CategorySpec")
     "send second time AddWorkflow" should {
       "send back WorkflowCreated" in {
         val meta = WorkflowMetaDefault("wf-2", Map("file" -> "select 1"), Map.empty)
-        cat ! AddWorkflow(meta)
+        cat ! CreateWorkflow(meta)
         expectMsgPF() {
           case WorkflowCreated(wf) =>
             wf ! GetWorkflowMeta()

@@ -16,7 +16,9 @@ object Category {
 
   case class ListSubcategory(replyTo: Option[ActorRef] = None) extends Request
 
-  case class AddWorkflow(meta: WorkflowMeta, replyTo: Option[ActorRef] = None) extends Request
+  case class AddWorkflows(wf: Set[ActorRef], replyTo: Option[ActorRef] = None) extends Request
+
+  case class CreateWorkflow(meta: WorkflowMeta, replyTo: Option[ActorRef] = None) extends Request
 
   case class ListWorkflow(replyTo: Option[ActorRef] = None) extends Request
 
@@ -65,7 +67,7 @@ class Category(meta: CategoryMeta, project: ActorRef) extends BaseActor {
     case ListSubcategory(sendTo) =>
       sendTo getOrElse sender ! SubcategoryList(subcategoresRegistry.values.toSeq)
 
-    case mess@AddWorkflow(m, sendTo) =>
+    case mess@CreateWorkflow(m, sendTo) =>
       log.info("{}", mess)
       val replyTo = sendTo getOrElse sender
       val fromRegistry = workflowsRegistry get m.name
