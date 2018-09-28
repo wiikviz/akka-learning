@@ -2,8 +2,9 @@ package ru.sber.cb.ap.gusli.actor.core
 
 import akka.actor.{ActorRef, Props}
 import ru.sber.cb.ap.gusli.actor._
+import ru.sber.cb.ap.gusli.actor.core.Workflow.{GetWorkflowMeta, WorkflowMetaResponse}
 
-import scala.collection.immutable.HashMap
+import scala.collection.immutable.{HashMap, HashSet}
 
 object Category {
   def apply(meta: CategoryMeta, project: ActorRef): Props = Props(new Category(meta, project))
@@ -16,10 +17,11 @@ object Category {
 
   case class ListSubcategory(replyTo: Option[ActorRef] = None) extends Request
 
-  case class AddWorkflows(wf: Set[ActorRef], replyTo: Option[ActorRef] = None) extends Request
+  case class AddWorkflows(workflows: Set[ActorRef], replyTo: Option[ActorRef] = None) extends Request
 
   case class CreateWorkflow(meta: WorkflowMeta, replyTo: Option[ActorRef] = None) extends Request
 
+  //todo: replace to WorkflowsResponse
   case class ListWorkflow(replyTo: Option[ActorRef] = None) extends Request
 
   //
@@ -34,7 +36,7 @@ object Category {
 
   case class WorkflowCreated(actorRef: ActorRef) extends ActorResponse
 
-  case class WorkflowList(actorList: Seq[ActorRef]) extends ActorListResponse
+  case class WorkflowList(actorSet: Set[ActorRef]) extends ActorSetResponse
 
 }
 
@@ -44,11 +46,30 @@ class Category(meta: CategoryMeta, project: ActorRef) extends BaseActor {
 
   private var subcategoresRegistry: HashMap[String, ActorRef] = HashMap.empty[String, ActorRef]
   private var workflowsRegistry: HashMap[String, ActorRef] = HashMap.empty[String, ActorRef]
+  private var workflowsAwaitAdd: HashSet[ActorRef] = HashSet.empty
 
   override def receive: Receive = {
-    case GetProject(sendTo)=>
+    case GetProject(sendTo) =>
       val replyTo = sendTo.getOrElse(sender)
       replyTo ! ProjectResponse(project)
+
+    case AddWorkflows(workflows, _) =>
+      for (wf <- workflows) {
+        workflowsAwaitAdd = workflowsAwaitAdd + wf
+        wf ! GetWorkflowMeta()
+      }
+
+    case WorkflowMetaResponse(m) =>
+      if (workflowsRegistry.contains(m.name))
+        throw new RuntimeException(s"Can't be add workflow:${m.name}, because it's already exists")
+
+      val wf = sender()
+      if (workflowsAwaitAdd.contains(wf)) {
+        workflowsAwaitAdd = workflowsAwaitAdd - wf
+        workflowsRegistry += m.name -> wf
+      }
+      else
+        throw new RuntimeException(s"Unexpected workflow:$wf")
 
     case GetCategoryMeta(sendTo) =>
       val replyTo = sendTo.getOrElse(sender())
@@ -78,7 +99,7 @@ class Category(meta: CategoryMeta, project: ActorRef) extends BaseActor {
       } else replyTo ! WorkflowCreated(fromRegistry.get)
 
     case ListWorkflow(sendTo) =>
-      sendTo getOrElse sender ! WorkflowList(workflowsRegistry.values.toSeq)
+      sendTo getOrElse sender ! WorkflowList(workflowsRegistry.values.toSet)
   }
 }
 

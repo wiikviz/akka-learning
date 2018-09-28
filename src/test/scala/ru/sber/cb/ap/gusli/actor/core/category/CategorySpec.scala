@@ -34,7 +34,7 @@ class CategorySpec extends ActorBaseTest("CategorySpec")
     "send first time ListWorkflow" should {
       "send back WorkflowList with empty actors ref" in {
         cat ! ListWorkflow()
-        expectMsg(WorkflowList(Nil))
+        expectMsg(WorkflowList(Set.empty))
       }
     }
     
