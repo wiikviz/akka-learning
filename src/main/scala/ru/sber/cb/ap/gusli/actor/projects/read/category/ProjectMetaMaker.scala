@@ -42,8 +42,8 @@ object ProjectMetaMaker {
       queue = childMeta.queue.orElse(parentCategoryMeta.queue),
       grenkiVersion = childMeta.grenkiVersion.orElse(parentCategoryMeta.grenkiVersion),
       params = MetaToChildInheritor.inheritMap(parentCategoryMeta.params, childMeta.params),
-      stats = MetaToChildInheritor.inheritSetOfLong(parentCategoryMeta.stats, childMeta.entities),
-      entities = MetaToChildInheritor.inheritSetOfLong(parentCategoryMeta.entities, childMeta.stats)
+      stats = MetaToChildInheritor.inheritSetOfLong(parentCategoryMeta.stats, childMeta.stats),
+      entities = MetaToChildInheritor.inheritSetOfLong(parentCategoryMeta.entities, childMeta.entities)
     )
   }
 }
