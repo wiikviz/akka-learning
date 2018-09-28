@@ -4,13 +4,12 @@ import java.nio.file.Path
 
 import akka.actor.{ActorRef, Props}
 import ru.sber.cb.ap.gusli.actor.core.Category.{AddWorkflow, CategoryMetaResponse, GetCategoryMeta, WorkflowCreated}
-import ru.sber.cb.ap.gusli.actor.core.{CategoryMeta, WorkflowMeta}
+import ru.sber.cb.ap.gusli.actor.core.CategoryMeta
 import ru.sber.cb.ap.gusli.actor.core.Workflow.BindEntity
-import ru.sber.cb.ap.gusli.actor.core.dto.WorkflowDto
 import ru.sber.cb.ap.gusli.actor.projects.read.MetaToChildInheritor
 import ru.sber.cb.ap.gusli.actor.projects.read.category.ProjectMetaMaker
 import ru.sber.cb.ap.gusli.actor.projects.read.category.create.WorkflowCreatorByFolder.{ReadWorkflowFolder, WorkflowFolderRead}
-import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.{WorkflowFileFields, WorkflowOptionDto, YamlFileMapper}
+import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.{WorkflowOptionDto, YamlFileMapper}
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
 
 object WorkflowCreatorByFolder {

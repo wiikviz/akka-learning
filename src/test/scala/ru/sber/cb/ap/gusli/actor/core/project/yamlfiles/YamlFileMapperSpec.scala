@@ -3,12 +3,13 @@ package ru.sber.cb.ap.gusli.actor.core.project.yamlfiles
 import java.nio.file.Paths
 
 import org.scalatest._
+import ru.sber.cb.ap.gusli.actor.projects.DirectoryReadWriteConfig
 import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.YamlFileMapper
 
 class YamlFileMapperSpec extends FlatSpec {
   
   "YamlCategoryMapper" should "read category file" in {
-    val categoryDeserialized = YamlFileMapper.readCategoryFile(Paths.get("./src/test/resources/project_test-2/category/meta.yaml"))
+    val categoryDeserialized = YamlFileMapper.readCategoryFile(Paths.get(s"./src/test/resources/project_test-2/category/${DirectoryReadWriteConfig.categoryMetaFileName}"))
     
     assert(categoryDeserialized.grenki.contains("0.2"))
     assert(categoryDeserialized.queue.contains("root.platform"))
@@ -31,7 +32,7 @@ class YamlFileMapperSpec extends FlatSpec {
   }
   
   it should "read workflow file" in {
-    val wfDeserialized = YamlFileMapper.readWorkflowFile(Paths.get("./src/test/resources/project_test-2/category/cb/ap/rb/wf-rb-sv/meta.yaml"))
+    val wfDeserialized = YamlFileMapper.readWorkflowFile(Paths.get(s"./src/test/resources/project_test-2/category/cb/ap/rb/wf-rb-sv/${DirectoryReadWriteConfig.workflowMetaFileName}"))
     assert(wfDeserialized.sql.contains(Set("rb-vek5555sel.sql", "rb-car433ds.sql")))
   }
   

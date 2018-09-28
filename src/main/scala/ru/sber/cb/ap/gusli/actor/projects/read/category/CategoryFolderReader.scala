@@ -6,6 +6,7 @@ import akka.actor.{ActorRef, Props}
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
 import ru.sber.cb.ap.gusli.actor.core.Category.{CategoryMetaResponse, GetCategoryMeta}
 import ru.sber.cb.ap.gusli.actor.core.CategoryMeta
+import ru.sber.cb.ap.gusli.actor.projects.DirectoryReadWriteConfig
 import ru.sber.cb.ap.gusli.actor.projects.read.category.create.CategoryCreator.{CategoryRead, ReadFolder}
 import ru.sber.cb.ap.gusli.actor.projects.read.category.CategoryFolderReader.{CategoryFolderRead, ReadCategoryFolder}
 import ru.sber.cb.ap.gusli.actor.projects.read.category.create._
@@ -82,7 +83,7 @@ class CategoryFolderReader(meta: CategoryFolderReaderMeta) extends BaseActor {
     context.stop(self)
   }
   
-  private def isWfFolder(path: Path) = path.getFileName.toString.toLowerCase.startsWith("wf-")
+  private def isWfFolder(path: Path) = path.getFileName.toString.toLowerCase.startsWith(DirectoryReadWriteConfig.workflowFolderPrefix)
 }
 
 trait CategoryFolderReaderMeta {

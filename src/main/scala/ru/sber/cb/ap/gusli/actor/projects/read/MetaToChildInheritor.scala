@@ -1,6 +1,6 @@
 package ru.sber.cb.ap.gusli.actor.projects.read
 
-import ru.sber.cb.ap.gusli.actor.projects.InheritConfig
+import ru.sber.cb.ap.gusli.actor.projects.DirectoryReadWriteConfig
 
 object MetaToChildInheritor {
   /**
@@ -35,7 +35,7 @@ object MetaToChildInheritor {
     * @param deleteSymbol
     * @return new map.
     */
-  def inheritMap(parentMap: Map[String, String], childMap: Option[Map[String, String]], deleteSymbol: String = InheritConfig.deleteSymbol): Map[String, String] = {
+  def inheritMap(parentMap: Map[String, String], childMap: Option[Map[String, String]], deleteSymbol: String = DirectoryReadWriteConfig.deleteSymbol): Map[String, String] = {
     if (childMap.isEmpty)
       parentMap
     else {

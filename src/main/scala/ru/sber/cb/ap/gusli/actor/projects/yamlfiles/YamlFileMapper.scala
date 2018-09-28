@@ -7,7 +7,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import ru.sber.cb.ap.gusli.actor.core.CategoryMetaDefault
 import ru.sber.cb.ap.gusli.actor.core.dto.WorkflowDto
-import ru.sber.cb.ap.gusli.actor.projects.InheritConfig
+import ru.sber.cb.ap.gusli.actor.projects.DirectoryReadWriteConfig
 import ru.sber.cb.ap.gusli.actor.projects.read.util.FileContentReader
 
 object YamlFileMapper {
@@ -19,7 +19,7 @@ object YamlFileMapper {
     */
   def readToCategoryMeta(path: Path): Option[CategoryMetaDefault] = {
     val catName = path.getFileName.toString
-    val metaFilePath = path.resolve("meta.yaml")
+    val metaFilePath = path.resolve(DirectoryReadWriteConfig.categoryMetaFileName)
     
     if (!metaFilePath.toFile.exists())
       None
@@ -46,8 +46,8 @@ object YamlFileMapper {
     * @return Meta from File if it exists, None otherwise
     */
   def readToWorkflowDtoMeta(path: Path): Option[WorkflowDto] = {
-    val wfName = path.getFileName.toString.replaceFirst("wf-", "")
-    val metaFilePath = path.resolve("meta.yaml")
+    val wfName = path.getFileName.toString.replaceFirst(DirectoryReadWriteConfig.workflowFolderPrefix, "")
+    val metaFilePath = path.resolve(DirectoryReadWriteConfig.workflowMetaFileName)
   
     if (!metaFilePath.toFile.exists())
       None
@@ -74,7 +74,7 @@ object YamlFileMapper {
     * @param path path to folder
     * @return Meta from File if it exists, None otherwise
     */
-  def readToCategoryOptionalFields(path: Path, metaFileName: String = "meta.yaml"): Option[CategoryOptionalFields] = {
+  def readToCategoryOptionalFields(path: Path, metaFileName: String = DirectoryReadWriteConfig.categoryMetaFileName): Option[CategoryOptionalFields] = {
     val catName = path.getFileName.toString
     val metaFilePath = path.resolve(metaFileName)
     
@@ -102,8 +102,8 @@ object YamlFileMapper {
     * @param path path to folder
     * @return Meta from File if it exists, None otherwise
     */
-  def readToWorkflowOptionDto(path: Path, metaFileName: String = "meta.yaml"): Option[WorkflowOptionDto] = {
-    val wfName = path.getFileName.toString.replaceFirst("wf-", "")
+  def readToWorkflowOptionDto(path: Path, metaFileName: String = DirectoryReadWriteConfig.workflowMetaFileName): Option[WorkflowOptionDto] = {
+    val wfName = path.getFileName.toString.replaceFirst(DirectoryReadWriteConfig.workflowFolderPrefix, "")
     val metaFilePath = path.resolve(metaFileName)
   
     if (!metaFilePath.toFile.exists())
@@ -144,7 +144,7 @@ object YamlFileMapper {
   }
   
   private def fileNamesToMapWithFileContent(path: Path, list: Option[Iterable[String]]): Option[Map[String, String]] = {
-    val deleteSymbol = InheritConfig.deleteSymbol
+    val deleteSymbol = DirectoryReadWriteConfig.deleteSymbol
     list.map { listNames =>
       listNames.map { fileName => if (fileName.startsWith(deleteSymbol))
         (fileName.substring(deleteSymbol.length), deleteSymbol)

@@ -32,7 +32,6 @@ class CategoryCreator(meta: CategoryCreatorMeta) extends BaseActor {
   
   private def tryCreateCategory(meta: CategoryMeta): Unit = {
     val catMetaTemp: Option[CategoryOptionalFields] = extractMetaFileFields(meta)
-    //TODO: фильтр отрицательных сущностей
     this.meta.paretnCategory ! AddSubcategory(inheritMeta(meta, catMetaTemp))
   }
   
