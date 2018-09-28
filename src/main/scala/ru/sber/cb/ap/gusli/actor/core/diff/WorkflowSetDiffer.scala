@@ -8,19 +8,19 @@ import ru.sber.cb.ap.gusli.actor.{BaseActor, Response}
 
 import scala.collection.immutable.HashMap
 
-object WorkflowListDiffer {
+object WorkflowSetDiffer {
   def apply(current: Set[ActorRef], prev: Set[ActorRef], receiver: ActorRef): Props =
-    Props(new WorkflowListDiffer(current, prev, receiver))
+    Props(new WorkflowSetDiffer(current, prev, receiver))
 
-  case class WorkflowListDelta(delta: Set[ActorRef]) extends Response
+  case class WorkflowSetDelta(delta: Set[ActorRef]) extends Response
 
-  case class WorkflowListEquals(current: Set[ActorRef], prev: Set[ActorRef]) extends Response
+  case class WorkflowSetEquals(current: Set[ActorRef], prev: Set[ActorRef]) extends Response
 
 }
 
-class WorkflowListDiffer(current: Set[ActorRef], prev: Set[ActorRef], receiver: ActorRef) extends BaseActor {
+class WorkflowSetDiffer(current: Set[ActorRef], prev: Set[ActorRef], receiver: ActorRef) extends BaseActor {
 
-  import WorkflowListDiffer._
+  import WorkflowSetDiffer._
 
   var currSize = current.size
   var prevSize = prev.size
@@ -32,6 +32,11 @@ class WorkflowListDiffer(current: Set[ActorRef], prev: Set[ActorRef], receiver: 
   private var delta: Set[ActorRef] = Set.empty
 
   override def preStart(): Unit = {
+    if (current.isEmpty && prev.isEmpty) {
+      receiver ! WorkflowSetEquals(current, prev)
+      context.stop(self)
+    }
+
     for (w <- current)
       w ! GetWorkflowMeta()
 
@@ -62,7 +67,7 @@ class WorkflowListDiffer(current: Set[ActorRef], prev: Set[ActorRef], receiver: 
             delta += wf
 
             if (delta.size == current.size) {
-              receiver ! WorkflowListDelta(delta)
+              receiver ! WorkflowSetDelta(delta)
               context.stop(self)
             }
           }
@@ -81,9 +86,9 @@ class WorkflowListDiffer(current: Set[ActorRef], prev: Set[ActorRef], receiver: 
   def checkCompareFinished(): Unit = {
     if (checkCompare == 0) {
       if (delta.isEmpty)
-        receiver ! WorkflowListEquals(current, prev)
+        receiver ! WorkflowSetEquals(current, prev)
       else
-        receiver ! WorkflowListDelta(delta)
+        receiver ! WorkflowSetDelta(delta)
 
       context.stop(self)
     }

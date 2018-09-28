@@ -4,12 +4,12 @@ import akka.testkit.TestProbe
 import ru.sber.cb.ap.gusli.actor.core.Entity.{EntityMetaResponse, GetEntityMeta}
 import ru.sber.cb.ap.gusli.actor.core.Project.{EntityFound, FindEntity}
 import ru.sber.cb.ap.gusli.actor.core.Workflow.BindEntity
-import ru.sber.cb.ap.gusli.actor.core.diff.WorkflowListDiffer.{WorkflowListDelta, WorkflowListEquals}
+import ru.sber.cb.ap.gusli.actor.core.diff.WorkflowSetDiffer.{WorkflowSetDelta, WorkflowSetEquals}
 import ru.sber.cb.ap.gusli.actor.core.{ActorBaseTest, EntityMetaDefault, Workflow, WorkflowMetaDefault}
 
 import scala.concurrent.duration._
 
-class WorkflowListDifferForNonEqualsSpec extends ActorBaseTest("WorkflowListComparerForEqualsSpec") {
+class WorkflowSetDifferForNonEqualsSpec extends ActorBaseTest("WorkflowListComparerForEqualsSpec") {
   val receiver = TestProbe()
   private val projectProbe = TestProbe()
   private val meta1 = WorkflowMetaDefault("wf-1", Map("file1" -> "select 1"), Map("a" -> "111", "b" -> "222"))
@@ -40,7 +40,7 @@ class WorkflowListDifferForNonEqualsSpec extends ActorBaseTest("WorkflowListComp
     projectProbe.expectMsg(FindEntity(1))
     projectProbe.reply(EntityFound(eMeta1, e1.ref))
 
-    system.actorOf(WorkflowListDiffer(Set(wf1, wf2), Set(), receiver.ref))
+    system.actorOf(WorkflowSetDiffer(Set(wf1, wf2), Set(), receiver.ref))
     //    e1.expectMsg(GetEntityMeta())
     //    e1.reply(EntityMetaResponse(eMeta1))
     //    e2.expectMsg(GetEntityMeta())
@@ -52,6 +52,6 @@ class WorkflowListDifferForNonEqualsSpec extends ActorBaseTest("WorkflowListComp
     //
     //    }
 
-    receiver.expectMsg(1 hour, WorkflowListDelta(Set(wf1, wf2)))
+    receiver.expectMsg(1 hour, WorkflowSetDelta(Set(wf1, wf2)))
   }
 }
