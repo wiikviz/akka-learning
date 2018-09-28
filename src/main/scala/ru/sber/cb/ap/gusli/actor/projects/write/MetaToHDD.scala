@@ -1,4 +1,4 @@
-package ru.sber.cb.ap.gusli.actor.projects.writeres
+package ru.sber.cb.ap.gusli.actor.projects.write
 
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -6,7 +6,7 @@ import java.nio.file.{Files, Path}
 
 import ru.sber.cb.ap.gusli.actor.core.dto.WorkflowDto
 import ru.sber.cb.ap.gusli.actor.core.{CategoryMeta, CategoryMetaDefault, EntityMeta, ProjectMeta}
-import ru.sber.cb.ap.gusli.actor.projects.writeres.MetaToYamlSerialization._
+import ru.sber.cb.ap.gusli.actor.projects.write.MetaToYamlSerialization._
 
 object MetaToHDD {
   def writeProjectMetaToPath(meta: ProjectMeta, path: Path): Path =

@@ -1,4 +1,4 @@
-package ru.sber.cb.ap.gusli.actor.projects.writeres
+package ru.sber.cb.ap.gusli.actor.projects.write
 
 import ru.sber.cb.ap.gusli.actor.core.dto.WorkflowDto
 import ru.sber.cb.ap.gusli.actor.core.{CategoryMeta, CategoryMetaDefault, EntityMeta}

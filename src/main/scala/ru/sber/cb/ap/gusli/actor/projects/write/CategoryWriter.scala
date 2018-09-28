@@ -1,4 +1,4 @@
-package ru.sber.cb.ap.gusli.actor.projects.writeres
+package ru.sber.cb.ap.gusli.actor.projects.write
 
 import java.nio.file.Path
 
