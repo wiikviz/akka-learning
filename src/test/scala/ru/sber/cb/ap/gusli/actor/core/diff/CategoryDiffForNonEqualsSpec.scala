@@ -1,7 +1,7 @@
 package ru.sber.cb.ap.gusli.actor.core.diff
 
 import akka.testkit.TestProbe
-import ru.sber.cb.ap.gusli.actor.core.Category.{AddWorkflow, CategoryMetaResponse, GetCategoryMeta}
+import ru.sber.cb.ap.gusli.actor.core.Category.{CreateWorkflow, CategoryMetaResponse, GetCategoryMeta}
 import ru.sber.cb.ap.gusli.actor.core._
 
 class CategoryDiffForNonEqualsSpec extends ActorBaseTest("CategoryDiffForNonEqualsSpec") {
@@ -33,8 +33,8 @@ class CategoryDiffForNonEqualsSpec extends ActorBaseTest("CategoryDiffForNonEqua
 
 //  "A CategoryDiffer for category with same meta but contains workflows with differ meta must return CategoryDelta" in {
 //    val prevCat = system.actorOf(Category(currMeta, projectProbe.ref))
-//    currentCat ! AddWorkflow(WorkflowMetaDefault("test", Map("new.sql" -> "select 1")))
-//    prevCat ! AddWorkflow(WorkflowMetaDefault("test", Map("old.sql" -> "select 1")))
+//    currentCat ! CreateWorkflow(WorkflowMetaDefault("test", Map("new.sql" -> "select 1")))
+//    prevCat ! CreateWorkflow(WorkflowMetaDefault("test", Map("old.sql" -> "select 1")))
 //
 //    val projectDiffProbe = TestProbe()
 //    system.actorOf(CategoryDiffer(projectDiffProbe.ref, currentCat, prevCat, receiverProbe.ref))
@@ -44,7 +44,7 @@ class CategoryDiffForNonEqualsSpec extends ActorBaseTest("CategoryDiffForNonEqua
 //        expectMsg(CategoryMetaResponse(currMeta))
 //    }
 //
-//    expectNoMessage()
+////    expectNoMessage()
 //  }
 
 }
