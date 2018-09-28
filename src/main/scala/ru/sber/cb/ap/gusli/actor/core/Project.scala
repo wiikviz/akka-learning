@@ -39,11 +39,12 @@ class Project(meta: ProjectMeta, categoryMeta: CategoryMeta = CategoryMetaDefaul
   val categoryRoot = context.actorOf(Category(categoryMeta, context.self), "category")
   
   override def receive: Receive = {
-    case GetProjectMeta(sendTo) => sendTo getOrElse sender ! ProjectMetaResponse(meta)
-    case GetCategoryRoot(sendTo) => sendTo getOrElse sender ! CategoryRoot(categoryRoot)
-    case GetEntityRoot(sendTo) => sendTo getOrElse sender ! EntityRoot(entityRoot)
+    case GetProjectMeta(sendTo) =>
+     sendTo.getOrElse(sender) ! ProjectMetaResponse(meta)
+    case GetCategoryRoot(sendTo) => sendTo.getOrElse(sender)  ! CategoryRoot(categoryRoot)
+    case GetEntityRoot(sendTo) => sendTo.getOrElse(sender)  ! EntityRoot(entityRoot)
     case FindEntity(id, sendTo) =>
-      context.actorOf(EntitySearcher(Seq(entityRoot), id, sendTo getOrElse sender))
+      context.actorOf(EntitySearcher(Seq(entityRoot), id, sendTo.getOrElse(sender) ))
   }
 }
 

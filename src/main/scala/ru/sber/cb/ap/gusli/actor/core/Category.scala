@@ -55,11 +55,11 @@ class Category(meta: CategoryMeta, project: ActorRef) extends BaseActor {
           replyTo ! SubcategoryCreated(subcat)
       }
     case ListSubcategory(sendTo) =>
-      sendTo getOrElse sender ! SubcategoryList(subcategoresRegistry.values.toSeq)
+      sendTo.getOrElse(sender)  ! SubcategoryList(subcategoresRegistry.values.toSeq)
       
     case mess@AddWorkflow(m, sendTo) =>
       log.info("{}", mess)
-      val replyTo = sendTo getOrElse sender
+      val replyTo = sendTo.getOrElse(sender)
       val fromRegistry = workflowsRegistry get m.name
       if(fromRegistry.isEmpty){
         val newWorkflow = context.actorOf(Workflow(m, project))
@@ -68,7 +68,7 @@ class Category(meta: CategoryMeta, project: ActorRef) extends BaseActor {
       } else replyTo ! WorkflowCreated(fromRegistry.get)
 
     case ListWorkflow(sendTo) =>
-      sendTo getOrElse sender ! WorkflowList(workflowsRegistry.values.toSeq)
+      sendTo.getOrElse(sender)  ! WorkflowList(workflowsRegistry.values.toSeq)
       
   }
 }
