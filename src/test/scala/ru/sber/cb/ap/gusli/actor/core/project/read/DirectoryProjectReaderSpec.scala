@@ -10,7 +10,7 @@ import ru.sber.cb.ap.gusli.actor.core.Project.{apply => _, _}
 import ru.sber.cb.ap.gusli.actor.core.{ActorBaseTest, EntityMetaDefault, ProjectMetaDefault}
 import ru.sber.cb.ap.gusli.actor.projects.read.DirectoryProjectReader
 import ru.sber.cb.ap.gusli.actor.projects.read.DirectoryProjectReader._
-
+import scala.concurrent.duration._
 
 class DirectoryProjectReaderSpec extends ActorBaseTest("DirectoryProjectSpec") {
   val correctPath = Paths.get("./src/test/resources/project_test-2")
@@ -26,7 +26,7 @@ class DirectoryProjectReaderSpec extends ActorBaseTest("DirectoryProjectSpec") {
       var rbCategory: ActorRef = null
       "send back ProjectReaded(project)" in {
         directoryProjectReader ! ReadProject()
-        expectMsgPF() {
+        expectMsgPF(10 seconds) {
           case ProjectReaded(inputProject) => project = inputProject
         }
       }
@@ -122,6 +122,19 @@ class DirectoryProjectReaderSpec extends ActorBaseTest("DirectoryProjectSpec") {
         rbCategory ! ListWorkflow()
         expectMsgPF() {
           case WorkflowList(list) => assert(list.size == 3)
+        }
+      }
+      "cbCategory receives GetCategoryMeta inherited and overrided fields should be sent back" in {
+        cbCategory ! GetCategoryMeta()
+        expectMsgPF() {
+          case CategoryMetaResponse(meta) =>
+            println(Console.GREEN + meta)
+            assert(meta.user.contains("dreamer"))
+            assert(meta.params.get("p2").contains("I'm here"))
+            assert(!meta.params.contains("p7"))
+            assert(meta.entities.contains(105067300))
+            assert(meta.stats.contains(2))
+            assert(meta.stats.contains(11))
         }
       }
     }
