@@ -10,6 +10,8 @@ object Category {
 
   case class GetCategoryMeta(replyTo: Option[ActorRef] = None) extends Request
 
+  case class GetProject(replyTo: Option[ActorRef] = None) extends Request
+
   case class AddSubcategory(meta: CategoryMeta, replyTo: Option[ActorRef] = None) extends Request
 
   case class ListSubcategory(replyTo: Option[ActorRef] = None) extends Request
@@ -21,6 +23,8 @@ object Category {
   //
 
   case class CategoryMetaResponse(meta: CategoryMeta) extends Response
+
+  case class ProjectResponse(project: ActorRef) extends Response
 
   case class SubcategoryCreated(actorRef: ActorRef) extends ActorResponse
 
@@ -35,11 +39,15 @@ object Category {
 class Category(meta: CategoryMeta, project: ActorRef) extends BaseActor {
 
   import Category._
-  
+
   private var subcategoresRegistry: HashMap[String, ActorRef] = HashMap.empty[String, ActorRef]
   private var workflowsRegistry: HashMap[String, ActorRef] = HashMap.empty[String, ActorRef]
-  
+
   override def receive: Receive = {
+    case GetProject(sendTo)=>
+      val replyTo = sendTo.getOrElse(sender)
+      replyTo ! ProjectResponse(project)
+
     case GetCategoryMeta(sendTo) =>
       val replyTo = sendTo.getOrElse(sender())
       replyTo ! CategoryMetaResponse(meta)
@@ -56,12 +64,11 @@ class Category(meta: CategoryMeta, project: ActorRef) extends BaseActor {
       }
     case ListSubcategory(sendTo) =>
       sendTo.getOrElse(sender)  ! SubcategoryList(subcategoresRegistry.values.toSeq)
-      
     case mess@AddWorkflow(m, sendTo) =>
       log.info("{}", mess)
       val replyTo = sendTo.getOrElse(sender)
       val fromRegistry = workflowsRegistry get m.name
-      if(fromRegistry.isEmpty){
+      if (fromRegistry.isEmpty) {
         val newWorkflow = context.actorOf(Workflow(m, project))
         workflowsRegistry = workflowsRegistry + (m.name -> newWorkflow)
         replyTo ! WorkflowCreated(newWorkflow)
@@ -69,7 +76,6 @@ class Category(meta: CategoryMeta, project: ActorRef) extends BaseActor {
 
     case ListWorkflow(sendTo) =>
       sendTo.getOrElse(sender)  ! WorkflowList(workflowsRegistry.values.toSeq)
-      
   }
 }
 
@@ -78,19 +84,20 @@ trait CategoryMeta {
 
   // Content
   def sqlMap: Map[String, String]
+
   // Content
   def init: Map[String, String]
-  
+
   def user: Option[String]
-  
+
   def queue: Option[String]
-  
+
   def grenkiVersion: Option[String]
-  
+
   def params: Map[String, String]
-  
+
   def stats: Set[Long]
-  
+
   def entities: Set[Long]
 }
 
@@ -103,4 +110,4 @@ case class CategoryMetaDefault(name: String,
                                params: Map[String, String] = Map.empty,
                                stats: Set[Long] = Set.empty,
                                entities: Set[Long] = Set.empty
-) extends CategoryMeta
+                              ) extends CategoryMeta
