@@ -12,32 +12,36 @@ class ProjectWriter(val project: ActorRef, path: Path) extends BaseActor {
   
   import ProjectWriter._
   private var receiver: ActorRef = _
+  private var categoryRead = false
+  private var entityRead = false
   
   override def receive: Receive = {
     
     case WriteProject(sendTo) =>
       receiver = sendTo.getOrElse(sender)
       project ! GetProjectMeta(Some(self))
-    
+      
     case ProjectMetaResponse(meta) =>
       val projectFolderPath = MetaToHDD.writeProjectMetaToPath(meta, path)
       val projectPath = path.resolve(meta.name)
       project ! GetCategoryRoot()
+      project ! GetEntityRoot()
 //      val categoryWriterActorRef = context actorOf CategoryWriter(projectFolderPath, CategoryMetaDefault("noName", Map("file" -> "noSQLfileContent")))
 //      val entityWriterActorRef = context actorOf EntityWriter(projectFolderPath, EntityMetaDefault(id = -10, name = "noName", path = "noPath", parentId = None))
       
 //      project ! GetCategoryRoot(Some(categoryWriterActorRef))
 //      project ! GetEntityRoot(Some(entityWriterActorRef))
 
-    case CategoryRoot(category) => checkFinish()
+    case CategoryRoot(category) =>
+      categoryRead = true
+      checkFinish()
   
     case EntityRoot(entity) =>
+      entityRead = true
       checkFinish()
   }
   
-  private def checkFinish(): Unit = {
-    receiver ! ProjectWrited()
-  }
+  private def checkFinish(): Unit = if (entityRead & categoryRead) receiver ! ProjectWrited()
 }
 
 object ProjectWriter {

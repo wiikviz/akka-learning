@@ -1,4 +1,4 @@
-package ru.sber.cb.ap.gusli.actor.projects.write
+package ru.sber.cb.ap.gusli.actor.projects.write.entity
 
 import java.nio.file.Path
 
@@ -7,10 +7,11 @@ import ru.sber.cb.ap.gusli.actor.BaseActor
 import ru.sber.cb.ap.gusli.actor.core.Entity.{ChildrenEntityList, EntityMetaResponse, GetEntityMeta}
 import ru.sber.cb.ap.gusli.actor.core.Project.EntityRoot
 import ru.sber.cb.ap.gusli.actor.core.{Entity, EntityMeta}
+import ru.sber.cb.ap.gusli.actor.projects.write.MetaToHDD
 
 class EntityWriter(path:Path, parentMeta:EntityMeta) extends BaseActor{
 
-  var meta:EntityMeta  = _
+  var meta: EntityMeta  = _
 
   override def receive: Receive = {
 

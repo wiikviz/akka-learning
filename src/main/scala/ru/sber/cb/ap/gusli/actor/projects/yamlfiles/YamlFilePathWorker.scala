@@ -3,13 +3,15 @@ package ru.sber.cb.ap.gusli.actor.projects.yamlfiles
 import java.io.{File, FilenameFilter}
 import java.nio.file.{Path, Paths}
 
+import ru.sber.cb.ap.gusli.actor.projects.DirectoryReadWriteConfig
+
 object YamlFilePathWorker {
   
   def extractParentIdFromPath(path : Path): Option[Long] = {
     val fileName = path.getFileName.toString.toLowerCase
     val parentName = path.getParent.getFileName.toString.toLowerCase
     
-    if (fileName == "entity.yaml")
+    if (fileName == DirectoryReadWriteConfig.entityMetaFileName)
       extractParentIdFromPath(path.getParent)
     else if (fileName == "entity")
       None
@@ -59,5 +61,5 @@ object YamlFilePathWorker {
     files.map(_.toPath).toList
   }
   
-  def isEntityYaml(path: Path): Boolean = path.getFileName.toString.toLowerCase == "entity.yaml"
+  def isEntityYaml(path: Path): Boolean = path.getFileName.toString.toLowerCase == DirectoryReadWriteConfig.entityMetaFileName
 }

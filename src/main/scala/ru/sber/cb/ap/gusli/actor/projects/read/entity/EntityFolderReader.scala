@@ -7,6 +7,7 @@ import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
 import ru.sber.cb.ap.gusli.actor.core.Entity.{AddChildEntity, EntityCreated}
 import ru.sber.cb.ap.gusli.actor.core.EntityMetaDefault
 import EntityPathResolver.{PathResolved, ResolvePath}
+import ru.sber.cb.ap.gusli.actor.projects.DirectoryReadWriteConfig
 import ru.sber.cb.ap.gusli.actor.projects.read.entity.EntityFolderReader.{EntityRead, ReadEntity}
 import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.YamlFilePathWorker._
 import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.{YamlEntityMapper, YamlFilePathWorker}
@@ -63,7 +64,7 @@ case class EntityFolderReader(meta: EntityFolderReaderMeta) extends BaseActor {
   
   private def createMetaFromFolder(path: Path) = {
     val (id, name) = parseIdAndNameFrom(path)
-    val entityYaml = path.resolve("entity.yaml")
+    val entityYaml = path.resolve(DirectoryReadWriteConfig.entityMetaFileName)
     if (entityYaml.toFile.exists())
       YamlEntityMapper.read(entityYaml, id, name)
     else

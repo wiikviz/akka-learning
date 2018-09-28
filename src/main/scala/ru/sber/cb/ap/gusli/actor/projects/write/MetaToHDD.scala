@@ -6,6 +6,7 @@ import java.nio.file.{Files, Path}
 
 import ru.sber.cb.ap.gusli.actor.core.dto.WorkflowDto
 import ru.sber.cb.ap.gusli.actor.core.{CategoryMeta, CategoryMetaDefault, EntityMeta, ProjectMeta}
+import ru.sber.cb.ap.gusli.actor.projects.DirectoryReadWriteConfig
 import ru.sber.cb.ap.gusli.actor.projects.write.MetaToYamlSerialization._
 
 object MetaToHDD {
@@ -44,7 +45,7 @@ object MetaToHDD {
     val entityNameOnHDD = s"${meta.id} ${meta.id}"
     if (hasChildren) {
       val entityFolder = createNewFolder(entityNameOnHDD, dir)
-      writeYAMLTextFileToDirectory("entity.yaml", fileContent, entityFolder)
+      writeYAMLTextFileToDirectory(DirectoryReadWriteConfig.entityMetaFileName, fileContent, entityFolder)
       Right(entityFolder)
     }
     else

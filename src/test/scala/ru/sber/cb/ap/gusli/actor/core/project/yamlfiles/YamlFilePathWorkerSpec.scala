@@ -3,6 +3,7 @@ package ru.sber.cb.ap.gusli.actor.core.project.yamlfiles
 import java.nio.file.Paths
 
 import ru.sber.cb.ap.gusli.actor.core.ActorBaseTest
+import ru.sber.cb.ap.gusli.actor.projects.DirectoryReadWriteConfig
 import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.YamlFilePathWorker._
 
 class YamlFilePathWorkerSpec extends ActorBaseTest("YamlFilePathWorkerSpec") {
@@ -30,23 +31,23 @@ class YamlFilePathWorkerSpec extends ActorBaseTest("YamlFilePathWorkerSpec") {
     }
     "receive getParentIdFromPath(./entity/1 a/2 b/entity.yaml)" should {
       "return 1" in {
-        val parentId = extractParentIdFromPath(Paths.get("./1 a/2 b/entity.yaml"))
+        val parentId = extractParentIdFromPath(Paths.get(s"./1 a/2 b/${DirectoryReadWriteConfig.entityMetaFileName}"))
         assert(parentId.contains(1))
       }
     }
     "receive isYaml(./entity/entity.yaml)" should {
       "return true" in {
-        assert(isYaml(Paths.get("./src/test/resources/project_test-2/entity/entity.yaml")))
+        assert(isYaml(Paths.get(s"./src/test/resources/project_test-2/entity/${DirectoryReadWriteConfig.entityMetaFileName}")))
       }
     }
     "receive isYaml(./entity/entity)" should {
       "return false" in {
-        assert(isEntityYaml(Paths.get("./entity.yaml")))
+        assert(isEntityYaml(Paths.get(s"./${DirectoryReadWriteConfig.entityMetaFileName}")))
       }
     }
     "receive isEntityDotYaml(./entity.yaml)" should {
       "return true" in {
-        assert(!isEntityYaml(Paths.get("./not-entity.yaml")))
+        assert(!isEntityYaml(Paths.get(s"./not-${DirectoryReadWriteConfig.entityMetaFileName}")))
       }
     }
     "receive isEntityDotYaml(./entity/entity)" should {

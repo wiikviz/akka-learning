@@ -5,4 +5,5 @@ object DirectoryReadWriteConfig {
  val workflowFolderPrefix = "wf-"
  val workflowMetaFileName = "meta.yaml"
  val categoryMetaFileName = "meta.yaml"
+ val entityMetaFileName = "entity.yaml"
 }
