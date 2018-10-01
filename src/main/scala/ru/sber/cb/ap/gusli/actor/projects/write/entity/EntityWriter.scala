@@ -23,10 +23,10 @@ class EntityWriter(path:Path, parentMeta:EntityMeta) extends BaseActor{
       sender ! Entity.GetChildren(Some(context.self))
 
     case ChildrenEntityList(actorList) =>
-      MetaToHDD.writeEntityMetaToPath(meta, path, parentMeta, actorList.nonEmpty) match {
-        case Right(value) =>
-          actorList.foreach{_ ! GetEntityMeta(Some(context actorOf EntityWriter(value, meta)))}
-      }
+//      MetaToHDD.writeEntityMetaToPath(meta, path, parentMeta, actorList.nonEmpty) match {
+//        case Right(value) =>
+//          actorList.foreach{_ ! GetEntityMeta(Some(context actorOf EntityWriter(value, meta)))}
+//      }
   }
 }
 

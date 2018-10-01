@@ -32,6 +32,7 @@ class DirectoryProjectWriterSpec extends ActorBaseTest("DirectoryProjectSpec") {
       "send back ProjectWrited()" in {
         val directoryProjectWriter: ActorRef = system.actorOf(ProjectWriter(project, writePath))
         directoryProjectWriter ! WriteProject()
+        Thread.sleep(3000)
         expectMsg(ProjectWrited())
       }
     }

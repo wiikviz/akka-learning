@@ -7,45 +7,47 @@ import ru.sber.cb.ap.gusli.actor.core.Entity.{ChildrenEntityList, EntityMetaResp
 import ru.sber.cb.ap.gusli.actor.core.EntityMeta
 import ru.sber.cb.ap.gusli.actor.projects.write.MetaToHDD
 import ru.sber.cb.ap.gusli.actor.projects.write.entity.EntityFolderWriter.{EntityWrote, WriteEntity}
-import ru.sber.cb.ap.gusli.actor.projects.write.entity.EntityRootWriter.{Write, Wrote}
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
 
-object EntityRootWriter {
-  def apply(meta: EntityRootWriterMeta): Props = Props(new EntityRootWriter(meta))
+object EntityFolderWriter {
+  def apply(meta: EntityFolderWriterMeta): Props = Props(new EntityFolderWriter(meta))
   
-  case class Write(replyTo: Option[ActorRef] = None) extends Request
-  case class Wrote(replyTo: Option[ActorRef] = None) extends Response
+  case class WriteEntity(replyTo: Option[ActorRef] = None) extends Request
+  
+  case class EntityWrote() extends Response
   
 }
 
-class EntityRootWriter(meta: EntityRootWriterMeta) extends BaseActor {
+class EntityFolderWriter(meta: EntityFolderWriterMeta) extends BaseActor {
   var childrenCount: Int = 0
   var entityMeta: EntityMeta = _
   var sendTo: ActorRef = _
   
   override def receive: Receive = {
-    case Write(sendTo) =>
+    case WriteEntity(sendTo) =>
       this.sendTo = sendTo.getOrElse(sender())
       this.meta.entity ! GetEntityMeta()
     
     case EntityMetaResponse(meta) =>
       entityMeta = meta
       this.meta.entity ! GetChildren()
-    
-    case ChildrenEntityList(list) =>
-      val pathToThisEntity = MetaToHDD.entityRoot(this.meta.path, entityMeta.name)
-      childrenCount = list.size
-      list.foreach {e =>
-        context.actorOf(EntityFolderWriter(EntityFolderWriterMetaDefault(pathToThisEntity, e))) ! WriteEntity()
+      
+    case ChildrenEntityList(actorList) =>
+      childrenCount = actorList.size
+      val pathToThisEntity = MetaToHDD.writeEntityMetaToPath(entityMeta, this.meta.path, childrenCount)
+      actorList.foreach {e =>
+        pathToThisEntity match {
+          case Right(p) => context.actorOf(EntityFolderWriter(EntityFolderWriterMetaDefault(p, e))) ! WriteEntity()
+        }
       }
-    
+
     case EntityWrote() =>
   }
 }
 
-trait EntityRootWriterMeta {
+trait EntityFolderWriterMeta {
   val path: Path
   val entity: ActorRef
 }
 
-case class EntityRootWriterMetaDefault(path: Path, entity: ActorRef) extends EntityRootWriterMeta
+case class EntityFolderWriterMetaDefault(path: Path, entity: ActorRef) extends EntityFolderWriterMeta
