@@ -128,7 +128,7 @@ class DirectoryProjectReaderSpec extends ActorBaseTest("DirectoryProjectSpec") {
         cbCategory ! GetCategoryMeta()
         expectMsgPF() {
           case CategoryMetaResponse(meta) =>
-            println(Console.GREEN + meta)
+            assert(meta.name == "cb")
             assert(meta.user.contains("dreamer"))
             assert(meta.params.get("p2").contains("I'm here"))
             assert(!meta.params.contains("p7"))
