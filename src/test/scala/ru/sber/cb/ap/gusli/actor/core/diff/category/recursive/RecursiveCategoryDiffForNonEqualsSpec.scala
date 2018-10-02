@@ -13,13 +13,13 @@ import scala.concurrent.duration._
 import scala.concurrent.duration._
 
 class RecursiveCategoryDiffForNonEqualsSpec extends ActorBaseTest("RecursiveCategoryDiffForNonEqualsSpec") {
-  private val correctPath = Paths.get("./src/gucli/src/test/scala/ru/sber/cb/ap/gusli/actor/core/diff/category/recursive/data/project")
+  private val correctPath = Paths.get("./src/test/resources/project_k")
   private val directoryProjectReader: ActorRef = system.actorOf(DirectoryProjectReader(correctPath))
 
   directoryProjectReader ! ReadProject()
 
-  "Directory project writer" when {
-    expectMsgPF(1 minute) {
+  "Directory project differ" when {
+    expectMsgPF() {
       case ProjectReaded(project) =>
     }
   }
