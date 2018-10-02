@@ -1,13 +1,14 @@
-package ru.sber.cb.ap.gusli.actor.core.diff
+package ru.sber.cb.ap.gusli.actor.core.diff.workflow
 
 import akka.testkit.TestProbe
 import ru.sber.cb.ap.gusli.actor.core.Entity.{EntityMetaResponse, GetEntityMeta}
 import ru.sber.cb.ap.gusli.actor.core.Project.{EntityFound, FindEntity}
 import ru.sber.cb.ap.gusli.actor.core.Workflow.BindEntity
-import ru.sber.cb.ap.gusli.actor.core.diff.WorkflowListDiffer.WorkflowListEquals
+import ru.sber.cb.ap.gusli.actor.core.diff.WorkflowSetDiffer
+import ru.sber.cb.ap.gusli.actor.core.diff.WorkflowSetDiffer.WorkflowSetEquals
 import ru.sber.cb.ap.gusli.actor.core.{ActorBaseTest, EntityMetaDefault, Workflow, WorkflowMetaDefault}
 
-class WorkflowListDifferForEqualsSpec extends ActorBaseTest("WorkflowListComparerForEqualsSpec") {
+class WorkflowSetDifferForEqualsSpec extends ActorBaseTest("WorkflowListComparerForEqualsSpec") {
   val receiver = TestProbe()
   private val projectProbe = TestProbe()
   private val meta1 = WorkflowMetaDefault("wf-1", Map("file1" -> "select 1"), Map("a" -> "111", "b" -> "222"))
@@ -51,7 +52,7 @@ class WorkflowListDifferForEqualsSpec extends ActorBaseTest("WorkflowListCompare
     }
 
 
-    system.actorOf(WorkflowListDiffer(Set(wf1, wf2), Set(wf2Copy, wf1Copy), receiver.ref))
+    system.actorOf(WorkflowSetDiffer(Set(wf1, wf2), Set(wf2Copy, wf1Copy), receiver.ref))
     for (_ <- 1 to 4) {
       e1.expectMsg(GetEntityMeta())
       e1.reply(EntityMetaResponse(eMeta1))
@@ -61,6 +62,6 @@ class WorkflowListDifferForEqualsSpec extends ActorBaseTest("WorkflowListCompare
       e2.reply(EntityMetaResponse(eMeta2))
     }
 
-    receiver.expectMsg(WorkflowListEquals(Set(wf1, wf2), Set(wf2Copy, wf1Copy)))
+    receiver.expectMsg(WorkflowSetEquals(Set(wf1, wf2), Set(wf2Copy, wf1Copy)))
   }
 }

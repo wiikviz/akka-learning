@@ -1,7 +1,8 @@
-package ru.sber.cb.ap.gusli.actor.core.diff
+package ru.sber.cb.ap.gusli.actor.core.diff.category
 
 import akka.testkit.TestProbe
 import ru.sber.cb.ap.gusli.actor.core._
+import ru.sber.cb.ap.gusli.actor.core.diff.CategoryDiffer
 
 class CategoryDiffForEqualsSpec extends ActorBaseTest("CategoryDiffForEqualsSpec") {
 
@@ -16,8 +17,7 @@ class CategoryDiffForEqualsSpec extends ActorBaseTest("CategoryDiffForEqualsSpec
 
   "CategoryDiff for Category with the same meta" must {
     "return CategoryEquals" in {
-      val projectDiffProbe = TestProbe()
-      system.actorOf(CategoryDiffer(projectDiffProbe.ref, currentCat, prevCat, receiverProbe.ref))
+      system.actorOf(CategoryDiffer(currentCat, prevCat, receiverProbe.ref))
       receiverProbe.expectMsg(CategoryEquals(currentCat, prevCat))
     }
   }

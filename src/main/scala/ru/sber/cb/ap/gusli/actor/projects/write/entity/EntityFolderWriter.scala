@@ -7,52 +7,53 @@ import ru.sber.cb.ap.gusli.actor.core.Entity.{ChildrenEntityList, EntityMetaResp
 import ru.sber.cb.ap.gusli.actor.core.EntityMeta
 import ru.sber.cb.ap.gusli.actor.projects.write.MetaToHDD
 import ru.sber.cb.ap.gusli.actor.projects.write.entity.EntityFolderWriter.{EntityWrote, WriteEntity}
-import ru.sber.cb.ap.gusli.actor.projects.write.entity.EntityRootWriter.{Write, Wrote}
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
 
-object EntityRootWriter {
-  def apply(meta: EntityRootWriterMeta): Props = Props(new EntityRootWriter(meta))
+object EntityFolderWriter {
+  def apply(meta: EntityFolderWriterMeta): Props = Props(new EntityFolderWriter(meta))
   
-  case class Write(replyTo: Option[ActorRef] = None) extends Request
+  case class WriteEntity(replyTo: Option[ActorRef] = None) extends Request
   
-  case class Wrote() extends Response
+  case class EntityWrote() extends Response
   
 }
 
-class EntityRootWriter(meta: EntityRootWriterMeta) extends BaseActor {
+class EntityFolderWriter(meta: EntityFolderWriterMeta) extends BaseActor {
   private var childrenCount: Int = 0
   private var entityMeta: EntityMeta = _
   private var sendTo: ActorRef = _
   private var answeredChildrenCount = 0
   
   override def receive: Receive = {
-    
-    case Write(sendTo) => getMeta(sendTo)
+    case WriteEntity(sendTo) =>
+      getMeta(sendTo)
     
     case EntityMetaResponse(meta) =>
       entityMeta = meta
       getChildren()
-    
-    case ChildrenEntityList(list) => writeEntity(list)
-    
+      
+    case ChildrenEntityList(actorList) =>
+      writeThisEntity(actorList)
+
     case EntityWrote() =>
       answeredChildrenCount += 1
       checkFinish()
   }
   
-  private def writeEntity(list: Seq[ActorRef]) = {
-    val pathToThisEntity = MetaToHDD.entityRoot(this.meta.path, entityMeta.name)
-    childrenCount = list.size
+  private def writeThisEntity(actorList: Seq[ActorRef]): Unit = {
+    childrenCount = actorList.size
+    val pathToThisEntity: Either[Path, Path] = MetaToHDD.writeEntityMetaToPath(entityMeta, this.meta.path, childrenCount)
     childrenCount match {
       case 0 => finish()
-      case _ => writeChildren(list, pathToThisEntity)
+      case _ => writeChildren(actorList, pathToThisEntity)
     }
   }
   
-  private def writeChildren(list: Seq[ActorRef],
-    pathToThisEntity: Path): Unit = {
-    list.foreach { e =>
-      context.actorOf(EntityFolderWriter(EntityFolderWriterMetaDefault(pathToThisEntity, e))) ! WriteEntity()
+  private def writeChildren(actorList: Seq[ActorRef], pathToThisEntity: Either[Path, Path]): Unit = {
+    actorList.foreach { e =>
+      pathToThisEntity match {
+        case Right(p) => context.actorOf(EntityFolderWriter(EntityFolderWriterMetaDefault(p, e))) ! WriteEntity()
+      }
     }
   }
   
@@ -61,21 +62,19 @@ class EntityRootWriter(meta: EntityRootWriterMeta) extends BaseActor {
     this.meta.entity ! GetEntityMeta()
   }
   
-  private def getChildren() = {
-    this.meta.entity ! GetChildren()
-  }
+  private def getChildren() = this.meta.entity ! GetChildren()
   
   private def checkFinish(): Unit = if (answeredChildrenCount == childrenCount) finish()
   
   private def finish(): Unit = {
-    context.parent ! Wrote()
+    context.parent ! EntityWrote()
     context.stop(self)
   }
 }
 
-trait EntityRootWriterMeta {
+trait EntityFolderWriterMeta {
   val path: Path
   val entity: ActorRef
 }
 
-case class EntityRootWriterMetaDefault(path: Path, entity: ActorRef) extends EntityRootWriterMeta
+case class EntityFolderWriterMetaDefault(path: Path, entity: ActorRef) extends EntityFolderWriterMeta

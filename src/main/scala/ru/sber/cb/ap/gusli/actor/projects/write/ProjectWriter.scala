@@ -6,11 +6,12 @@ import java.nio.file.{Files, Path}
 import akka.actor.{ActorRef, Props}
 import ru.sber.cb.ap.gusli.actor.core.Project._
 import ru.sber.cb.ap.gusli.actor.core.{CategoryMetaDefault, EntityMetaDefault}
+import ru.sber.cb.ap.gusli.actor.projects.write.entity.{EntityRootWriter, EntityRootWriterMetaDefault}
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
 
 class ProjectWriter(val project: ActorRef, path: Path) extends BaseActor {
-  
   import ProjectWriter._
+  private var projectFolderPath: Path = _
   private var receiver: ActorRef = _
   private var categoryRead = false
   private var entityRead = false
@@ -22,26 +23,25 @@ class ProjectWriter(val project: ActorRef, path: Path) extends BaseActor {
       project ! GetProjectMeta(Some(self))
       
     case ProjectMetaResponse(meta) =>
-      val projectFolderPath = MetaToHDD.writeProjectMetaToPath(meta, path)
-      val projectPath = path.resolve(meta.name)
+      projectFolderPath = MetaToHDD.writeProjectMetaToPath(meta, path)
       project ! GetCategoryRoot()
       project ! GetEntityRoot()
-//      val categoryWriterActorRef = context actorOf CategoryWriter(projectFolderPath, CategoryMetaDefault("noName", Map("file" -> "noSQLfileContent")))
-//      val entityWriterActorRef = context actorOf EntityWriter(projectFolderPath, EntityMetaDefault(id = -10, name = "noName", path = "noPath", parentId = None))
-      
-//      project ! GetCategoryRoot(Some(categoryWriterActorRef))
-//      project ! GetEntityRoot(Some(entityWriterActorRef))
 
     case CategoryRoot(category) =>
       categoryRead = true
       checkFinish()
   
     case EntityRoot(entity) =>
+      context.actorOf(EntityRootWriter(EntityRootWriterMetaDefault(projectFolderPath, entity))) ! EntityRootWriter.Write()
+      
+    case EntityRootWriter.Wrote() =>
       entityRead = true
       checkFinish()
   }
   
-  private def checkFinish(): Unit = if (entityRead & categoryRead) receiver ! ProjectWrited()
+  private def checkFinish(): Unit = if (entityRead & categoryRead) finish()
+ 
+  private def finish(): Unit = receiver ! ProjectWrited()
 }
 
 object ProjectWriter {

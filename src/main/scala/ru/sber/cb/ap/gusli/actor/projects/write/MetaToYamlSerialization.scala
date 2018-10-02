@@ -94,7 +94,7 @@ object MetaToYamlSerialization {
   //  def parentId: Option[Long]  получаем из родительской папки
   //  def storage = "HDFS"        всегда "HDFS"
   //}
-  def convertEntityMetaToYAMLFileContent(meta: EntityMeta, parentMeta: EntityMeta): String = {
+  def convertEntityMetaToYAMLFileContent(meta: EntityMeta): String = {
     s"""---
        |path: "${meta.path}"""".stripMargin
   }
