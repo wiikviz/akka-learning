@@ -12,27 +12,19 @@ import ru.sber.cb.ap.gusli.actor.projects.write.MetaToYamlSerialization._
 object MetaToHDD {
   def entityRoot(path: Path, name: String): Path =
     createNewFolder(name, path)
-  
-//  def entityChild(path: Path, name: String, id: Long, count: Int): Path = {
-//    count match {
-//      case 0 => createNewFile(s"$id $name", path)
-//      case _ => createNewFolder(s"$id $name", path)
-//    }
-//  }
-  
+
   def writeProjectMetaToPath(meta: ProjectMeta, path: Path): Path =
     createNewFolder(meta.name, path)
   
-  
-  def writeCategoryMetaToPath(meta: CategoryMeta, dir: Path, parentMeta: CategoryMeta): Path = {
-    val categoryFolder: Path = createNewFolder(meta.name, dir)
-
+  def writeCategoryMetaToPath(meta: CategoryMeta, parentDir: Path, parentMeta: CategoryMeta): Path = {
+    val categoryFolder: Path = createNewFolder(meta.name, parentDir)
+    
     val child = meta.asInstanceOf[CategoryMetaDefault]
     val parent = parentMeta.asInstanceOf[CategoryMetaDefault]
-
-    if(child.copy(name = parent.name) != parent){
-      for( (fileName, fileContent) <- getFilesContentFromCategory(child,parent)){
-        writeYAMLTextFileToDirectory(fileName,fileContent, categoryFolder)
+    
+    if (child.copy(name = parent.name) != parent) {
+      for ((fileName, fileContent) <- getFilesContentFromCategory(child, parent)) {
+        writeYAMLTextFileToDirectory(fileName, fileContent, categoryFolder)
       }
     }
     categoryFolder
@@ -81,6 +73,6 @@ object MetaToHDD {
 //    URLEncoder.encode(folderName, charSet.toString)
   }
   
-  private def writeYAMLTextFileToDirectory(fileName:String, fileContent: String, dir: Path): Path =
+  private def writeYAMLTextFileToDirectory(fileName: String, fileContent: String, dir: Path): Path =
     Files.write(dir.resolve(fileName), fileContent.getBytes(charSet))
 }

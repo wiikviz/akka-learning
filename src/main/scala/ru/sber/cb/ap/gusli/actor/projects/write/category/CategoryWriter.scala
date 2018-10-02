@@ -2,7 +2,7 @@ package ru.sber.cb.ap.gusli.actor.projects.write.category
 
 import java.nio.file.Path
 
-import akka.actor.Props
+import akka.actor.{ActorRef, Props}
 import ru.sber.cb.ap.gusli.actor._
 import ru.sber.cb.ap.gusli.actor.core.Category._
 import ru.sber.cb.ap.gusli.actor.core.CategoryMeta
@@ -10,36 +10,53 @@ import ru.sber.cb.ap.gusli.actor.core.Project.CategoryRoot
 import ru.sber.cb.ap.gusli.actor.core.Workflow.GetWorkflowMeta
 import ru.sber.cb.ap.gusli.actor.projects.write.{MetaToHDD, WorkflowWriter}
 
-class CategoryWriter(path:Path, parentMeta:CategoryMeta) extends BaseActor{
-
-  var createdForThisCategoryFolderPath:Path = _
-  var meta: CategoryMeta = _
-
-  override def receive: Receive = {
-
-    case CategoryRoot(categoryRootActorRef) =>
-      categoryRootActorRef ! GetCategoryMeta(Some(context.self))
-
-    case CategoryMetaResponse(categoryMeta: CategoryMeta) =>
-      createdForThisCategoryFolderPath = MetaToHDD.writeCategoryMetaToPath(categoryMeta,path, parentMeta)
-      meta = categoryMeta
-      sender ! GetSubcategories(Some(context.self))
-      sender ! GetWorkflows(Some(context.self))
-
-    case SubcategorySet(subcategoryActorRefList) =>
-      for (subcategory <- subcategoryActorRefList){
-        val categoryWriterActorRef = context actorOf CategoryWriter(createdForThisCategoryFolderPath, meta)
-        subcategory ! GetCategoryMeta(Some(categoryWriterActorRef))
-      }
-
-    case WorkflowSet(workflowActorRefList) =>
-      for(workflow <- workflowActorRefList){
-        val workflowWriterActorRef = context actorOf WorkflowWriter(createdForThisCategoryFolderPath, meta)
-        workflow ! GetWorkflowMeta(Some(workflowWriterActorRef))
-      }
-  }
+object CategoryWriter {
+  def apply(path: Path, parentMeta: CategoryMeta): Props = Props(new CategoryWriter(path, parentMeta))
 }
 
-object CategoryWriter {
-  def apply(path:Path, parentMeta:CategoryMeta): Props = Props(new CategoryWriter(path, parentMeta))
+class CategoryWriter(parentPath: Path, parentMeta: CategoryMeta) extends BaseActor {
+  
+  private var thisPath: Path = _
+  private var thisMeta: CategoryMeta = _
+  
+  private var wfListGetted = false
+  private var catListGetted = false
+  
+  override def receive: Receive = {
+    
+    case CategoryRoot(category) =>
+      getMeta(category)
+    
+    case CategoryMetaResponse(categoryMeta: CategoryMeta) =>
+      thisMeta = categoryMeta
+      thisPath = MetaToHDD.writeCategoryMetaToPath(thisMeta, parentPath, parentMeta)
+      sender ! GetSubcategories()
+      sender ! GetWorkflows()
+    
+    case SubcategorySet(list) =>
+      catListGetted = true //для чек-финиш
+      writeCategories(list)
+    
+    case WorkflowSet(list) =>
+      wfListGetted = true //для чек-финиш
+      writeWorkflows(list)
+  }
+  
+  private def writeWorkflows(list: Set[ActorRef]) = {
+    for (wf <- list) {
+      val workflowWriter = context.actorOf(WorkflowWriter(thisPath, thisMeta))
+      wf ! GetWorkflowMeta(Some(workflowWriter))
+    }
+  }
+  
+  private def writeCategories(list: Set[ActorRef]) = {
+    for (cat <- list) {
+      val workflowWriter = context.actorOf(CategoryWriter(thisPath, thisMeta))
+      cat ! GetCategoryMeta(Some(workflowWriter))
+    }
+  }
+  
+  private def getMeta(category: ActorRef) = {
+    category ! GetCategoryMeta()
+  }
 }
