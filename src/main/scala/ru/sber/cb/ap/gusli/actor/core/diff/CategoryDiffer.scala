@@ -69,21 +69,21 @@ class CategoryDiffer(currentCat: ActorRef, prevCat: ActorRef, receiver: ActorRef
 
   def checkFinish() = {
     if (workflowAlreadyCompared) {
-      for (curr <- currentMeta; prev <- prevMeta; proj <- currProject) {
+      for (curr <- currentMeta; prev <- prevMeta; project <- currProject) {
         if (curr == prev)
           delta match {
             case None => receiver ! CategoryEquals(currentCat, prevCat)
             case Some(d) =>
-              val diff = context.system.actorOf(Category(curr, proj))
+              val diff = context.system.actorOf(Category(curr, project))
               diff ! AddWorkflows(d)
               receiver ! CategoryDelta(diff)
           }
         else {
-          val diff = context.system.actorOf(Category(curr, proj))
+          val diff = context.system.actorOf(Category(curr, project))
           delta match {
             case Some(d) =>
               diff ! AddWorkflows(d)
-            case _ =>
+            case _ => log.debug("delta is empty")
           }
 
           receiver ! CategoryDelta(diff)
