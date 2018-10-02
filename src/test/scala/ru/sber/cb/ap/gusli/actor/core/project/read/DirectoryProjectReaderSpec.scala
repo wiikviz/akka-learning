@@ -137,6 +137,12 @@ class DirectoryProjectReaderSpec extends ActorBaseTest("DirectoryProjectSpec") {
             assert(meta.stats.contains(11))
         }
       }
+      "rb category should have 3 sub-categories" in {
+        rbCategory ! GetSubcategories()
+        expectMsgPF() {
+          case SubcategorySet(set) => assert(set.size == 3)
+        }
+      }
     }
   }
 

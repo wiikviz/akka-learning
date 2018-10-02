@@ -41,10 +41,8 @@ class CategoryFolderReader(meta: CategoryFolderReaderMeta) extends BaseActor {
         doIfCategoryFolder(p)
       }
       checkFinish()
-    case CategoryRead(c) =>
-      answeredChildrenCount += 1
-      checkFinish()
-    case WorkflowFileRead() | WorkflowFolderRead()=>
+
+    case WorkflowFileRead() | WorkflowFolderRead() | CategoryRead()=>
       answeredChildrenCount += 1
       checkFinish()
   }
