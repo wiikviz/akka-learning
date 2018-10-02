@@ -1,0 +1,12 @@
+---
+queue: root.platform
+user: dreamer
+init:
+map:
+param:
+  p1: 1
+  p2: I'm here
+stats:
+- 2
+- 11
+entities: 105067300

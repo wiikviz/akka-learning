@@ -1,0 +1,6 @@
+---
+name: "child3"
+path: "/data/entity-root/entity-parent/child3"
+id: 105067300
+storage: "HDFS"
+parentId: 105067000
