@@ -1,6 +1,0 @@
----
-name: "entity-root"
-path: "/data"
-id: 105000000
-storage: "HDFS"
-parentId: 0
