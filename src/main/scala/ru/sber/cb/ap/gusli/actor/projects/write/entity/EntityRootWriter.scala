@@ -29,7 +29,9 @@ class EntityRootWriter(meta: EntityRootWriterMeta) extends BaseActor {
     
     case Write(sendTo) => getMeta(sendTo)
     
-    case EntityMetaResponse(meta) => getChildren(meta)
+    case EntityMetaResponse(meta) =>
+      entityMeta = meta
+      getChildren()
     
     case ChildrenEntityList(list) => writeEntity(list)
     
@@ -59,8 +61,7 @@ class EntityRootWriter(meta: EntityRootWriterMeta) extends BaseActor {
     this.meta.entity ! GetEntityMeta()
   }
   
-  private def getChildren(meta: EntityMeta) = {
-    entityMeta = meta
+  private def getChildren() = {
     this.meta.entity ! GetChildren()
   }
   

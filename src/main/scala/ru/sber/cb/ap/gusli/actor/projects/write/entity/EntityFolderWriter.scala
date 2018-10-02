@@ -26,12 +26,11 @@ class EntityFolderWriter(meta: EntityFolderWriterMeta) extends BaseActor {
   
   override def receive: Receive = {
     case WriteEntity(sendTo) =>
-      this.sendTo = sendTo.getOrElse(sender())
-      this.meta.entity ! GetEntityMeta()
+      getMeta(sendTo)
     
     case EntityMetaResponse(meta) =>
       entityMeta = meta
-      this.meta.entity ! GetChildren()
+      getChildren()
       
     case ChildrenEntityList(actorList) =>
       writeThisEntity(actorList)
@@ -57,6 +56,13 @@ class EntityFolderWriter(meta: EntityFolderWriterMeta) extends BaseActor {
       }
     }
   }
+  
+  private def getMeta(sendTo: Option[ActorRef]) = {
+    this.sendTo = sendTo.getOrElse(sender())
+    this.meta.entity ! GetEntityMeta()
+  }
+  
+  private def getChildren() = this.meta.entity ! GetChildren()
   
   private def checkFinish(): Unit = if (answeredChildrenCount == childrenCount) finish()
   
