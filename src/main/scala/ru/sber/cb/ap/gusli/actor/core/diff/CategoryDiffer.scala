@@ -7,7 +7,7 @@ import ru.sber.cb.ap.gusli.actor.{BaseActor, Response}
 
 
 object CategoryDiffer {
-  def apply(diffProject: ActorRef, currentCat: ActorRef, prevCat: ActorRef, receiver: ActorRef): Props = Props(new CategoryDiffer(currentCat, prevCat, receiver))
+  def apply(currentCat: ActorRef, prevCat: ActorRef, receiver: ActorRef): Props = Props(new CategoryDiffer(currentCat, prevCat, receiver))
 
   case class CategoryEquals(currentCat: ActorRef, prevCat: ActorRef) extends Response
 

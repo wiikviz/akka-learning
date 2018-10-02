@@ -17,8 +17,7 @@ class CategoryDiffForEqualsSpec extends ActorBaseTest("CategoryDiffForEqualsSpec
 
   "CategoryDiff for Category with the same meta" must {
     "return CategoryEquals" in {
-      val projectDiffProbe = TestProbe()
-      system.actorOf(CategoryDiffer(projectDiffProbe.ref, currentCat, prevCat, receiverProbe.ref))
+      system.actorOf(CategoryDiffer(currentCat, prevCat, receiverProbe.ref))
       receiverProbe.expectMsg(CategoryEquals(currentCat, prevCat))
     }
   }

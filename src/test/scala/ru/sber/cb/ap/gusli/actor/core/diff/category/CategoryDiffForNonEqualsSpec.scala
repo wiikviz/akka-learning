@@ -13,18 +13,15 @@ class CategoryDiffForNonEqualsSpec extends ActorBaseTest("CategoryDiffForNonEqua
 
   private val receiverProbe = TestProbe()
   private val projectProbe = TestProbe()
-  private val projectDiffProbe = TestProbe()
   private val currMeta = CategoryMetaDefault("category", Map("p1" -> "111", "p2" -> "222"))
   private val currentCat = system.actorOf(Category(currMeta, projectProbe.ref))
-  private val prevMeta = CategoryMetaDefault("category", Map("p2" -> "111", "p1" -> "222"))
-  private val prevCat = system.actorOf(Category(prevMeta, projectProbe.ref))
 
   "A CategoryDiffer for category with differ meta must return CategoryDelta" in {
     val prevMeta = CategoryMetaDefault("category", Map("p2" -> "111", "p1" -> "222"))
     val prevCat = system.actorOf(Category(prevMeta, projectProbe.ref))
 
-    system.actorOf(CategoryDiffer(projectDiffProbe.ref, currentCat, prevCat, receiverProbe.ref))
-    receiverProbe.expectMsgPF(10 hour) {
+    system.actorOf(CategoryDiffer(currentCat, prevCat, receiverProbe.ref))
+    receiverProbe.expectMsgPF() {
       case CategoryDelta(delta) =>
         delta ! GetCategoryMeta()
         expectMsg(CategoryMetaResponse(currMeta))
@@ -41,8 +38,7 @@ class CategoryDiffForNonEqualsSpec extends ActorBaseTest("CategoryDiffForNonEqua
     expectMsgAnyClassOf(classOf[WorkflowCreated])
     expectMsgAnyClassOf(classOf[WorkflowCreated])
 
-    val projectDiffProbe = TestProbe()
-    system.actorOf(CategoryDiffer(projectDiffProbe.ref, currentCat, prevCat, receiverProbe.ref))
+    system.actorOf(CategoryDiffer(currentCat, prevCat, receiverProbe.ref))
     receiverProbe.expectMsgPF() {
       case CategoryDelta(delta) =>
         delta ! GetCategoryMeta()
