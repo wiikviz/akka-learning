@@ -14,32 +14,61 @@ object EntityRootWriter {
   def apply(meta: EntityRootWriterMeta): Props = Props(new EntityRootWriter(meta))
   
   case class Write(replyTo: Option[ActorRef] = None) extends Request
-  case class Wrote(replyTo: Option[ActorRef] = None) extends Response
+  
+  case class Wrote() extends Response
   
 }
 
 class EntityRootWriter(meta: EntityRootWriterMeta) extends BaseActor {
-  var childrenCount: Int = 0
-  var entityMeta: EntityMeta = _
-  var sendTo: ActorRef = _
+  private var childrenCount: Int = 0
+  private var entityMeta: EntityMeta = _
+  private var sendTo: ActorRef = _
+  private var answeredChildrenCount = 0
   
   override def receive: Receive = {
-    case Write(sendTo) =>
-      this.sendTo = sendTo.getOrElse(sender())
-      this.meta.entity ! GetEntityMeta()
     
-    case EntityMetaResponse(meta) =>
-      entityMeta = meta
-      this.meta.entity ! GetChildren()
+    case Write(sendTo) => getMeta(sendTo)
     
-    case ChildrenEntityList(list) =>
-      val pathToThisEntity = MetaToHDD.entityRoot(this.meta.path, entityMeta.name)
-      childrenCount = list.size
-      list.foreach {e =>
-        context.actorOf(EntityFolderWriter(EntityFolderWriterMetaDefault(pathToThisEntity, e))) ! WriteEntity()
-      }
+    case EntityMetaResponse(meta) => getChildren(meta)
+    
+    case ChildrenEntityList(list) => writeEntity(list)
     
     case EntityWrote() =>
+      answeredChildrenCount += 1
+      checkFinish()
+  }
+  
+  private def writeEntity(list: Seq[ActorRef]) = {
+    val pathToThisEntity = MetaToHDD.entityRoot(this.meta.path, entityMeta.name)
+    childrenCount = list.size
+    childrenCount match {
+      case 0 => finish()
+      case _ => writeChildren(list, pathToThisEntity)
+    }
+  }
+  
+  private def writeChildren(list: Seq[ActorRef],
+    pathToThisEntity: Path): Unit = {
+    list.foreach { e =>
+      context.actorOf(EntityFolderWriter(EntityFolderWriterMetaDefault(pathToThisEntity, e))) ! WriteEntity()
+    }
+  }
+  
+  private def getMeta(sendTo: Option[ActorRef]) = {
+    this.sendTo = sendTo.getOrElse(sender())
+    this.meta.entity ! GetEntityMeta()
+  }
+  
+  private def getChildren(meta: EntityMeta) = {
+    entityMeta = meta
+    this.meta.entity ! GetChildren()
+  }
+  
+  private def checkFinish(): Unit = if (answeredChildrenCount == childrenCount) finish()
+  
+  private def finish(): Unit = {
+    context.parent ! Wrote()
+    context.stop(self)
   }
 }
 

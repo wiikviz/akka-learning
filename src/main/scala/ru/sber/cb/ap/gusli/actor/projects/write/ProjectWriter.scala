@@ -24,7 +24,6 @@ class ProjectWriter(val project: ActorRef, path: Path) extends BaseActor {
       
     case ProjectMetaResponse(meta) =>
       projectFolderPath = MetaToHDD.writeProjectMetaToPath(meta, path)
-//      val projectPath = path.resolve(meta.name)
       project ! GetCategoryRoot()
       project ! GetEntityRoot()
 
@@ -34,11 +33,15 @@ class ProjectWriter(val project: ActorRef, path: Path) extends BaseActor {
   
     case EntityRoot(entity) =>
       context.actorOf(EntityRootWriter(EntityRootWriterMetaDefault(projectFolderPath, entity))) ! EntityRootWriter.Write()
+      
+    case EntityRootWriter.Wrote() =>
       entityRead = true
       checkFinish()
   }
   
-  private def checkFinish(): Unit = if (entityRead & categoryRead) receiver ! ProjectWrited()
+  private def checkFinish(): Unit = if (entityRead & categoryRead) finish()
+ 
+  private def finish(): Unit = receiver ! ProjectWrited()
 }
 
 object ProjectWriter {

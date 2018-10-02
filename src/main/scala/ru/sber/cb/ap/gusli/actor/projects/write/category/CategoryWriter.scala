@@ -1,4 +1,4 @@
-package ru.sber.cb.ap.gusli.actor.projects.write
+package ru.sber.cb.ap.gusli.actor.projects.write.category
 
 import java.nio.file.Path
 
@@ -8,6 +8,7 @@ import ru.sber.cb.ap.gusli.actor.core.Category._
 import ru.sber.cb.ap.gusli.actor.core.CategoryMeta
 import ru.sber.cb.ap.gusli.actor.core.Project.CategoryRoot
 import ru.sber.cb.ap.gusli.actor.core.Workflow.GetWorkflowMeta
+import ru.sber.cb.ap.gusli.actor.projects.write.{MetaToHDD, WorkflowWriter}
 
 class CategoryWriter(path:Path, parentMeta:CategoryMeta) extends BaseActor{
 
