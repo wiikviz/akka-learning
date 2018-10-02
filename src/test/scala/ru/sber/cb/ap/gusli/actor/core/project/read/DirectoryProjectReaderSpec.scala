@@ -89,39 +89,39 @@ class DirectoryProjectReaderSpec extends ActorBaseTest("DirectoryProjectSpec") {
         expectMsg(EntityNotFound(1))
       }
       "and root-category receiving ListSubcategory should send back SubcategoryList with 'cb'" in {
-        rootCategory ! ListSubcategory()
+        rootCategory ! GetSubcategories()
         expectMsgPF() {
-          case SubcategoryList(list) =>
+          case SubcategorySet(list) =>
             assert(list.size == 1)
-            cbCategory = list(0)
+            cbCategory = list.head
         }
       }
       "and category receiving ListWorkflow should send back WorkflowList with size 5" in {
-        cbCategory ! ListWorkflow()
+        cbCategory ! GetWorkflows()
         expectMsgPF() {
-          case WorkflowList(list) => assert(list.size == 5)
+          case WorkflowSet(list) => assert(list.size == 5)
         }
       }
       "receiving ListSubcategory send back SubcategoryList with size 1 (ap)" in {
-        cbCategory ! ListSubcategory()
+        cbCategory ! GetSubcategories()
         expectMsgPF() {
-          case SubcategoryList(list) =>
+          case SubcategorySet(list) =>
             assert(list.size == 1)
-            apCategory = list(0)
+            apCategory = list.head
         }
       }
       "apCategory should include rbCategory" in {
-        apCategory ! ListSubcategory()
+        apCategory ! GetSubcategories()
         expectMsgPF() {
-          case SubcategoryList(list) =>
+          case SubcategorySet(list) =>
             assert(list.size == 1)
-            rbCategory = list(0)
+            rbCategory = list.head
         }
       }
       "rbCategory receiving ListWorkflow send back WorkflowList with size 3" in {
-        rbCategory ! ListWorkflow()
+        rbCategory ! GetWorkflows()
         expectMsgPF() {
-          case WorkflowList(list) => assert(list.size == 3)
+          case WorkflowSet(list) => assert(list.size == 3)
         }
       }
       "cbCategory receives GetCategoryMeta inherited and overrided fields should be sent back" in {

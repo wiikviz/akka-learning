@@ -26,8 +26,8 @@ class CategoryAddWorkflowsSpec extends ActorBaseTest("CategoryAddWorkflowsSpec")
       wf2.reply(WorkflowMetaResponse(WorkflowMetaDefault("wf-2", Map.empty)))
       expectNoMessage()
       "Category contains added workflows" in {
-        cat ! ListWorkflow()
-        expectMsg(WorkflowList(Set(wf1.ref, wf2.ref)))
+        cat ! GetWorkflows()
+        expectMsg(WorkflowSet(Set(wf1.ref, wf2.ref)))
       }
     }
   }

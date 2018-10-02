@@ -23,16 +23,16 @@ class CategoryWriter(path:Path, parentMeta:CategoryMeta) extends BaseActor{
     case CategoryMetaResponse(categoryMeta: CategoryMeta) =>
       createdForThisCategoryFolderPath = MetaToHDD.writeCategoryMetaToPath(categoryMeta,path, parentMeta)
       meta = categoryMeta
-      sender ! ListSubcategory(Some(context.self))
-      sender ! ListWorkflow(Some(context.self))
+      sender ! GetSubcategories(Some(context.self))
+      sender ! GetWorkflows(Some(context.self))
 
-    case SubcategoryList(subcategoryActorRefList) =>
+    case SubcategorySet(subcategoryActorRefList) =>
       for (subcategory <- subcategoryActorRefList){
         val categoryWriterActorRef = context actorOf CategoryWriter(createdForThisCategoryFolderPath, meta)
         subcategory ! GetCategoryMeta(Some(categoryWriterActorRef))
       }
 
-    case WorkflowList(workflowActorRefList) =>
+    case WorkflowSet(workflowActorRefList) =>
       for(workflow <- workflowActorRefList){
         val workflowWriterActorRef = context actorOf WorkflowWriter(createdForThisCategoryFolderPath, meta)
         workflow ! GetWorkflowMeta(Some(workflowWriterActorRef))

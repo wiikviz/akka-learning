@@ -35,8 +35,8 @@ class CategoryDiffer(currentCat: ActorRef, prevCat: ActorRef, receiver: ActorRef
     currentCat ! GetCategoryMeta()
     prevCat ! GetCategoryMeta()
 
-    currentCat ! ListWorkflow()
-    prevCat ! ListWorkflow()
+    currentCat ! GetWorkflows()
+    prevCat ! GetWorkflows()
   }
 
 
@@ -50,7 +50,7 @@ class CategoryDiffer(currentCat: ActorRef, prevCat: ActorRef, receiver: ActorRef
       else throw new RuntimeException(s"Unknown sender:${sender()}")
 
       checkFinish()
-    case WorkflowList(l) =>
+    case WorkflowSet(l) =>
       if (sender() == currentCat) currentSet = Some(l)
       else if (sender() == prevCat) prevSet = Some(l)
 

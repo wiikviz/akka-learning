@@ -3,7 +3,7 @@ package ru.sber.cb.ap.gusli.actor.core.project.read.category
 import java.nio.file.Paths
 
 import akka.actor.ActorRef
-import ru.sber.cb.ap.gusli.actor.core.Category.{ListSubcategory, ListWorkflow, SubcategoryList, WorkflowList}
+import ru.sber.cb.ap.gusli.actor.core.Category.{GetSubcategories, GetWorkflows, SubcategorySet, WorkflowSet}
 import ru.sber.cb.ap.gusli.actor.core._
 import ru.sber.cb.ap.gusli.actor.projects.read.category.CategoryFolderReader.ReadCategoryFolder
 import ru.sber.cb.ap.gusli.actor.projects.read.category.{CategoryFolderReader, CategoryFolderReaderMetaDefault}
@@ -29,9 +29,9 @@ class CategoryReaderSpec extends ActorBaseTest("DirectoryProjectSpec") {
     }
     "and category receiving ListSubcategories" should {
       "send back list with size 1" in {
-        category ! ListSubcategory()
+        category ! GetSubcategories()
         expectMsgPF() {
-          case SubcategoryList(actorList) =>
+          case SubcategorySet(actorList) =>
             assert(actorList.size == 1)
             cbCategory = actorList.head
         }
@@ -39,32 +39,32 @@ class CategoryReaderSpec extends ActorBaseTest("DirectoryProjectSpec") {
     }
     "cb category receiving ListWorkflow" should {
       "send back list with size 5" in {
-        cbCategory ! ListWorkflow()
+        cbCategory ! GetWorkflows()
         expectMsgPF() {
-          case WorkflowList(actorList) => assert(actorList.size == 5)
+          case WorkflowSet(actorList) => assert(actorList.size == 5)
         }
       }
     }
     "receiving ListSubcategory send back SubcategoryList with size 1 (ap)" in {
-      cbCategory ! ListSubcategory()
+      cbCategory ! GetSubcategories()
       expectMsgPF() {
-        case SubcategoryList(list) =>
+        case SubcategorySet(list) =>
           assert(list.size == 1)
-          apCategory = list(0)
+          apCategory = list.head
       }
     }
     "ap category should include rb category" in {
-      apCategory ! ListSubcategory()
+      apCategory ! GetSubcategories()
       expectMsgPF() {
-        case SubcategoryList(list) =>
+        case SubcategorySet(list) =>
           assert(list.size == 1)
-          rbCategory = list(0)
+          rbCategory = list.head
       }
     }
     "rb category receiving ListWorkflow send back WorkflowList with size 3" in {
-      rbCategory ! ListWorkflow()
+      rbCategory ! GetWorkflows()
       expectMsgPF() {
-        case WorkflowList(list) => assert(list.size == 3)
+        case WorkflowSet(list) => assert(list.size == 3)
       }
     }
   }

@@ -15,14 +15,13 @@ object Category {
 
   case class AddSubcategory(meta: CategoryMeta, replyTo: Option[ActorRef] = None) extends Request
 
-  case class ListSubcategory(replyTo: Option[ActorRef] = None) extends Request
+  case class GetSubcategories(replyTo: Option[ActorRef] = None) extends Request
 
   case class AddWorkflows(workflows: Set[ActorRef], replyTo: Option[ActorRef] = None) extends Request
 
   case class CreateWorkflow(meta: WorkflowMeta, replyTo: Option[ActorRef] = None) extends Request
 
-  //todo: replace to WorkflowsResponse
-  case class ListWorkflow(replyTo: Option[ActorRef] = None) extends Request
+  case class GetWorkflows(replyTo: Option[ActorRef] = None) extends Request
 
   //
 
@@ -32,11 +31,11 @@ object Category {
 
   case class SubcategoryCreated(actorRef: ActorRef) extends ActorResponse
 
-  case class SubcategoryList(actorList: Seq[ActorRef]) extends ActorListResponse
+  case class SubcategorySet(actorSet: Set[ActorRef]) extends ActorSetResponse
 
   case class WorkflowCreated(actorRef: ActorRef) extends ActorResponse
 
-  case class WorkflowList(actorSet: Set[ActorRef]) extends ActorSetResponse
+  case class WorkflowSet(actorSet: Set[ActorRef]) extends ActorSetResponse
 
 }
 
@@ -85,8 +84,8 @@ class Category(meta: CategoryMeta, project: ActorRef) extends BaseActor {
           subcategoresRegistry = subcategoresRegistry + (m.name -> subcat)
           replyTo ! SubcategoryCreated(subcat)
       }
-    case ListSubcategory(sendTo) =>
-      sendTo getOrElse sender ! SubcategoryList(subcategoresRegistry.values.toSeq)
+    case GetSubcategories(sendTo) =>
+      sendTo getOrElse sender ! SubcategorySet(subcategoresRegistry.values.toSet)
 
     case mess@CreateWorkflow(m, sendTo) =>
       log.info("{}", mess)
@@ -98,8 +97,8 @@ class Category(meta: CategoryMeta, project: ActorRef) extends BaseActor {
         replyTo ! WorkflowCreated(newWorkflow)
       } else replyTo ! WorkflowCreated(fromRegistry.get)
 
-    case ListWorkflow(sendTo) =>
-      sendTo getOrElse sender ! WorkflowList(workflowsRegistry.values.toSet)
+    case GetWorkflows(sendTo) =>
+      sendTo getOrElse sender ! WorkflowSet(workflowsRegistry.values.toSet)
   }
 }
 
