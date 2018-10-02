@@ -4,13 +4,16 @@ import java.nio.file.Paths
 
 import akka.actor.ActorRef
 import akka.testkit.TestActor.Ignore
+import org.scalatest
 import ru.sber.cb.ap.gusli.actor.core.ActorBaseTest
 import ru.sber.cb.ap.gusli.actor.projects.read.DirectoryProjectReader
 import ru.sber.cb.ap.gusli.actor.projects.read.DirectoryProjectReader.{ProjectReaded, ReadProject}
 import ru.sber.cb.ap.gusli.actor.projects.write.ProjectWriter
 import ru.sber.cb.ap.gusli.actor.projects.write.ProjectWriter.{ProjectWrited, WriteProject}
+
 import scala.concurrent.duration._
 
+@scalatest.Ignore
 class DirectoryProjectWriterSpec extends ActorBaseTest("DirectoryProjectSpec") {
   val correctPath = Paths.get("./src/test/resources/project_test-2")
   val writePath = Paths.get("./target/")
