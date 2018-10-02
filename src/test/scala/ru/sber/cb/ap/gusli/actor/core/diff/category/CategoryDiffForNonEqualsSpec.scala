@@ -1,8 +1,10 @@
-package ru.sber.cb.ap.gusli.actor.core.diff
+package ru.sber.cb.ap.gusli.actor.core.diff.category
 
 import akka.testkit.TestProbe
 import ru.sber.cb.ap.gusli.actor.core.Category.{CategoryMetaResponse, CreateWorkflow, GetCategoryMeta, WorkflowCreated}
 import ru.sber.cb.ap.gusli.actor.core._
+import ru.sber.cb.ap.gusli.actor.core.diff.CategoryDiffer
+
 import scala.concurrent.duration._
 
 class CategoryDiffForNonEqualsSpec extends ActorBaseTest("CategoryDiffForNonEqualsSpec") {

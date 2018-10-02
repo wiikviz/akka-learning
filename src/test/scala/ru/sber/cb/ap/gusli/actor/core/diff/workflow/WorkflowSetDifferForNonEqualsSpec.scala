@@ -1,10 +1,10 @@
-package ru.sber.cb.ap.gusli.actor.core.diff
+package ru.sber.cb.ap.gusli.actor.core.diff.workflow
 
 import akka.testkit.TestProbe
-import ru.sber.cb.ap.gusli.actor.core.Entity.{EntityMetaResponse, GetEntityMeta}
 import ru.sber.cb.ap.gusli.actor.core.Project.{EntityFound, FindEntity}
 import ru.sber.cb.ap.gusli.actor.core.Workflow.BindEntity
-import ru.sber.cb.ap.gusli.actor.core.diff.WorkflowSetDiffer.{WorkflowSetDelta, WorkflowSetEquals}
+import ru.sber.cb.ap.gusli.actor.core.diff.WorkflowSetDiffer
+import ru.sber.cb.ap.gusli.actor.core.diff.WorkflowSetDiffer.WorkflowSetDelta
 import ru.sber.cb.ap.gusli.actor.core.{ActorBaseTest, EntityMetaDefault, Workflow, WorkflowMetaDefault}
 
 import scala.concurrent.duration._
