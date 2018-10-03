@@ -50,4 +50,40 @@ object MetaFieldsComparer {
       m.toMap
     }
   }
+  
+  /**
+    * Creates set with differences of 2 sets.
+    * If value exists in child set only, it adds with +.
+    * Else if in parent set only, it adds with -, that is used for deleting.
+    * <br> <br>
+    * You can find examples in MetaFieldsComparerSpec
+    * @param parent parent set
+    * @param child child set
+    * @tparam T String or Int
+    * @return set with diffs
+    */
+  def diffSet[T](parent: Set[T], child: Set[T]): Set[T] = {
+    val p: Set[T] = (parent diff child).map {
+      case v: Int => -v
+      case v: String => "-" + v
+    }.asInstanceOf[Set[T]]
+    val c: Set[T] = child diff parent
+    p ++ c
+  }
+  
+  /**
+    * Creates map with differences of 2 maps.
+    * If value exists in child map only, it adds to result map.
+    * Else if in parent map only, it adds with value equaled to delete symbol from Config.
+    * <br> <br>
+    * You can find examples in MetaFieldsComparerSpec
+    * @param parent parent map
+    * @param child child map
+    * @return map with diffs
+    */
+  def diffMap(parent: Map[String, String], child: Map[String, String], deleteSymbol: String = DirectoryReadWriteConfig.deleteSymbol): Map[String, String] = {
+    val p = (parent.toSet diff child.toSet).toMap.map(m => (m._1, deleteSymbol))
+    val c = (child.toSet diff parent.toSet).toMap
+    p ++ c
+  }
 }
