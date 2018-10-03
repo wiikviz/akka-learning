@@ -1,13 +1,16 @@
 package ru.sber.cb.ap.gusli.actor.projects.yamlfiles
 
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonInclude.Include
+
 //Single: "" -> Some(), empty -> None
 //List: [] -> Some(Set()), empty -> None
 //MapElem: "" -> "", empty-elem -> null
 //Map: {} -> Some(Map()), empty -> None
 case class CategoryFileFields(
-grenki: Option[String] = None,
-  queue: Option[String] = None,
-  user: Option[String] = None,
+  @JsonInclude(Include.NON_EMPTY) grenki: Option[String] = None,
+  @JsonInclude(Include.NON_EMPTY) queue: Option[String] = None,
+  @JsonInclude(Include.NON_EMPTY) user: Option[String] = None,
   init: Option[List[String]] = Some(List.empty),
   map: Option[List[String]] = Some(List.empty),
   param: Option[Map[String, String]] = Some(Map.empty),
@@ -16,9 +19,9 @@ grenki: Option[String] = None,
 ) extends generalFileFields(grenki, queue, user, init, map, param, stats, entities)
 
 case class WorkflowFileFields(
-  grenki: Option[String] = None,
-  queue: Option[String] = None,
-  user: Option[String] = None,
+  @JsonInclude(Include.NON_EMPTY) grenki: Option[String] = None,
+  @JsonInclude(Include.NON_EMPTY) queue: Option[String] = None,
+  @JsonInclude(Include.NON_EMPTY) user: Option[String] = None,
   init: Option[List[String]] = Some(List.empty),
   map: Option[List[String]] = Some(List.empty),
   param: Option[Map[String, String]] = Some(Map.empty),

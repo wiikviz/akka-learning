@@ -2,15 +2,13 @@ package ru.sber.cb.ap.gusli.actor.projects.yamlfiles
 
 import java.nio.file.Path
 
-import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
-import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import com.fasterxml.jackson.databind.ObjectMapper
 import ru.sber.cb.ap.gusli.actor.core.CategoryMetaDefault
 import ru.sber.cb.ap.gusli.actor.core.dto.WorkflowDto
 import ru.sber.cb.ap.gusli.actor.projects.DirectoryReadWriteConfig
 import ru.sber.cb.ap.gusli.actor.projects.read.util.FileContentReader
 
-object YamlFileMapper {
+object YamlFileMapperRead {
   
   /** Extracts completed meta from folder.
     *
@@ -126,17 +124,12 @@ object YamlFileMapper {
     }
   }
   
-  private def makeSetLongOrNone(intIterable: Option[Set[Int]]): Option[Set[Long]] = {
-    if (intIterable.nonEmpty) Some(intIterable.get.map(_.toLong))
-    else None
-  }
-  
   def readWorkflowFile(path: Path): WorkflowFileFields = {
     val categoryYamlContent = FileContentReader.readFileContent(path)
     val mapper: ObjectMapper = initMapper
     mapper.readValue(categoryYamlContent, classOf[WorkflowFileFields])
   }
-
+  
   def readCategoryFile(path: Path): CategoryFileFields = {
     val categoryYamlContent = FileContentReader.readFileContent(path)
     val mapper: ObjectMapper = initMapper
@@ -154,10 +147,8 @@ object YamlFileMapper {
     }
   }
   
-  private def initMapper = {
-    val mapper: ObjectMapper = new ObjectMapper(new YAMLFactory())
-      .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
-      .registerModule(DefaultScalaModule)
-    mapper
+  private def makeSetLongOrNone(s: Option[Set[Int]]): Option[Set[Long]] = {
+    if (s.nonEmpty) Some(s.get.map(_.toLong))
+    else None
   }
 }

@@ -9,7 +9,7 @@ import ru.sber.cb.ap.gusli.actor.core.Workflow.BindEntity
 import ru.sber.cb.ap.gusli.actor.projects.read.MetaFieldsComparer
 import ru.sber.cb.ap.gusli.actor.projects.read.category.ProjectMetaMaker
 import ru.sber.cb.ap.gusli.actor.projects.read.category.create.WorkflowCreatorByFolder.{ReadWorkflowFolder, WorkflowFolderRead}
-import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.{WorkflowOptionDto, YamlFileMapper}
+import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.{WorkflowOptionDto, YamlFileMapperRead}
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
 
 object WorkflowCreatorByFolder {
@@ -44,7 +44,7 @@ class WorkflowCreatorByFolder(meta: WorkflowCreatorByFolderMeta) extends BaseAct
     }
   }
   
-  private def extractMetaFileFields(meta: CategoryMeta) = YamlFileMapper.readToWorkflowOptionDto(this.meta.path)
+  private def extractMetaFileFields(meta: CategoryMeta) = YamlFileMapperRead.readToWorkflowOptionDto(this.meta.path)
   
   private def inheritMeta(meta: CategoryMeta, wfMetaTemp: Option[WorkflowOptionDto]) =
     ProjectMetaMaker.workflowNonEmptyMeta(meta, wfMetaTemp.get)

@@ -10,7 +10,7 @@ import ru.sber.cb.ap.gusli.actor.projects._
 import ru.sber.cb.ap.gusli.actor.projects.read.category.CategoryFolderReader.{CategoryFolderRead, ReadCategoryFolder}
 import ru.sber.cb.ap.gusli.actor.projects.read.category.{CategoryFolderReader, CategoryFolderReaderMetaDefault}
 import ru.sber.cb.ap.gusli.actor.projects.read.entity.{EntityFolderReader, EntityFolderReaderMetaDefault}
-import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.YamlFileMapper
+import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.YamlFileMapperRead
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
 
 object DirectoryProjectReader {
@@ -51,7 +51,7 @@ case class DirectoryProjectReader(meta: DirectoryProjectReaderMeta) extends Base
   }
   
   private def initializeCategoryMeta() =
-    YamlFileMapper.readToCategoryMeta(path.resolve("category"))
+    YamlFileMapperRead.readToCategoryMeta(path.resolve("category"))
     .getOrElse(CategoryMetaDefault("category"))
   
   private def createProject(categoryMeta: CategoryMeta): ActorRef = {

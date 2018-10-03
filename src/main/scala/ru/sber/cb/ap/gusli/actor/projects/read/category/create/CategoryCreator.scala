@@ -8,7 +8,7 @@ import ru.sber.cb.ap.gusli.actor.core.{CategoryMeta, CategoryMetaDefault}
 import ru.sber.cb.ap.gusli.actor.projects.read.category.CategoryFolderReader.{CategoryFolderRead, ReadCategoryFolder}
 import ru.sber.cb.ap.gusli.actor.projects.read.category.{CategoryFolderReader, CategoryFolderReaderMetaDefault, ProjectMetaMaker}
 import ru.sber.cb.ap.gusli.actor.projects.read.category.create.CategoryCreator.{CategoryRead, ReadFolder}
-import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.{CategoryOptionalFields, YamlFileMapper}
+import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.{CategoryOptionalFields, YamlFileMapperRead}
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
 
 object CategoryCreator {
@@ -35,7 +35,7 @@ class CategoryCreator(meta: CategoryCreatorMeta) extends BaseActor {
     this.meta.parentCategory ! AddSubcategory(inheritMeta(meta, catMetaTemp))
   }
   
-  private def extractMetaFileFields(meta: CategoryMeta) = YamlFileMapper.readToCategoryOptionalFields(this.meta.path)
+  private def extractMetaFileFields(meta: CategoryMeta) = YamlFileMapperRead.readToCategoryOptionalFields(this.meta.path)
   
   private def inheritMeta(meta: CategoryMeta, catMetaTemp: Option[CategoryOptionalFields]): CategoryMeta = {
     if (catMetaTemp.nonEmpty)
