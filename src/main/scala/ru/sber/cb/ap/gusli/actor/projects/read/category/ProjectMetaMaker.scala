@@ -1,7 +1,7 @@
 package ru.sber.cb.ap.gusli.actor.projects.read.category
 
 import ru.sber.cb.ap.gusli.actor.core.{CategoryMeta, CategoryMetaDefault, WorkflowMeta, WorkflowMetaDefault}
-import ru.sber.cb.ap.gusli.actor.projects.read.MetaFieldsComparer
+import ru.sber.cb.ap.gusli.actor.projects.MetaFieldsComparer
 import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.{CategoryOptionalFields, WorkflowOptionDto}
 
 object ProjectMetaMaker {

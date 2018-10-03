@@ -1,6 +1,4 @@
-package ru.sber.cb.ap.gusli.actor.projects.read
-
-import ru.sber.cb.ap.gusli.actor.projects.DirectoryReadWriteConfig
+package ru.sber.cb.ap.gusli.actor.projects
 
 object MetaFieldsComparer {
   /**

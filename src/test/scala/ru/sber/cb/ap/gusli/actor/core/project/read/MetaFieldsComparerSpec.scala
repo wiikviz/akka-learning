@@ -2,7 +2,7 @@ package ru.sber.cb.ap.gusli.actor.core.project.read
 
 import org.scalatest.FlatSpec
 import ru.sber.cb.ap.gusli.actor.projects.DirectoryReadWriteConfig
-import ru.sber.cb.ap.gusli.actor.projects.read.MetaFieldsComparer._
+import ru.sber.cb.ap.gusli.actor.projects.MetaFieldsComparer._
 
 class MetaFieldsComparerSpec extends FlatSpec {
   "MetaToChildInheritor.inheritSetOfLong" should "have distinct values when add equals longs" in {

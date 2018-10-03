@@ -3,10 +3,10 @@ package ru.sber.cb.ap.gusli.actor.projects.read.category.create
 import java.nio.file.Path
 
 import akka.actor.{ActorRef, Props}
-import ru.sber.cb.ap.gusli.actor.core.Category.{CreateWorkflow, CategoryMetaResponse, GetCategoryMeta, WorkflowCreated}
+import ru.sber.cb.ap.gusli.actor.core.Category.{CategoryMetaResponse, CreateWorkflow, GetCategoryMeta, WorkflowCreated}
 import ru.sber.cb.ap.gusli.actor.core.CategoryMeta
 import ru.sber.cb.ap.gusli.actor.core.Workflow.BindEntity
-import ru.sber.cb.ap.gusli.actor.projects.read.MetaFieldsComparer
+import ru.sber.cb.ap.gusli.actor.projects.MetaFieldsComparer
 import ru.sber.cb.ap.gusli.actor.projects.read.category.ProjectMetaMaker
 import ru.sber.cb.ap.gusli.actor.projects.read.category.create.WorkflowCreatorByFolder.{ReadWorkflowFolder, WorkflowFolderRead}
 import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.{WorkflowOptionDto, YamlFileMapperRead}
