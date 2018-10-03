@@ -6,7 +6,7 @@ import akka.actor.{ActorRef, Props}
 import ru.sber.cb.ap.gusli.actor.core.Category.{CreateWorkflow, CategoryMetaResponse, GetCategoryMeta, WorkflowCreated}
 import ru.sber.cb.ap.gusli.actor.core.CategoryMeta
 import ru.sber.cb.ap.gusli.actor.core.Workflow.BindEntity
-import ru.sber.cb.ap.gusli.actor.projects.read.MetaToChildInheritor
+import ru.sber.cb.ap.gusli.actor.projects.read.MetaFieldsComparer
 import ru.sber.cb.ap.gusli.actor.projects.read.category.ProjectMetaMaker
 import ru.sber.cb.ap.gusli.actor.projects.read.category.create.WorkflowCreatorByFolder.{ReadWorkflowFolder, WorkflowFolderRead}
 import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.{WorkflowOptionDto, YamlFileMapper}
@@ -39,7 +39,7 @@ class WorkflowCreatorByFolder(meta: WorkflowCreatorByFolderMeta) extends BaseAct
     if (wfMetaTemp.isEmpty) Left("Meta File not found in " + this.meta.path)
     else {
       //TODO: Фильтр отрицательных сущностей
-      entities ++= MetaToChildInheritor.inheritSetOfLong(meta.entities, wfMetaTemp.get.entities)
+      entities ++= MetaFieldsComparer.inheritSetOfLong(meta.entities, wfMetaTemp.get.entities)
       this.meta.category ! CreateWorkflow(inheritMeta(meta, wfMetaTemp))
     }
   }

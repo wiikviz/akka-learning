@@ -29,7 +29,7 @@ class ProjectWriter(val project: ActorRef, path: Path) extends BaseActor {
     
     case WriteProject(sendTo) =>
       receiver = sendTo.getOrElse(sender)
-      project ! GetProjectMeta(Some(self))
+      project ! GetProjectMeta()
       
     case ProjectMetaResponse(meta) =>
       projectFolderPath = MetaToHDD.writeProjectMetaToPath(meta, path)
@@ -44,9 +44,7 @@ class ProjectWriter(val project: ActorRef, path: Path) extends BaseActor {
       checkFinish()
   }
   
-  private def writeEntities = {
-    project ! GetEntityRoot()
-  }
+  private def writeEntities = project ! GetEntityRoot()
   
   private def writeCategories {
     val categoryWriter = context.actorOf(CategoryWriter(projectFolderPath, CategoryMetaDefault("temp-parent-for-root")))

@@ -1,7 +1,7 @@
 package ru.sber.cb.ap.gusli.actor.projects.read.category
 
 import ru.sber.cb.ap.gusli.actor.core.{CategoryMeta, CategoryMetaDefault, WorkflowMeta, WorkflowMetaDefault}
-import ru.sber.cb.ap.gusli.actor.projects.read.MetaToChildInheritor
+import ru.sber.cb.ap.gusli.actor.projects.read.MetaFieldsComparer
 import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.{CategoryOptionalFields, WorkflowOptionDto}
 
 object ProjectMetaMaker {
@@ -23,27 +23,27 @@ object ProjectMetaMaker {
     WorkflowMetaDefault(
       name = workflowMeta.name.get,
       sql = workflowMeta.sql.get,
-      sqlMap = MetaToChildInheritor.inheritMap(parentCategoryMeta.sqlMap, workflowMeta.sqlMap),
-      init = MetaToChildInheritor.inheritMap(parentCategoryMeta.init, workflowMeta.init),
+      sqlMap = MetaFieldsComparer.inheritMap(parentCategoryMeta.sqlMap, workflowMeta.sqlMap),
+      init = MetaFieldsComparer.inheritMap(parentCategoryMeta.init, workflowMeta.init),
       user = workflowMeta.user.orElse(parentCategoryMeta.user),
       queue = workflowMeta.queue.orElse(parentCategoryMeta.queue),
       grenkiVersion = workflowMeta.grenkiVersion.orElse(parentCategoryMeta.grenkiVersion),
-      params = MetaToChildInheritor.inheritMap(parentCategoryMeta.params, workflowMeta.params),
-      stats = MetaToChildInheritor.inheritSetOfLong(parentCategoryMeta.stats, workflowMeta.stats)
+      params = MetaFieldsComparer.inheritMap(parentCategoryMeta.params, workflowMeta.params),
+      stats = MetaFieldsComparer. inheritSetOfLong(parentCategoryMeta.stats, workflowMeta.stats)
     )
   }
   
   def categoryNonEmptyMeta(parentCategoryMeta: CategoryMeta, childMeta: CategoryOptionalFields): CategoryMeta = {
     CategoryMetaDefault(
       name = childMeta.name,
-      sqlMap = MetaToChildInheritor.inheritMap(parentCategoryMeta.sqlMap, childMeta.sqlMap),
-      init = MetaToChildInheritor.inheritMap(parentCategoryMeta.init, childMeta.init),
+      sqlMap = MetaFieldsComparer.inheritMap(parentCategoryMeta.sqlMap, childMeta.sqlMap),
+      init = MetaFieldsComparer.inheritMap(parentCategoryMeta.init, childMeta.init),
       user = childMeta.user.orElse(parentCategoryMeta.user),
       queue = childMeta.queue.orElse(parentCategoryMeta.queue),
       grenkiVersion = childMeta.grenkiVersion.orElse(parentCategoryMeta.grenkiVersion),
-      params = MetaToChildInheritor.inheritMap(parentCategoryMeta.params, childMeta.params),
-      stats = MetaToChildInheritor.inheritSetOfLong(parentCategoryMeta.stats, childMeta.stats),
-      entities = MetaToChildInheritor.inheritSetOfLong(parentCategoryMeta.entities, childMeta.entities)
+      params = MetaFieldsComparer.inheritMap(parentCategoryMeta.params, childMeta.params),
+      stats = MetaFieldsComparer.inheritSetOfLong(parentCategoryMeta.stats, childMeta.stats),
+      entities = MetaFieldsComparer.inheritSetOfLong(parentCategoryMeta.entities, childMeta.entities)
     )
   }
 }

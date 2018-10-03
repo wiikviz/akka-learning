@@ -2,7 +2,7 @@ package ru.sber.cb.ap.gusli.actor.projects.read
 
 import ru.sber.cb.ap.gusli.actor.projects.DirectoryReadWriteConfig
 
-object MetaToChildInheritor {
+object MetaFieldsComparer {
   /**
     * Compare two sets. Add positive child values to parent and remove abs(negative).<br>
     * <br>
