@@ -8,6 +8,7 @@ import ru.sber.cb.ap.gusli.actor.core.dto.WorkflowDto
 import ru.sber.cb.ap.gusli.actor.core.{CategoryMeta, CategoryMetaDefault, EntityMeta, ProjectMeta}
 import ru.sber.cb.ap.gusli.actor.projects.DirectoryReadWriteConfig
 import ru.sber.cb.ap.gusli.actor.projects.write.MetaToYamlSerialization._
+import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.YamlFileMapperWrite
 
 object MetaToHDD {
   def entityRoot(path: Path, name: String): Path =
@@ -18,25 +19,22 @@ object MetaToHDD {
   
   def writeCategoryMetaToPath(meta: CategoryMeta, parentDir: Path, parentMeta: CategoryMeta): Path = {
     val categoryFolder: Path = createNewFolder(meta.name, parentDir)
-    
+  
     val child = meta.asInstanceOf[CategoryMetaDefault]
     val parent = parentMeta.asInstanceOf[CategoryMetaDefault]
+  
     
-    if (child.copy(name = parent.name) != parent) {
-      for ((fileName, fileContent) <- getFilesContentFromCategory(child, parent)) {
-        writeYAMLTextFileToDirectory(fileName, fileContent, categoryFolder)
-      }
-    }
+    YamlFileMapperWrite.writeCategoryMeta(categoryFolder, parent, child)
     categoryFolder
   }
   
   
   def writeWorkflowMetaToPath(dto: WorkflowDto, dir: Path, categoryMeta: CategoryMeta): Either[Path,Path] = {
     val fileContent = convertWorkflowMetaToYAMLFileContent(dto,categoryMeta)
-
-//    val workflowFolder = createNewFolder(dto.name, dir)
+  
+    //    val workflowFolder = createNewFolder(dto.name, dir)
+    //TODO: SUDA COMPARATOR MET
     val wriitenFile = writeYAMLTextFileToDirectory(s"wf-${dto.name}.yaml", fileContent, dir)
-
 
     Left(wriitenFile)
   }

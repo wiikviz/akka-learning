@@ -67,6 +67,7 @@ object MetaFieldsComparer {
   def diffSet[T](parent: Set[T], child: Set[T]): Set[T] = {
     val p: Set[T] = (parent diff child).map {
       case v: Int => -v
+      case v: Long => -v
       case v: String => "-" + v
     }.asInstanceOf[Set[T]]
     val c: Set[T] = child diff parent
@@ -91,5 +92,9 @@ object MetaFieldsComparer {
     p ++ c
   }
   
-  def diffField[T](parent: Option[T], child: Option[T]): Option[T] = child orElse parent
+  def diffField[T](parent: Option[T], child: Option[T]): Option[T] =
+    if (child == parent)
+      None
+    else
+      child
 }

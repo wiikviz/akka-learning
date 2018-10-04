@@ -71,9 +71,9 @@ object MetaToYamlSerialization {
 
 
 
-  def getFilesContentFromCategory(metaDefault: CategoryMetaDefault, parentMetaDefault: CategoryMetaDefault): Map[String,String] = {
+  def getFilesContentFromCategory(child: CategoryMetaDefault, parent: CategoryMetaDefault): Map[String,String] = {
 
-
+    
 
 
     Map.empty[String,String]
