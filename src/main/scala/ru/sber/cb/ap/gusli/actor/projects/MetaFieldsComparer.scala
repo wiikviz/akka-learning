@@ -49,6 +49,8 @@ object MetaFieldsComparer {
     }
   }
   
+  
+  //TODO: Create generic func of T, K. Use pattern matching to call diff funcs.
   /**
     * Creates set with differences of 2 sets.
     * If value exists in child set only, it adds with +.
@@ -60,6 +62,8 @@ object MetaFieldsComparer {
     * @tparam T String or Int
     * @return set with diffs
     */
+  def diffSet[T](parent: Option[Set[T]], child: Option[Set[T]]): Option[Set[T]] = Some(diffSet(parent.get, child.get))
+  
   def diffSet[T](parent: Set[T], child: Set[T]): Set[T] = {
     val p: Set[T] = (parent diff child).map {
       case v: Int => -v
@@ -79,9 +83,13 @@ object MetaFieldsComparer {
     * @param child child map
     * @return map with diffs
     */
+  def diffMap(parent: Option[Map[String, String]], child: Option[Map[String, String]]): Option[Map[String, String]] = Some(diffMap(parent.get, child.get))
+  
   def diffMap(parent: Map[String, String], child: Map[String, String], deleteSymbol: String = DirectoryReadWriteConfig.deleteSymbol): Map[String, String] = {
     val p = (parent.toSet diff child.toSet).toMap.map(m => (m._1, deleteSymbol))
     val c = (child.toSet diff parent.toSet).toMap
     p ++ c
   }
+  
+  def diffField[T](parent: Option[T], child: Option[T]): Option[T] = child orElse parent
 }
