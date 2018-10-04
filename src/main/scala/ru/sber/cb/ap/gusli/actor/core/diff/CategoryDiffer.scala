@@ -5,6 +5,8 @@ import ru.sber.cb.ap.gusli.actor.core.diff.WorkflowSetDiffer.{WorkflowSetDelta, 
 import ru.sber.cb.ap.gusli.actor.core.{Category, CategoryMeta}
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Response}
 
+import scala.collection.immutable.HashMap
+
 
 object CategoryDiffer {
   def apply(currentCat: ActorRef, prevCat: ActorRef, receiver: ActorRef): Props = Props(new CategoryDiffer(currentCat, prevCat, receiver))
@@ -20,14 +22,23 @@ class CategoryDiffer(currentCat: ActorRef, prevCat: ActorRef, receiver: ActorRef
   import CategoryDiffer._
   import ru.sber.cb.ap.gusli.actor.core.Category._
 
-  var currProject: Option[ActorRef] = None
-  var currentMeta: Option[CategoryMeta] = None
-  var prevMeta: Option[CategoryMeta] = None
-  var currentSet: Option[Set[ActorRef]] = None
-  var prevSet: Option[Set[ActorRef]] = None
+  private var currProject: Option[ActorRef] = None
+  private var currentMeta: Option[CategoryMeta] = None
+  private var prevMeta: Option[CategoryMeta] = None
+  private var currentSet: Option[Set[ActorRef]] = None
+  private var prevSet: Option[Set[ActorRef]] = None
   //todo: combine next two properties
-  var delta: Option[Set[ActorRef]] = None
-  var workflowAlreadyCompared = false
+  private var delta: Option[Set[ActorRef]] = None
+  private var workflowAlreadyCompared = false
+
+  private var currentCatSet: Option[Set[ActorRef]] = None
+  private var prevCatSet: Option[Set[ActorRef]] = None
+
+  private var currMap = HashMap.empty[String, ActorRef]
+  private var prevMap = HashMap.empty[String, ActorRef]
+
+  private var catDelta: Set[ActorRef] = Set.empty
+  private var differs: Set[ActorRef] = Set.empty
 
   override def preStart(): Unit = {
     currentCat ! GetProject()
@@ -37,6 +48,9 @@ class CategoryDiffer(currentCat: ActorRef, prevCat: ActorRef, receiver: ActorRef
 
     currentCat ! GetWorkflows()
     prevCat ! GetWorkflows()
+
+    currentCat ! GetSubcategories()
+    prevCat ! GetSubcategories()
   }
 
 
@@ -65,31 +79,66 @@ class CategoryDiffer(currentCat: ActorRef, prevCat: ActorRef, receiver: ActorRef
     case WorkflowSetEquals(_, _) =>
       workflowAlreadyCompared = true
       checkFinish()
+    case SubcategorySet(set) =>
+      val cat = sender()
+      if (cat == currentCat)
+        currentCatSet = Some(set)
+      else if (cat == prevSet)
+        prevCatSet = Some(set)
+      else
+        throw new RuntimeException(s"Unknown sender:${sender()}")
+
+      for (c <- set)
+        c ! GetCategoryMeta()
+
+    case CategoryMetaResponse(m) =>
+      val cat = sender()
+      if (currentSet.get.contains(cat)) {
+        currMap += m.name -> cat
+        currentSet = Some(currentSet.get - cat)
+      }
+      else if (prevSet.get.contains(cat)) {
+        prevMap += m.name -> cat
+        prevSet = Some(prevSet.get - cat)
+      }
+      else throw new RuntimeException(s"Unexpectable sender $sender")
+
+      if (currentSet.isEmpty && prevSet.isEmpty)
+        for ((n, curr) <- currMap)
+          prevMap.get(n) match {
+            case Some(prev) =>
+              differs += context.actorOf(CategoryDiffer(curr, prev, self))
+            case None =>
+              catDelta += curr
+          }
   }
 
   def checkFinish() = {
-    if (workflowAlreadyCompared) {
-      for (curr <- currentMeta; prev <- prevMeta; project <- currProject) {
-        if (curr == prev)
-          delta match {
-            case None => receiver ! CategoryEquals(currentCat, prevCat)
-            case Some(d) =>
-              val diff = context.system.actorOf(Category(curr, project))
-              diff ! AddWorkflows(d)
-              receiver ! CategoryDelta(diff)
-          }
-        else {
-          val diff = context.system.actorOf(Category(curr, project))
-          delta match {
-            case Some(d) =>
-              diff ! AddWorkflows(d)
-            case _ => log.debug("delta is empty")
-          }
+    if (currentCatSet.isDefined && prevCatSet.isDefined) {
+      val categoryAlreadyCompared = differs.isEmpty && currentCatSet.get.isEmpty && prevCatSet.get.isEmpty
+      if (workflowAlreadyCompared && categoryAlreadyCompared) {
+        for (curr <- currentMeta; prev <- prevMeta; project <- currProject) {
+          if (curr == prev)
+            delta match {
+              case None => receiver ! CategoryEquals(currentCat, prevCat)
+              case Some(d) =>
+                val diff = context.system.actorOf(Category(curr, project))
+                diff ! AddWorkflows(d)
+                receiver ! CategoryDelta(diff)
+            }
+          else {
+            val diff = context.system.actorOf(Category(curr, project))
+            delta match {
+              case Some(d) =>
+                diff ! AddWorkflows(d)
+              case _ => log.debug("delta is empty")
+            }
 
-          receiver ! CategoryDelta(diff)
+            receiver ! CategoryDelta(diff)
+          }
         }
+        context.stop(self)
       }
-      context.stop(self)
     }
   }
 }
