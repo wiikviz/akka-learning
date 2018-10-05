@@ -1,7 +1,7 @@
 package ru.sber.cb.ap.gusli.actor.core.diff
 
 import akka.actor.{ActorRef, Props}
-import ru.sber.cb.ap.gusli.actor.core.Category.{GetSubcategories, SubcategorySet}
+import ru.sber.cb.ap.gusli.actor.core.Category.{GetSubcategories, GetWorkflows, SubcategorySet, WorkflowSet}
 import ru.sber.cb.ap.gusli.actor.core.diff.WorkflowSetDiffer.{WorkflowSetDelta, WorkflowSetEquals}
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Response}
 
@@ -10,9 +10,12 @@ object WorkflowFromCategoryDiffer {
   def apply(currentCat: ActorRef, prevCat: ActorRef, receiver: ActorRef): Props =
     Props(new WorkflowFromCategoryDiffer(currentCat, prevCat, receiver))
 
-  case class WorkflowFromCategoryDelta(wfDelta: Set[ActorRef]) extends Response
 
-  case class WorkflowFromCategoryEquals(currentCat: ActorRef, prevCat: ActorRef) extends Response
+  abstract class WorkflowFromCategoryResponse extends Response
+
+  case class WorkflowFromCategoryDelta(wfDelta: Set[ActorRef]) extends WorkflowFromCategoryResponse
+
+  case class WorkflowFromCategoryEquals(currentCat: ActorRef, prevCat: ActorRef) extends WorkflowFromCategoryResponse
 
 }
 
@@ -20,25 +23,25 @@ class WorkflowFromCategoryDiffer(currentCat: ActorRef, prevCat: ActorRef, receiv
 
   import WorkflowFromCategoryDiffer._
 
-  var currentSubs: Option[Set[ActorRef]] = None
-  var prevSubs: Option[Set[ActorRef]] = None
+  var currentWfs: Option[Set[ActorRef]] = None
+  var prevWfs: Option[Set[ActorRef]] = None
 
   override def preStart(): Unit = {
-    currentCat ! GetSubcategories()
-    prevCat ! GetSubcategories()
+    currentCat ! GetWorkflows()
+    prevCat ! GetWorkflows()
   }
 
   override def receive: Receive = {
-    case SubcategorySet(set) =>
+    case WorkflowSet(set) =>
       val cat = sender()
       if (cat == currentCat)
-        currentSubs = Some(set)
+        currentWfs = Some(set)
       else if (cat == prevCat)
-        prevSubs = Some(set)
+        prevWfs = Some(set)
       else
         throw new RuntimeException(s"Unknown sender:${sender()}")
 
-      for (c <- currentSubs; p <- prevSubs) {
+      for (c <- currentWfs; p <- prevWfs) {
         context.actorOf(WorkflowSetDiffer(c, p, self))
       }
 

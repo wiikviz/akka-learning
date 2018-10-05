@@ -89,16 +89,23 @@ class Category(meta: CategoryMeta, project: ActorRef) extends BaseActor {
 
     case mess@CreateWorkflow(m, sendTo) =>
       log.info("{}", mess)
-      val replyTo = sendTo getOrElse sender
-      val fromRegistry = workflowsRegistry get m.name
+      val replyTo = sendTo.getOrElse(sender)
+      val fromRegistry: Option[ActorRef] = workflowsRegistry.get(m.name)
       if (fromRegistry.isEmpty) {
         val newWorkflow = context.actorOf(Workflow(m, project))
         workflowsRegistry = workflowsRegistry + (m.name -> newWorkflow)
         replyTo ! WorkflowCreated(newWorkflow)
-      } else replyTo ! WorkflowCreated(fromRegistry.get)
+      }
+      else {
+        //todo: Why it's needs?
+        if (fromRegistry.isDefined) {
+          replyTo ! WorkflowCreated(fromRegistry.get)
+        }
+      }
+
 
     case GetWorkflows(sendTo) =>
-      sendTo getOrElse sender ! WorkflowSet(workflowsRegistry.values.toSet)
+      sendTo.getOrElse(sender) ! WorkflowSet(workflowsRegistry.values.toSet)
   }
 }
 
