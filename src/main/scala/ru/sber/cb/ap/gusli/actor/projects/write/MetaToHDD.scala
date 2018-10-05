@@ -1,6 +1,5 @@
 package ru.sber.cb.ap.gusli.actor.projects.write
 
-import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 
@@ -11,6 +10,9 @@ import ru.sber.cb.ap.gusli.actor.projects.write.MetaToYamlSerialization._
 import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.YamlFileMapperWrite
 
 object MetaToHDD {
+  
+  private val charSet = StandardCharsets.UTF_8
+  
   def entityRoot(path: Path, name: String): Path =
     createNewFolder(name, path)
 
@@ -19,26 +21,15 @@ object MetaToHDD {
   
   def writeCategoryMetaToPath(meta: CategoryMeta, parentDir: Path, parentMeta: CategoryMeta): Path = {
     val categoryFolder: Path = createNewFolder(meta.name, parentDir)
-  
     val child = meta.asInstanceOf[CategoryMetaDefault]
     val parent = parentMeta.asInstanceOf[CategoryMetaDefault]
   
-    
-    YamlFileMapperWrite.writeCategoryMeta(categoryFolder, parent, child)
+    YamlFileMapperWrite.writeMeta(categoryFolder, parent, child)
     categoryFolder
   }
   
-  
-  def writeWorkflowMetaToPath(dto: WorkflowDto, dir: Path, categoryMeta: CategoryMeta): Either[Path,Path] = {
-    val fileContent = convertWorkflowMetaToYAMLFileContent(dto,categoryMeta)
-  
-    //    val workflowFolder = createNewFolder(dto.name, dir)
-    //TODO: SUDA COMPARATOR MET
-    val wriitenFile = writeYAMLTextFileToDirectory(s"wf-${dto.name}.yaml", fileContent, dir)
-
-    Left(wriitenFile)
-  }
-  
+  def writeWorkflowMetaToPath(wfDto: WorkflowDto, dir: Path, categoryMeta: CategoryMeta): Unit =
+    YamlFileMapperWrite.writeMeta(dir, categoryMeta.asInstanceOf[CategoryMetaDefault], wfDto)
   
   def writeEntityMetaToPath(meta: EntityMeta, dir: Path, childrenCount: Int): Either[Path,Path] = {
     val fileContent = convertEntityMetaToYAMLFileContent(meta)
@@ -52,19 +43,10 @@ object MetaToHDD {
     }
   }
   
-  
-  private val charSet = StandardCharsets.UTF_8
-  
-  
   private def createNewFolder(newFolderName: String, dirWhereWillBeCreatedNewFolder: Path): Path = {
     Files.createDirectories(dirWhereWillBeCreatedNewFolder.resolve(normalizeName(newFolderName)))
   }
-  
-//  private def createNewFile(name: String, path: Path): Path = {
-//    Files.createDirectories(path)
-//    Files.write(path, )
-//  }
-  
+
   private def normalizeName(folderName: String): String = {
     folderName.replace("/", "~").replace(":", "%3A").trim
 //    val tt = folderName.replace("/", "~").replace(":", "%3A").trim

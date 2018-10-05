@@ -49,8 +49,6 @@ object MetaFieldsComparer {
     }
   }
   
-  
-  //TODO: Create generic func of T, K. Use pattern matching to call diff funcs.
   /**
     * Creates set with differences of 2 sets.
     * If value exists in child set only, it adds with +.
@@ -91,6 +89,8 @@ object MetaFieldsComparer {
     val c = (child.toSet diff parent.toSet).toMap
     p ++ c
   }
+  
+  def diffMapKeyset(parent: Map[String, String], child: Map[String, String]): Set[String] = diffMap(parent, child).keySet
   
   def diffField[T](parent: Option[T], child: Option[T]): Option[T] =
     if (child == parent)

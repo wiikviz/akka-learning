@@ -86,4 +86,10 @@ class MetaFieldsComparerSpec extends FlatSpec {
     val res = Map.empty
     assert(res == diffMap(m, m))
   }
+  
+  it should "create map new results maps" in {
+    val child = Map("0" -> "0", "1" -> "1", "2" -> "2")
+    val parent = Map.empty[String, String]
+    assert(child == diffMap(parent, child))
+  }
 }
