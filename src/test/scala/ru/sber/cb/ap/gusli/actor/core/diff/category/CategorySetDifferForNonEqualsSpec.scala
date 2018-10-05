@@ -5,6 +5,7 @@ import ru.sber.cb.ap.gusli.actor.core.Category.{AddSubcategory, SubcategoryCreat
 import ru.sber.cb.ap.gusli.actor.core._
 import ru.sber.cb.ap.gusli.actor.core.diff.CategorySetDiffer
 import ru.sber.cb.ap.gusli.actor.core.diff.CategorySetDiffer.CategorySetDelta
+
 import scala.concurrent.duration._
 
 class CategorySetDifferForNonEqualsSpec extends ActorBaseTest("CategorySetDifferForNonEqualsSpec") {
@@ -27,7 +28,8 @@ class CategorySetDifferForNonEqualsSpec extends ActorBaseTest("CategorySetDiffer
   "A `CategorySetDiffer` for differs sets" must {
     "return CategorySetDelta" in {
       system.actorOf(CategorySetDiffer(Set(c1, c2, c3), Set(c1copy, c2copy), receiverProbe.ref))
-      receiverProbe.expectMsg(1 hour,CategorySetDelta(Set(c1, c3)))
+      //receiverProbe.expectMsg(1 hour, CategorySetDelta(Set(c1, c3)))
+      receiverProbe.expectMsg(CategorySetDelta(Set(c1, c3)))
     }
   }
 
