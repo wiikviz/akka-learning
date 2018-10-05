@@ -6,7 +6,6 @@ import java.nio.file.{Files, Path}
 import ru.sber.cb.ap.gusli.actor.core.dto.WorkflowDto
 import ru.sber.cb.ap.gusli.actor.core.{CategoryMeta, CategoryMetaDefault, EntityMeta, ProjectMeta}
 import ru.sber.cb.ap.gusli.actor.projects.DirectoryReadWriteConfig
-import ru.sber.cb.ap.gusli.actor.projects.write.MetaToYamlSerialization._
 import ru.sber.cb.ap.gusli.actor.projects.yamlfiles.YamlFileMapperWrite
 
 object MetaToHDD {
@@ -32,7 +31,7 @@ object MetaToHDD {
     YamlFileMapperWrite.writeMeta(dir, categoryMeta.asInstanceOf[CategoryMetaDefault], wfDto)
   
   def writeEntityMetaToPath(meta: EntityMeta, dir: Path, childrenCount: Int): Either[Path,Path] = {
-    val fileContent = convertEntityMetaToYAMLFileContent(meta)
+    val fileContent = MetaToYamlSerialization.convertEntityMetaToYAMLFileContent(meta)
     val entityNameOnHDD = s"${meta.id} ${meta.name}"
     childrenCount match {
       case 0 => Left(writeYAMLTextFileToDirectory(s"$entityNameOnHDD.yaml", fileContent, dir))

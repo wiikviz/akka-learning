@@ -28,13 +28,13 @@ class ProjectWriter(val project: ActorRef, path: Path) extends BaseActor {
   override def receive: Receive = {
     
     case WriteProject(sendTo) =>
-      receiver = sendTo.getOrElse(sender)
+      receiver = sendTo getOrElse sender
       project ! GetProjectMeta()
       
     case ProjectMetaResponse(meta) =>
       projectFolderPath = MetaToHDD.writeProjectMetaToPath(meta, path)
-      writeEntities
-      writeCategories
+      writeEntities()
+      writeCategories()
   
     case EntityRoot(entity) =>
       context.actorOf(EntityRootWriter(EntityRootWriterMetaDefault(projectFolderPath, entity))) ! EntityRootWriter.Write()
@@ -42,11 +42,15 @@ class ProjectWriter(val project: ActorRef, path: Path) extends BaseActor {
     case EntityRootWriter.Wrote() =>
       entityRead = true
       checkFinish()
+
+    case CategoryWriter.Wrote() =>
+      categoryRead = true
+      checkFinish()
   }
   
-  private def writeEntities = project ! GetEntityRoot()
+  private def writeEntities() {project ! GetEntityRoot()}
   
-  private def writeCategories {
+  private def writeCategories() {
     val categoryWriter = context.actorOf(CategoryWriter(projectFolderPath, CategoryMetaDefault("temp-parent-for-root")))
     project ! GetCategoryRoot(Some(categoryWriter))
   }
