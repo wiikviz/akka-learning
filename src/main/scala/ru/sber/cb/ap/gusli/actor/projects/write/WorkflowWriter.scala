@@ -9,17 +9,17 @@ import ru.sber.cb.ap.gusli.actor.core.Workflow.WorkflowMetaResponse
 import ru.sber.cb.ap.gusli.actor.core.extractor.WorkflowDtoExtractor
 import ru.sber.cb.ap.gusli.actor.core.extractor.WorkflowDtoExtractor.WorkflowExtracted
 
-class WorkflowWriter(path:Path, categoryMeta:CategoryMeta) extends BaseActor{
+object WorkflowWriter {
+  def apply(path: Path, parentMeta: CategoryMeta): Props = Props(new WorkflowWriter(path, parentMeta))
+}
 
-    override def receive: Receive = {
+class WorkflowWriter(path: Path, categoryMeta: CategoryMeta) extends BaseActor {
+  
+  override def receive: Receive = {
     case WorkflowMetaResponse(workflowMeta) =>
-      context actorOf WorkflowDtoExtractor(sender,context.self)
-
+      context.actorOf(WorkflowDtoExtractor(sender, context.self))
+    
     case WorkflowExtracted(workflowDto) =>
       MetaToHDD.writeWorkflowMetaToPath(workflowDto, path, categoryMeta)
   }
-}
-
-object WorkflowWriter {
-  def apply(path:Path, parentMeta:CategoryMeta): Props = Props(new WorkflowWriter(path, parentMeta))
 }
