@@ -1,7 +1,9 @@
 package ru.sber.cb.ap.gusli.actor.core.diff
 
 import akka.actor.{ActorRef, Props}
-import ru.sber.cb.ap.gusli.actor.core.CategoryMeta
+import ru.sber.cb.ap.gusli.actor.core.Category.{GetProject, ProjectResponse}
+import ru.sber.cb.ap.gusli.actor.core.diff.CategoryMetaDiffer.{CategoryMetaDelta, CategoryMetaEquals}
+import ru.sber.cb.ap.gusli.actor.core.{Category, CategoryMeta}
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Response}
 
 
@@ -16,26 +18,47 @@ object CategoryDiffer {
 
 class CategoryDiffer(currentCat: ActorRef, prevCat: ActorRef, receiver: ActorRef) extends BaseActor {
 
-  import ru.sber.cb.ap.gusli.actor.core.Category._
+  import CategoryDiffer._
 
-  private var prevMeta: Option[CategoryMeta] = None
-  private var currMeta: Option[CategoryMeta] = None
-  private var currentSubcats: Option[Set[ActorRef]] = None
-  private var prevSubcats: Option[Set[ActorRef]] = None
+  private var currProject: Option[ActorRef] = None
+
+  private var isCategoryMetaCompared = false
+  private var metaDelta: Option[CategoryMeta] = None
+
+  private var deltaCat: Option[ActorRef] = None
 
   override def preStart(): Unit = {
-    currentCat ! GetCategoryMeta()
-    prevCat ! GetCategoryMeta()
-
-    currentCat ! GetSubcategories()
-    prevCat ! GetSubcategories()
+    currentCat ! GetProject()
+    context.actorOf(CategoryMetaDiffer(currentCat, prevCat, self))
+    context.actorOf(WorkflowFromCategoryDiffer(currentCat, prevCat, self))
   }
 
 
   override def receive: Receive = {
+    case ProjectResponse(p) =>
+      currProject = Some(p)
+      checkFinish()
+
+    case CategoryMetaEquals(_, _) =>
+      isCategoryMetaCompared = true
+      checkFinish()
+
+    case CategoryMetaDelta(d) =>
+      metaDelta = Some(d)
+      isCategoryMetaCompared = true
+      checkFinish()
 
   }
 
-  def checkFinish() = {
+  def checkFinish(): Unit = {
+    for (project <- currProject) {
+      if (isCategoryMetaCompared) {
+        if (metaDelta.isDefined) {
+          deltaCat = Some(context.system.actorOf(Category(metaDelta.get, project)))
+          receiver ! CategoryDelta(deltaCat.get)
+          context.stop(self)
+        }
+      }
+    }
   }
 }

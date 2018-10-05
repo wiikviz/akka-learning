@@ -6,11 +6,11 @@ import ru.sber.cb.ap.gusli.actor.{BaseActor, Response}
 
 
 object CategoryMetaDiffer {
-  def apply(currentCat: ActorRef, prevCat: ActorRef, receiver: ActorRef): Props = Props(new CategoryDiffer(currentCat, prevCat, receiver))
+  def apply(currentCat: ActorRef, prevCat: ActorRef, receiver: ActorRef): Props = Props(new CategoryMetaDiffer(currentCat, prevCat, receiver))
 
   case class CategoryMetaEquals(currentCat: ActorRef, prevCat: ActorRef) extends Response
 
-  case class CategoryMetaDelta(deltaCat: ActorRef) extends Response
+  case class CategoryMetaDelta(deltaCat: CategoryMeta) extends Response
 
 }
 
@@ -39,7 +39,7 @@ class CategoryMetaDiffer(currentCat: ActorRef, prevCat: ActorRef, receiver: Acto
         if (c == p)
           receiver ! CategoryMetaEquals(currentCat, prevCat)
         else
-          receiver ! CategoryMetaDelta(currentCat)
+          receiver ! CategoryMetaDelta(c)
 
         context.stop(self)
       }

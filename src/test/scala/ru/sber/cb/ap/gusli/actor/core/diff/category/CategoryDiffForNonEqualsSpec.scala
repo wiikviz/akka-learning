@@ -34,8 +34,8 @@ class CategoryDiffForNonEqualsSpec extends ActorBaseTest("CategoryDiffForNonEqua
   "A CategoryDiffer for category with same meta but contains workflows with differ meta must return CategoryDelta" in {
     val prevCat = system.actorOf(Category(currMeta, projectProbe.ref))
     currentCat ! CreateWorkflow(WorkflowMetaDefault("test", Map("new.sql" -> "select 1")))
-    prevCat ! CreateWorkflow(WorkflowMetaDefault("test", Map("old.sql" -> "select 1")))
     expectMsgAnyClassOf(classOf[WorkflowCreated])
+    prevCat ! CreateWorkflow(WorkflowMetaDefault("test", Map("old.sql" -> "select 1")))
     expectMsgAnyClassOf(classOf[WorkflowCreated])
 
     system.actorOf(CategoryDiffer(currentCat, prevCat, receiverProbe.ref))
