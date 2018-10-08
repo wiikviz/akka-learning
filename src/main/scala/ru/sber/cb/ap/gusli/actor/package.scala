@@ -13,15 +13,20 @@ package object actor {
   trait Response extends Message
 
   trait ActorResponse extends Response {
-    def actorRef:ActorRef
+    def actorRef: ActorRef
   }
+
   trait ActorListResponse extends Response {
-    def actorList:Seq[ActorRef]
+    def actorList: Seq[ActorRef]
+  }
+
+  trait ActorSetResponse extends Response {
+    def actorSet: Set[ActorRef]
   }
 
   abstract class BaseActor extends Actor with Stash with ActorLogging {
     override def unhandled(message: Any): Unit = {
-      log.info(Console.RED + s"unhandled = {} from ${sender}"+ Console.RESET, message)
+      log.info(Console.RED + s"unhandled = {} from ${sender}" + Console.RESET, message)
 
       super.unhandled(message)
     }
@@ -31,4 +36,5 @@ package object actor {
       super.preStart()
     }
   }
+
 }

@@ -1,0 +1,12 @@
+---
+grenki: 0.2
+user: pupkin
+map:
+  - map.config
+  - map2.config
+sql:
+  - rb-vek5555sel.sql
+  - rb-car433ds.sql
+entities: 
+  - 105067100
+  - 105067200

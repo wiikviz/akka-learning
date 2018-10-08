@@ -5,8 +5,8 @@ import ru.sber.cb.ap.gusli.actor.core.search.EntitySearcher
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Request, Response}
 
 object Project {
-  def apply(meta: ProjectMeta): Props = {
-    Props(new Project(meta))
+  def apply(meta: ProjectMeta, categoryMeta: CategoryMeta = CategoryMetaDefault("category", Map.empty)): Props = {
+    Props(new Project(meta, categoryMeta))
   }
 
   case class GetProjectMeta(replyTo: Option[ActorRef] = None) extends Request
@@ -39,11 +39,12 @@ class Project(meta: ProjectMeta, categoryMeta: CategoryMeta = CategoryMetaDefaul
   val categoryRoot = context.actorOf(Category(categoryMeta, context.self), "category")
   
   override def receive: Receive = {
-    case GetProjectMeta(sendTo) => sendTo getOrElse sender ! ProjectMetaResponse(meta)
-    case GetCategoryRoot(sendTo) => sendTo getOrElse sender ! CategoryRoot(categoryRoot)
-    case GetEntityRoot(sendTo) => sendTo getOrElse sender ! EntityRoot(entityRoot)
+    case GetProjectMeta(sendTo) =>
+     sendTo.getOrElse(sender) ! ProjectMetaResponse(meta)
+    case GetCategoryRoot(sendTo) => sendTo.getOrElse(sender)  ! CategoryRoot(categoryRoot)
+    case GetEntityRoot(sendTo) => sendTo.getOrElse(sender)  ! EntityRoot(entityRoot)
     case FindEntity(id, sendTo) =>
-      context.actorOf(EntitySearcher(Seq(entityRoot), id, sendTo getOrElse sender))
+      context.actorOf(EntitySearcher(Seq(entityRoot), id, sendTo.getOrElse(sender) ))
   }
 }
 

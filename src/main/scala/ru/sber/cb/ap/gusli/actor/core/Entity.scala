@@ -31,7 +31,7 @@ case class Entity(meta: EntityMeta) extends BaseActor {
     case m @ GetEntityMeta(sendTo) => sendEntityMeta(sendTo)
     case m @ AddChildEntity(meta, sendTo) =>
       log.info("{}", m)
-      val replyTo = sendTo getOrElse sender
+      val replyTo = sendTo.getOrElse(sender)
       val fromRegistry = children get meta.id
       if(fromRegistry isEmpty){
         val newEntity = context actorOf Entity(meta)
@@ -39,14 +39,14 @@ case class Entity(meta: EntityMeta) extends BaseActor {
         replyTo ! EntityCreated(newEntity)
       } else replyTo ! EntityCreated(fromRegistry.get)
     case GetChildren(sendTo) =>
-      sendTo getOrElse sender ! ChildrenEntityList(children.values.toSeq)
+      sendTo.getOrElse(sender)  ! ChildrenEntityList(children.values.toSeq)
     case m @ FindEntity(entityId, sendTo) =>
-      val searcher = context actorOf EntitySearcher(children.values.toSeq, entityId, sendTo getOrElse sender)
+      val searcher = context actorOf EntitySearcher(children.values.toSeq, entityId, sendTo.getOrElse(sender) )
       searcher forward m
   }
   
   private def sendEntityMeta(sendTo: Option[ActorRef]) = {
-    sendTo getOrElse sender ! EntityMetaResponse(meta)
+    sendTo.getOrElse(sender)  ! EntityMetaResponse(meta)
   }
 }
 

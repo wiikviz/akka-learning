@@ -8,6 +8,9 @@ scalaVersion := "2.12.6"
 
 resolvers += Resolver.sonatypeRepo("snapshots")
 
+scalacOptions := Seq("-encoding", "UTF-8")
+coverageEnabled := true
+
 val playJsonVersion = "2.5.4"
 val playJsonStandaloveVersion = "2.0.0-M2"
 val playWSVersion = "1.0.0"
@@ -23,7 +26,6 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-generic" % "0.9.3",
   "com.typesafe.akka" %% "akka-testkit" % "2.5.16" % Test,
   "org.scalatest" % "scalatest_2.12" % "3.0.5" % Test,
-  //"org.yaml" % "snakeyaml" % ""
   "com.fasterxml.jackson.module" % "jackson-module-scala_2.12" % "2.9.6",
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.9.6"
 )

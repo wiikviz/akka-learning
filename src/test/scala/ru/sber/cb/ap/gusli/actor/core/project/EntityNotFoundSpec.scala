@@ -9,10 +9,6 @@ class EntityNotFoundSpec extends ActorBaseTest("EntityNotFoundSpec") {
 
   val project: ActorRef = system.actorOf(Project(ProjectMetaDefault("project")), "project")
 
-  override def afterAll: Unit = {
-    TestKit.shutdownActorSystem(system)
-  }
-
   "Project" when {
     "it's have no entities" should {
       "when receive FindEntity(1) send back EntityNotFound(1)" in {

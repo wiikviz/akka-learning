@@ -1,3 +1,2 @@
-# grenki-cli [![Build Status](https://travis-ci.com/AnalyticsPlatform/gucli.svg?branch=master)](https://travis-ci.com/AnalyticsPlatform/gucli)
-Grenki universal common line interface
-
+# grenki-cli [![Build Status](https://travis-ci.com/AnalyticsPlatform/gucli.svg?branch=master)](https://travis-ci.com/AnalyticsPlatform/gucli) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/ed217d3b646f4471aee180800d9debc5)](https://www.codacy.com/app/AnalyticsPlatform/gucli?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=AnalyticsPlatform/gucli&amp;utm_campaign=Badge_Grade) [![codecov](https://codecov.io/gh/AnalyticsPlatform/gucli/branch/master/graph/badge.svg)](https://codecov.io/gh/AnalyticsPlatform/gucli)
+Grenki universal command line interface

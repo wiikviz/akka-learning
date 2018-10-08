@@ -11,10 +11,6 @@ class EntityFoundSpec extends ActorBaseTest("EntityFoundSpec") {
 
   val project: ActorRef = system.actorOf(Project(ProjectMetaDefault("project")), "project")
 
-  override def afterAll: Unit = {
-    TestKit.shutdownActorSystem(system)
-  }
-
   "Project" when {
     "add entity to entity root" should {
       var entityRoot: ActorRef = null

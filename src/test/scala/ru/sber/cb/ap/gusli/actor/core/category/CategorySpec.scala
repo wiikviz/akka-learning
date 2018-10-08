@@ -13,12 +13,8 @@ class CategorySpec extends ActorBaseTest("CategorySpec")
   with Matchers
   with BeforeAndAfterAll {
   
-  private val probe: TestProbe = TestProbe()
-  val cat = system.actorOf(Category(CategoryMetaDefault("category", Map.empty), probe.ref), "category")
-  
-  override def afterAll: Unit = {
-    TestKit.shutdownActorSystem(system)
-  }
+  private val projectProbe: TestProbe = TestProbe()
+  private val cat = system.actorOf(Category(CategoryMetaDefault("category", Map.empty), projectProbe.ref), "category")
   
   "An empty Category" when {
     "send GetCategoryMeta" should {
@@ -30,15 +26,15 @@ class CategorySpec extends ActorBaseTest("CategorySpec")
     
     "send first time ListSubcategory" should {
       "send back SubcategoryList with empty actors ref" in {
-        cat ! ListSubcategory()
-        expectMsg(SubcategoryList(Nil))
+        cat ! GetSubcategories()
+        expectMsg(SubcategorySet(Set.empty))
       }
     }
   
     "send first time ListWorkflow" should {
       "send back WorkflowList with empty actors ref" in {
-        cat ! ListWorkflow()
-        expectMsg(WorkflowList(Nil))
+        cat ! GetWorkflows()
+        expectMsg(WorkflowSet(Set.empty))
       }
     }
     
@@ -57,7 +53,7 @@ class CategorySpec extends ActorBaseTest("CategorySpec")
     "send AddWorkflow" should {
       "send back WorkflowCreated" in {
         val meta = WorkflowMetaDefault("wf-1", Map("file" -> "select 1"), Map.empty)
-        cat ! AddWorkflow(meta)
+        cat ! CreateWorkflow(meta)
         expectMsgPF() {
           case WorkflowCreated(wf) =>
             wf ! GetWorkflowMeta()
@@ -68,22 +64,22 @@ class CategorySpec extends ActorBaseTest("CategorySpec")
   
     "send second time ListSubcategory" should {
       "send back SubcategoryList with 1 actor ref" in {
-        cat ! ListSubcategory()
+        cat ! GetSubcategories()
         expectMsgPF() {
-          case SubcategoryList(list) => assert(list.size == 1)
+          case SubcategorySet(list) => assert(list.size == 1)
         }
       }
     }
-  
+
     "send second time ListWorkflow" should {
       "send back WorkflowList with 1 actor ref" in {
-        cat ! ListWorkflow()
+        cat ! GetWorkflows()
         expectMsgPF() {
-          case WorkflowList(list) => assert(list.size == 1)
+          case WorkflowSet(list) => assert(list.size == 1)
         }      }
     }
-  
-  
+
+
     "send second time AddSubcategory" should {
       "send back SubcategoryCreated" in {
         val meta = CategoryMetaDefault("cat-b", Map.empty)
@@ -95,11 +91,11 @@ class CategorySpec extends ActorBaseTest("CategorySpec")
         }
       }
     }
-  
+
     "send second time AddWorkflow" should {
       "send back WorkflowCreated" in {
         val meta = WorkflowMetaDefault("wf-2", Map("file" -> "select 1"), Map.empty)
-        cat ! AddWorkflow(meta)
+        cat ! CreateWorkflow(meta)
         expectMsgPF() {
           case WorkflowCreated(wf) =>
             wf ! GetWorkflowMeta()
@@ -107,21 +103,21 @@ class CategorySpec extends ActorBaseTest("CategorySpec")
         }
       }
     }
-  
+
     "send third time ListSubcategory" should {
       "send back SubcategoryList with empty actors ref" in {
-        cat ! ListSubcategory()
+        cat ! GetSubcategories()
         expectMsgPF() {
-          case SubcategoryList(list) => assert(list.size == 2)
+          case SubcategorySet(list) => assert(list.size == 2)
         }
       }
     }
   
     "send third time ListWorkflow" should {
       "send back WorkflowList with empty actors ref" in {
-        cat ! ListWorkflow()
+        cat ! GetWorkflows()
         expectMsgPF() {
-          case WorkflowList(list) => assert(list.size == 2)
+          case WorkflowSet(list) => assert(list.size == 2)
         }
       }
     }

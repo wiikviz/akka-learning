@@ -55,7 +55,7 @@ class Workflow(meta: WorkflowMeta, project: ActorRef) extends BaseActor {
       awaitEntityBind = awaitEntityBind - meta.id
 
     case GetEntityList(sendTo) =>
-      sendTo getOrElse sender ! EntityList(boundEntitySet.values.toSeq)
+      sendTo.getOrElse(sender)  ! EntityList(boundEntitySet.values.toSeq)
   }
 }
 

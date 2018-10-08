@@ -1,0 +1,16 @@
+---
+grenki: 0.2
+queue: ""
+user: pupkin
+init: []
+map:
+  - map.config
+  - map2.config
+sql:
+  - rb-vek5555sel.sql
+  - rb-car433ds.sql
+param: {}
+stats: []
+entities: 
+  - 105067100
+  - 105067200
