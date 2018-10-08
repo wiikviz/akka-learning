@@ -1,7 +1,11 @@
 package ru.sber.cb.ap.gusli.actor.core.diff
 
 import akka.actor.{ActorRef, Props}
-import ru.sber.cb.ap.gusli.actor.core.diff.WorkflowSetDiffer.{WorkflowSetDelta, WorkflowSetEquals}
+import ru.sber.cb.ap.gusli.actor.core.Category._
+import ru.sber.cb.ap.gusli.actor.core.diff.CategoryDiffer.{CategoryDelta, CategoryEquals}
+import ru.sber.cb.ap.gusli.actor.core.diff.CategoryMetaDiffer.{AbstractCategoryMetaResponse, CategoryMetaDelta, CategoryMetaEquals}
+import ru.sber.cb.ap.gusli.actor.core.diff.SubCategoryMetaDiffer.{SubCategoryMetaDelta, SubCategoryMetaEquals}
+import ru.sber.cb.ap.gusli.actor.core.diff.WorkflowFromCategoryDiffer.{WorkflowFromCategoryDelta, WorkflowFromCategoryEquals, WorkflowFromCategoryResponse}
 import ru.sber.cb.ap.gusli.actor.core.{Category, CategoryMeta}
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Response}
 
@@ -16,80 +20,102 @@ object CategoryDiffer {
 }
 
 class CategoryDiffer(currentCat: ActorRef, prevCat: ActorRef, receiver: ActorRef) extends BaseActor {
-
-  import CategoryDiffer._
-  import ru.sber.cb.ap.gusli.actor.core.Category._
-
-  var currProject: Option[ActorRef] = None
-  var currentMeta: Option[CategoryMeta] = None
-  var prevMeta: Option[CategoryMeta] = None
-  var currentSet: Option[Set[ActorRef]] = None
-  var prevSet: Option[Set[ActorRef]] = None
-  //todo: combine next two properties
-  var delta: Option[Set[ActorRef]] = None
-  var workflowAlreadyCompared = false
+  var subMetaDelta: Option[Set[CategoryMeta]] = None
+  var subMetaCount = 0
+  private var currProject: Option[ActorRef] = None
+  private var currentMeta: Option[CategoryMeta] = None
+  private var categoryMetaResponse: Option[AbstractCategoryMetaResponse] = None
+  private var workflowFromCategory: Option[WorkflowFromCategoryResponse] = None
+  private var deltaCat: Option[ActorRef] = None
+  private var isSubcategoryCompared = false
 
   override def preStart(): Unit = {
     currentCat ! GetProject()
-
     currentCat ! GetCategoryMeta()
-    prevCat ! GetCategoryMeta()
-
-    currentCat ! GetWorkflows()
-    prevCat ! GetWorkflows()
+    context.actorOf(CategoryMetaDiffer(currentCat, prevCat, self))
+    context.actorOf(WorkflowFromCategoryDiffer(currentCat, prevCat, self))
+    context.actorOf(SubCategoryMetaDiffer(currentCat, prevCat, self))
   }
-
 
   override def receive: Receive = {
     case ProjectResponse(p) =>
       currProject = Some(p)
       checkFinish()
+
     case CategoryMetaResponse(m) =>
-      if (sender() == currentCat) currentMeta = Some(m)
-      else if (sender() == prevCat) prevMeta = Some(m)
-      else throw new RuntimeException(s"Unknown sender:${sender()}")
+      val cat = sender()
+      if (cat == currentCat)
+        currentMeta = Some(m)
+      else
+        throw new RuntimeException(s"Unknown sender:${sender()}")
 
       checkFinish()
-    case WorkflowSet(l) =>
-      if (sender() == currentCat) currentSet = Some(l)
-      else if (sender() == prevCat) prevSet = Some(l)
 
-      for (curr <- currentSet; prev <- prevSet)
-        context.actorOf(WorkflowSetDiffer(curr, prev, self))
+    case r: AbstractCategoryMetaResponse =>
+      categoryMetaResponse = Some(r)
+      checkFinish()
 
+    case r: WorkflowFromCategoryResponse =>
+      workflowFromCategory = Some(r)
       checkFinish()
-    case WorkflowSetDelta(d) =>
-      delta = Some(d)
-      workflowAlreadyCompared = true
+
+    case SubCategoryMetaEquals(_, _) =>
+      isSubcategoryCompared = true
+      subMetaDelta = Some(Set.empty)
       checkFinish()
-    case WorkflowSetEquals(_, _) =>
-      workflowAlreadyCompared = true
+    case SubCategoryMetaDelta(delta) =>
+      subMetaDelta = Some(delta)
+      subMetaCount = delta.size
+      checkFinish()
+    case SubcategoryCreated(_) =>
+      subMetaCount -= 1
+      isSubcategoryCompared = subMetaCount == 0
       checkFinish()
   }
 
-  def checkFinish() = {
-    if (workflowAlreadyCompared) {
-      for (curr <- currentMeta; prev <- prevMeta; project <- currProject) {
-        if (curr == prev)
-          delta match {
-            case None => receiver ! CategoryEquals(currentCat, prevCat)
-            case Some(d) =>
-              val diff = context.system.actorOf(Category(curr, project))
-              diff ! AddWorkflows(d)
-              receiver ! CategoryDelta(diff)
-          }
-        else {
-          val diff = context.system.actorOf(Category(curr, project))
-          delta match {
-            case Some(d) =>
-              diff ! AddWorkflows(d)
-            case _ => log.debug("delta is empty")
-          }
 
-          receiver ! CategoryDelta(diff)
+  def checkFinish(): Unit = {
+    (currProject, categoryMetaResponse, currentMeta) match {
+      case (Some(project), Some(resp), Some(curMeta)) =>
+        if (deltaCat.isEmpty)
+          resp match {
+            case CategoryMetaEquals(_, _) =>
+              deltaCat = Some(context.system.actorOf(Category(curMeta, project)))
+
+            case CategoryMetaDelta(delta) =>
+              deltaCat = Some(context.system.actorOf(Category(delta, project)))
+          }
+      case _ =>
+        log.debug("project or current category meta, or meta not compared yet")
+    }
+
+    if (!isSubcategoryCompared)
+      for (dc <- deltaCat; metaDelta <- subMetaDelta) {
+        for (m <- metaDelta)
+          dc ! AddSubcategory(m)
+      }
+
+    if (isSubcategoryCompared)
+      for (dc <- deltaCat; wfDelta <- workflowFromCategory; resp: AbstractCategoryMetaResponse <- categoryMetaResponse) {
+        wfDelta match {
+          case WorkflowFromCategoryDelta(wd) =>
+            dc ! AddWorkflows(wd)
+            receiver ! CategoryDelta(dc)
+            context.stop(self)
+          case WorkflowFromCategoryEquals(_, _) =>
+            resp match {
+              case CategoryMetaEquals(_, _) =>
+                if (subMetaDelta.get.isEmpty)
+                  receiver ! CategoryEquals(currentCat, prevCat)
+                else
+                  receiver ! CategoryDelta(dc)
+
+              case CategoryMetaDelta(_) =>
+                receiver ! CategoryDelta(dc)
+            }
+
+            context.stop(self)
         }
       }
-      context.stop(self)
-    }
   }
 }

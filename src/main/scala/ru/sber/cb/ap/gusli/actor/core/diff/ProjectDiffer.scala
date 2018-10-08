@@ -6,9 +6,9 @@ import ru.sber.cb.ap.gusli.actor.{BaseActor, Response}
 object ProjectDiffer {
   def apply(currentProject: ActorRef, prevProject: ActorRef, receiver: ActorRef): Props = Props(new ProjectDiffer(currentProject, prevProject, receiver))
 
-  case class CategoryEquals(currentProject: ActorRef, prevProject: ActorRef) extends Response
+  case class ProjectEquals(currentProject: ActorRef, prevProject: ActorRef) extends Response
 
-  case class CategoryDelta(deltaProject: ActorRef) extends Response
+  case class ProjectDelta(deltaProject: ActorRef) extends Response
 
 }
 
