@@ -8,6 +8,8 @@ import ru.sber.cb.ap.gusli.actor.core.diff.WorkflowFromCategoryDiffer.{WorkflowF
 import ru.sber.cb.ap.gusli.actor.core.{Category, CategoryMeta}
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Response}
 
+import scala.collection.immutable.HashMap
+
 
 object CategoryDiffer {
   def apply(currentCat: ActorRef, prevCat: ActorRef, receiver: ActorRef): Props = Props(new CategoryDiffer(currentCat, prevCat, receiver))
@@ -26,13 +28,23 @@ class CategoryDiffer(currentCat: ActorRef, prevCat: ActorRef, receiver: ActorRef
 
   private var deltaCat: Option[ActorRef] = None
 
+  private var currentSet: Option[Set[ActorRef]] = None
+  private var currentMap: HashMap[String, ActorRef] = HashMap.empty[String, ActorRef]
+  private var prevSet: Option[Set[ActorRef]] = None
+  private var prevMap = HashMap.empty[String, ActorRef]
+
+  private var subCatDelta: Set[ActorRef] = Set.empty
+  private var subCatCompared=false
+
   override def preStart(): Unit = {
     currentCat ! GetProject()
     currentCat ! GetCategoryMeta()
     context.actorOf(CategoryMetaDiffer(currentCat, prevCat, self))
     context.actorOf(WorkflowFromCategoryDiffer(currentCat, prevCat, self))
-  }
 
+    currentCat ! GetSubcategories()
+    prevCat ! GetSubcategories()
+  }
 
   override def receive: Receive = {
     case ProjectResponse(p) =>
@@ -40,10 +52,21 @@ class CategoryDiffer(currentCat: ActorRef, prevCat: ActorRef, receiver: ActorRef
       checkFinish()
 
     case CategoryMetaResponse(m) =>
-      if (sender() == currentCat)
+      val cat = sender()
+      if (cat == currentCat)
         currentMeta = Some(m)
+      else if (isCurrentSetContains(cat)) {
+        currentSet = Some(currentSet.get - cat)
+        currentMap += (m.name -> cat)
+      }
+      else if (isPrevSetContains(cat)) {
+        prevSet = Some(prevSet.get - cat)
+        prevMap += (m.name -> cat)
+      }
       else
         throw new RuntimeException(s"Unknown sender:${sender()}")
+
+      checkAllSubcategoryExported()
       checkFinish()
 
     case r: AbstractCategoryMetaResponse =>
@@ -53,9 +76,58 @@ class CategoryDiffer(currentCat: ActorRef, prevCat: ActorRef, receiver: ActorRef
     case r: WorkflowFromCategoryResponse =>
       workflowFromCategory = Some(r)
       checkFinish()
+
+    case SubcategorySet(s) =>
+      val cat = sender()
+      if (cat == currentCat)
+        currentSet = Some(s)
+      else if (cat == prevCat)
+        prevSet = Some(s)
+      else
+        throw new RuntimeException(s"Unknown sender:${sender()}")
+
+      for (currSet <- currentSet) {
+        for (curr <- currSet)
+          curr ! GetCategoryMeta()
+      }
+
+      for (prevSet <- prevSet)
+        for (prev <- prevSet)
+          prev ! GetCategoryMeta()
+  }
+
+  def isCurrentSetContains(cat: ActorRef): Boolean =
+    currentSet match {
+      case Some(set) =>
+        if (set.contains(cat)) true
+        else false
+    }
+
+  def isPrevSetContains(cat: ActorRef): Boolean =
+    prevSet match {
+      case Some(set) =>
+        if (set.contains(cat)) true
+        else false
+    }
+
+  def checkAllSubcategoryExported(): Unit = {
+    (currentSet, prevSet) match {
+      case (None,None)=>
+      case (Some(currSet), Some(prevSet)) =>
+        if (currSet.isEmpty && prevSet.isEmpty) {
+          val diffSubsNames = currentMap.keySet diff prevMap.keySet
+          for (n <- diffSubsNames) {
+            subCatDelta += currentMap(n)
+            currentMap -= n
+          }
+
+          subCatCompared = true
+        }
+    }
   }
 
   def checkFinish(): Unit = {
+    if (subCatCompared)
     for (project <- currProject; resp: AbstractCategoryMetaResponse <- categoryMetaResponse; curMeta <- currentMeta; wfDelta <- workflowFromCategory) {
       if (deltaCat.isEmpty)
         resp match {
