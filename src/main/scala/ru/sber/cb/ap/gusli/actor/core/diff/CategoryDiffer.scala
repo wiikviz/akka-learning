@@ -27,16 +27,12 @@ class CategoryDiffer(currentCat: ActorRef, prevCat: ActorRef, receiver: ActorRef
   private var workflowFromCategory: Option[WorkflowFromCategoryResponse] = None
 
   private var deltaCat: Option[ActorRef] = None
-
-
+  
   override def preStart(): Unit = {
     currentCat ! GetProject()
     currentCat ! GetCategoryMeta()
     context.actorOf(CategoryMetaDiffer(currentCat, prevCat, self))
     context.actorOf(WorkflowFromCategoryDiffer(currentCat, prevCat, self))
-
-    currentCat ! GetSubcategories()
-    prevCat ! GetSubcategories()
   }
 
   override def receive: Receive = {

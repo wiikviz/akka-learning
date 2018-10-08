@@ -1,7 +1,6 @@
 package ru.sber.cb.ap.gusli.actor.core.diff
 
 import akka.actor.{ActorRef, Props}
-import ru.sber.cb.ap.gusli.actor.core._
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Response}
 
 import scala.collection.immutable.HashMap
@@ -81,6 +80,9 @@ class SubCategoryDiffer(currentCat: ActorRef, prevCat: ActorRef, receiver: Actor
 
   def isCurrentSetContains(cat: ActorRef): Boolean =
     currentSet match {
+      case None =>
+        log.debug("Subcategories from current category is not load yet")
+        false
       case Some(set) =>
         if (set.contains(cat)) true
         else false
@@ -88,6 +90,9 @@ class SubCategoryDiffer(currentCat: ActorRef, prevCat: ActorRef, receiver: Actor
 
   def isPrevSetContains(cat: ActorRef): Boolean =
     prevSet match {
+      case None =>
+        log.debug("Subcategories from previous category is not load yet")
+        false
       case Some(set) =>
         if (set.contains(cat)) true
         else false
@@ -109,7 +114,7 @@ class SubCategoryDiffer(currentCat: ActorRef, prevCat: ActorRef, receiver: Actor
           for (n <- eqSubsNames) {
             val curr = currentMap(n)
             val prev = prevMap(n)
-            catDiffs += context.actorOf(CategoryDiffer(curr, prev, self))
+            catDiffs += context.actorOf(CategoryDiffer(curr, prev, self),s"diff-$n")
           }
           if (catDiffs.isEmpty) {
             receiver ! SubCategoryDelta(subCatDelta)
@@ -121,6 +126,7 @@ class SubCategoryDiffer(currentCat: ActorRef, prevCat: ActorRef, receiver: Actor
   }
 
   def checkAllSubcategoriesCompared(): Unit = {
+    import ru.sber.cb.ap.gusli.actor.core._
     if (catDiffs.isEmpty)
       subCatDelta match {
         case EmptySet() =>

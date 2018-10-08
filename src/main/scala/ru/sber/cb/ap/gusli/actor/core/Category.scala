@@ -80,7 +80,7 @@ class Category(meta: CategoryMeta, project: ActorRef) extends BaseActor {
       subcategoresRegistry.get(m.name) match {
         case Some(subcat) => replyTo ! subcat
         case None =>
-          val subcat = context.actorOf(Category(m, project))
+          val subcat = context.actorOf(Category(m, project), m.name)
           subcategoresRegistry = subcategoresRegistry + (m.name -> subcat)
           replyTo ! SubcategoryCreated(subcat)
       }

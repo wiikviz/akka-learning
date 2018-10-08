@@ -14,8 +14,8 @@ class SubCategoryDiffForEqualsSpec extends ActorBaseTest("SubCategoryDiffForEqua
   private val c1Meta = CategoryMetaDefault("c1", Map("p1" -> "111", "p2" -> "222"))
   private val c1SubMeta = CategoryMetaDefault("c2", Map("p2" -> "222", "p1" -> "111"))
 
-  private val c1 = system.actorOf(Category(c1Meta, projectProbe.ref))
-  private val c1Copy = system.actorOf(Category(c1Meta, projectProbe.ref))
+  private val c1 = system.actorOf(Category(c1Meta, projectProbe.ref), "c1")
+  private val c1Copy = system.actorOf(Category(c1Meta, projectProbe.ref), "c1Copy")
   private var c1SubCat: ActorRef = _
   private var c1CopySubCat: ActorRef = _
 
