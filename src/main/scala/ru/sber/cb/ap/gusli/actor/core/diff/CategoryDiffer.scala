@@ -4,11 +4,10 @@ import akka.actor.{ActorRef, Props}
 import ru.sber.cb.ap.gusli.actor.core.Category._
 import ru.sber.cb.ap.gusli.actor.core.diff.CategoryDiffer.{CategoryDelta, CategoryEquals}
 import ru.sber.cb.ap.gusli.actor.core.diff.CategoryMetaDiffer.{AbstractCategoryMetaResponse, CategoryMetaDelta, CategoryMetaEquals}
+import ru.sber.cb.ap.gusli.actor.core.diff.SubCategoryMetaDiffer.{SubCategoryMetaDelta, SubCategoryMetaEquals}
 import ru.sber.cb.ap.gusli.actor.core.diff.WorkflowFromCategoryDiffer.{WorkflowFromCategoryDelta, WorkflowFromCategoryEquals, WorkflowFromCategoryResponse}
 import ru.sber.cb.ap.gusli.actor.core.{Category, CategoryMeta}
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Response}
-
-import scala.collection.immutable.HashMap
 
 
 object CategoryDiffer {
@@ -21,18 +20,21 @@ object CategoryDiffer {
 }
 
 class CategoryDiffer(currentCat: ActorRef, prevCat: ActorRef, receiver: ActorRef) extends BaseActor {
+  var subMetaDelta: Option[Set[CategoryMeta]] = None
+  var subMetaCount = 0
   private var currProject: Option[ActorRef] = None
   private var currentMeta: Option[CategoryMeta] = None
   private var categoryMetaResponse: Option[AbstractCategoryMetaResponse] = None
   private var workflowFromCategory: Option[WorkflowFromCategoryResponse] = None
-
   private var deltaCat: Option[ActorRef] = None
+  private var isSubcategoryCompared = false
 
   override def preStart(): Unit = {
     currentCat ! GetProject()
     currentCat ! GetCategoryMeta()
     context.actorOf(CategoryMetaDiffer(currentCat, prevCat, self))
     context.actorOf(WorkflowFromCategoryDiffer(currentCat, prevCat, self))
+    context.actorOf(SubCategoryMetaDiffer(currentCat, prevCat, self))
   }
 
   override def receive: Receive = {
@@ -57,11 +59,37 @@ class CategoryDiffer(currentCat: ActorRef, prevCat: ActorRef, receiver: ActorRef
       workflowFromCategory = Some(r)
       checkFinish()
 
+    case SubCategoryMetaEquals(_, _) =>
+      isSubcategoryCompared = true
+      checkFinish()
+    case SubCategoryMetaDelta(delta) =>
+      subMetaDelta = Some(delta)
+      subMetaCount = delta.size
+      checkFinish()
+    case SubcategoryCreated(_) =>
+      subMetaCount -= 1
+      isSubcategoryCompared = subMetaCount == 0
+      checkFinish()
   }
 
 
   def checkFinish(): Unit = {
-    for (project <- currProject; resp: AbstractCategoryMetaResponse <- categoryMetaResponse; curMeta <- currentMeta; wfDelta <- workflowFromCategory) {
+
+//    if (currProject.isDefined && categoryMetaResponse.isDefined && currentMeta.isDefined) {
+//      println()
+//      println(Console.RED+currProject)
+//      println(Console.RED+categoryMetaResponse)
+//      println(Console.RED+currentMeta)
+//      println(Console.RESET)
+//    }
+//
+//    (currProject, categoryMetaResponse, currentMeta) match {
+//      case (project, resp, curMeta)=>
+//        println()
+//        println(Console.BLUE+(project, resp, curMeta))
+//        println(Console.RESET)
+//    }
+    for (project <- currProject; resp <- categoryMetaResponse; curMeta  <- currentMeta) {
       if (deltaCat.isEmpty)
         resp match {
           case CategoryMetaEquals(_, _) =>
@@ -70,8 +98,15 @@ class CategoryDiffer(currentCat: ActorRef, prevCat: ActorRef, receiver: ActorRef
           case CategoryMetaDelta(delta) =>
             deltaCat = Some(context.system.actorOf(Category(delta, project)))
         }
+    }
 
-      for (dc <- deltaCat)
+    for (dc <- deltaCat; metaDelta <- subMetaDelta) {
+      for (m <- metaDelta)
+        dc ! AddSubcategory(m)
+    }
+
+    if (isSubcategoryCompared)
+      for (dc <- deltaCat; wfDelta <- workflowFromCategory; resp: AbstractCategoryMetaResponse <- categoryMetaResponse) {
         wfDelta match {
           case WorkflowFromCategoryDelta(wd) =>
             dc ! AddWorkflows(wd)
@@ -88,6 +123,6 @@ class CategoryDiffer(currentCat: ActorRef, prevCat: ActorRef, receiver: ActorRef
 
             context.stop(self)
         }
-    }
+      }
   }
 }

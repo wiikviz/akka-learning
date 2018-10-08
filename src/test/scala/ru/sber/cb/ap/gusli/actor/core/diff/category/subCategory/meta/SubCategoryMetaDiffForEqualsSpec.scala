@@ -32,8 +32,8 @@ class SubCategoryMetaDiffForEqualsSpec extends ActorBaseTest("SubCategoryMetaDif
   "A `SubCategoryMetaDiff` for Category with children with same meta" must {
     "return SubCategoryMetaEquals(c1,c1Copy)" in {
       system.actorOf(SubCategoryMetaDiffer(c1, c1Copy, receiverProbe.ref))
-      //receiverProbe.expectMsg(SubCategoryMetaEquals(c1, c1Copy))
-      receiverProbe.expectMsg(1 hour,SubCategoryMetaEquals(c1, c1Copy))
+      receiverProbe.expectMsg(SubCategoryMetaEquals(c1, c1Copy))
+      //receiverProbe.expectMsg(1 hour,SubCategoryMetaEquals(c1, c1Copy))
     }
   }
 
