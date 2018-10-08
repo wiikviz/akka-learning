@@ -5,8 +5,6 @@ import ru.sber.cb.ap.gusli.actor.core.Category.{CategoryMetaResponse, CreateWork
 import ru.sber.cb.ap.gusli.actor.core._
 import ru.sber.cb.ap.gusli.actor.core.diff.CategoryDiffer
 
-import scala.concurrent.duration._
-
 class CategoryDiffForNonEqualsSpec extends ActorBaseTest("CategoryDiffForNonEqualsSpec") {
 
   import ru.sber.cb.ap.gusli.actor.core.diff.CategoryDiffer._
@@ -21,7 +19,7 @@ class CategoryDiffForNonEqualsSpec extends ActorBaseTest("CategoryDiffForNonEqua
     val prevCat = system.actorOf(Category(prevMeta, projectProbe.ref))
 
     system.actorOf(CategoryDiffer(currentCat, prevCat, receiverProbe.ref))
-    receiverProbe.expectMsgPF(1 hour) {
+    receiverProbe.expectMsgPF() {
       case CategoryDelta(delta) =>
         delta ! GetCategoryMeta()
         expectMsg(CategoryMetaResponse(currMeta))
@@ -34,7 +32,7 @@ class CategoryDiffForNonEqualsSpec extends ActorBaseTest("CategoryDiffForNonEqua
   "A CategoryDiffer for category with same meta but contains workflows with differ meta must return CategoryDelta" in {
     val prevCat = system.actorOf(Category(currMeta, projectProbe.ref))
     currentCat ! CreateWorkflow(WorkflowMetaDefault("test", Map("new.sql" -> "select 1")))
-    expectMsgAnyClassOf( classOf[WorkflowCreated])
+    expectMsgAnyClassOf(classOf[WorkflowCreated])
     prevCat ! CreateWorkflow(WorkflowMetaDefault("test", Map("old.sql" -> "select 1")))
     expectMsgAnyClassOf(classOf[WorkflowCreated])
 

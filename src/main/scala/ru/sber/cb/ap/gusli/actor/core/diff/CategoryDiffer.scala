@@ -61,6 +61,7 @@ class CategoryDiffer(currentCat: ActorRef, prevCat: ActorRef, receiver: ActorRef
 
     case SubCategoryMetaEquals(_, _) =>
       isSubcategoryCompared = true
+      subMetaDelta = Some(Set.empty)
       checkFinish()
     case SubCategoryMetaDelta(delta) =>
       subMetaDelta = Some(delta)
@@ -74,36 +75,25 @@ class CategoryDiffer(currentCat: ActorRef, prevCat: ActorRef, receiver: ActorRef
 
 
   def checkFinish(): Unit = {
+    (currProject, categoryMetaResponse, currentMeta) match {
+      case (Some(project), Some(resp), Some(curMeta)) =>
+        if (deltaCat.isEmpty)
+          resp match {
+            case CategoryMetaEquals(_, _) =>
+              deltaCat = Some(context.system.actorOf(Category(curMeta, project)))
 
-//    if (currProject.isDefined && categoryMetaResponse.isDefined && currentMeta.isDefined) {
-//      println()
-//      println(Console.RED+currProject)
-//      println(Console.RED+categoryMetaResponse)
-//      println(Console.RED+currentMeta)
-//      println(Console.RESET)
-//    }
-//
-//    (currProject, categoryMetaResponse, currentMeta) match {
-//      case (project, resp, curMeta)=>
-//        println()
-//        println(Console.BLUE+(project, resp, curMeta))
-//        println(Console.RESET)
-//    }
-    for (project <- currProject; resp <- categoryMetaResponse; curMeta  <- currentMeta) {
-      if (deltaCat.isEmpty)
-        resp match {
-          case CategoryMetaEquals(_, _) =>
-            deltaCat = Some(context.system.actorOf(Category(curMeta, project)))
-
-          case CategoryMetaDelta(delta) =>
-            deltaCat = Some(context.system.actorOf(Category(delta, project)))
-        }
+            case CategoryMetaDelta(delta) =>
+              deltaCat = Some(context.system.actorOf(Category(delta, project)))
+          }
+      case _ =>
+        log.debug("project or current category meta, or meta not compared yet")
     }
 
-    for (dc <- deltaCat; metaDelta <- subMetaDelta) {
-      for (m <- metaDelta)
-        dc ! AddSubcategory(m)
-    }
+    if (!isSubcategoryCompared)
+      for (dc <- deltaCat; metaDelta <- subMetaDelta) {
+        for (m <- metaDelta)
+          dc ! AddSubcategory(m)
+      }
 
     if (isSubcategoryCompared)
       for (dc <- deltaCat; wfDelta <- workflowFromCategory; resp: AbstractCategoryMetaResponse <- categoryMetaResponse) {
@@ -115,7 +105,10 @@ class CategoryDiffer(currentCat: ActorRef, prevCat: ActorRef, receiver: ActorRef
           case WorkflowFromCategoryEquals(_, _) =>
             resp match {
               case CategoryMetaEquals(_, _) =>
-                receiver ! CategoryEquals(currentCat, prevCat)
+                if (subMetaDelta.get.isEmpty)
+                  receiver ! CategoryEquals(currentCat, prevCat)
+                else
+                  receiver ! CategoryDelta(dc)
 
               case CategoryMetaDelta(_) =>
                 receiver ! CategoryDelta(dc)

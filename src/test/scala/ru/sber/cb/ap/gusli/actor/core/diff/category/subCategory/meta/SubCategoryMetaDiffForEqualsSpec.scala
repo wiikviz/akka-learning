@@ -6,7 +6,6 @@ import ru.sber.cb.ap.gusli.actor.core.Category.{AddSubcategory, SubcategoryCreat
 import ru.sber.cb.ap.gusli.actor.core._
 import ru.sber.cb.ap.gusli.actor.core.diff.SubCategoryMetaDiffer
 import ru.sber.cb.ap.gusli.actor.core.diff.SubCategoryMetaDiffer.SubCategoryMetaEquals
-import scala.concurrent.duration._
 
 class SubCategoryMetaDiffForEqualsSpec extends ActorBaseTest("SubCategoryMetaDiffForEqualsSpec") {
 
@@ -33,7 +32,6 @@ class SubCategoryMetaDiffForEqualsSpec extends ActorBaseTest("SubCategoryMetaDif
     "return SubCategoryMetaEquals(c1,c1Copy)" in {
       system.actorOf(SubCategoryMetaDiffer(c1, c1Copy, receiverProbe.ref))
       receiverProbe.expectMsg(SubCategoryMetaEquals(c1, c1Copy))
-      //receiverProbe.expectMsg(1 hour,SubCategoryMetaEquals(c1, c1Copy))
     }
   }
 
