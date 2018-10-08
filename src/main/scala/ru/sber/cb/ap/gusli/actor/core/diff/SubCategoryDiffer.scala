@@ -100,8 +100,6 @@ class SubCategoryDiffer(currentCat: ActorRef, prevCat: ActorRef, receiver: Actor
 
   def checkAllSubcategoryExported(): Unit = {
     (currentSet, prevSet) match {
-      case (None, None) =>
-        log.debug("SubCategories not load yet")
       case (Some(currSet), Some(prevSet)) =>
         if (currSet.isEmpty && prevSet.isEmpty) {
           val diffSubsNames = currentMap.keySet diff prevMap.keySet
@@ -114,14 +112,22 @@ class SubCategoryDiffer(currentCat: ActorRef, prevCat: ActorRef, receiver: Actor
           for (n <- eqSubsNames) {
             val curr = currentMap(n)
             val prev = prevMap(n)
+            //todo: maybe should remove actor name
             catDiffs += context.actorOf(CategoryDiffer(curr, prev, self),s"diff-$n")
           }
           if (catDiffs.isEmpty) {
             receiver ! SubCategoryDelta(subCatDelta)
             context.stop(self)
           }
-
+          else
+            log.debug("Some meta not load yet")
         }
+      case (None, None) =>
+        log.debug("SubCategories not load yet")
+      case (Some(_), None) =>
+        log.debug("SubCategories from current category load yet")
+      case (None, Some(_)) =>
+        log.debug("SubCategories from previous category load yet")
     }
   }
 
