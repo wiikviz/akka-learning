@@ -1,6 +1,7 @@
 package ru.sber.cb.ap.gusli.actor.core.diff
 
 import akka.actor.{ActorRef, Props}
+import ru.sber.cb.ap.gusli.actor.core.EmptySet
 import ru.sber.cb.ap.gusli.actor.{BaseActor, Response}
 
 import scala.collection.immutable.HashMap
@@ -51,6 +52,14 @@ class SubCategoryDiffer(currentCat: ActorRef, prevCat: ActorRef, receiver: Actor
       }
       else
         throw new RuntimeException(s"Unknown sender:${sender()}")
+
+      (currentSet, prevSet) match {
+        case (Some(EmptySet()), Some(EmptySet())) =>
+          receiver ! SubCategoryEquals(currentCat, prevCat)
+          context.stop(self)
+        case _=>
+          log.debug("The subcategories not load yet")
+      }
 
     case CategoryMetaResponse(m) =>
       val cat = sender()
@@ -113,7 +122,7 @@ class SubCategoryDiffer(currentCat: ActorRef, prevCat: ActorRef, receiver: Actor
             val curr = currentMap(n)
             val prev = prevMap(n)
             //todo: maybe should remove actor name
-            catDiffs += context.actorOf(CategoryDiffer(curr, prev, self),s"diff-$n")
+            catDiffs += context.actorOf(CategoryDiffer(curr, prev, self), s"diff-$n")
           }
           if (catDiffs.isEmpty) {
             receiver ! SubCategoryDelta(subCatDelta)
